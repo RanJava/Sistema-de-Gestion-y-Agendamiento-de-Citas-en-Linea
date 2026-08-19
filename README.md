@@ -19,7 +19,6 @@ Los diagramas y bocetos (wireframes) de la interfaz del sistema se encuentran en
 |---|---|
 | `Arquitectura.drawio` | Diagrama de arquitectura general del sistema. |
 | `Diseño.drawio` | Diagrama de navegación entre pantallas y roles de usuario. |
-| `BarberLosPeluchitos_Wireframes_FaseD.drawio` | Bocetos (Fase D) de las 3 pantallas principales, diseñados aplicando las **Reglas de Oro** de usabilidad (control al usuario, reducción de la carga de memoria y consistencia). |
 
 **Pantallas incluidas en los wireframes:**
 
