@@ -1,0 +1,141 @@
+<mxfile host="app.diagrams.net" modified="2026-08-19T00:00:00.000Z" agent="Claude" version="24.0.0" type="device">
+  <diagram name="Diagrama de Navegacion" id="nav-diagram">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="Diagrama de Navegacion - BarberLosPeluchitos" style="text;html=1;fontSize=18;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="10" width="600" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- LOGIN / REGISTRO - punto de entrada compartido -->
+        <mxCell id="login" value="Login / Registro&#10;(HU-01)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="700" y="60" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Etiquetas de flujo -->
+        <mxCell id="lbl_cliente" value="FLUJO CLIENTE" style="text;html=1;fontSize=14;fontStyle=1;align=center;fontColor=#82B366;" vertex="1" parent="1">
+          <mxGeometry x="180" y="150" width="220" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lbl_admin" value="FLUJO ADMINISTRADOR" style="text;html=1;fontSize=14;fontStyle=1;align=center;fontColor=#D6B656;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="150" width="240" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ===== FLUJO CLIENTE ===== -->
+        <mxCell id="home_cliente" value="Home Cliente&#10;(Buscar barbero/servicio)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="180" y="200" width="220" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="disponibilidad" value="Ver Disponibilidad de Horarios&#10;(HU-03)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="180" y="300" width="220" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="agendar" value="Agendar Cita&#10;(Servicio + Barbero + Horario)&#10;(HU-04)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="180" y="400" width="220" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="confirmacion" value="Confirmacion de Cita&#10;(HU-05)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="180" y="510" width="220" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="mis_citas" value="Mis Citas&#10;(Ver / Cancelar)&#10;(HU-06)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="180" y="610" width="220" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ===== FLUJO ADMINISTRADOR ===== -->
+        <mxCell id="dashboard" value="Panel Administrativo&#10;(Dashboard)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="200" width="240" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gestion_staff" value="Gestion de Barberos y Horarios&#10;(HU-02)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="300" width="240" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="listado_citas" value="Listado de Citas del Dia&#10;(HU-07)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="400" width="240" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="estado_cita" value="Actualizar Estado de Cita&#10;(Pendiente/Atendida/Cancelada)&#10;(HU-08)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="500" width="240" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ===== CONEXIONES LOGIN -> HOMES ===== -->
+        <mxCell id="e_login_cliente" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#82b366;strokeWidth=2;" edge="1" parent="1" source="login" target="home_cliente">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_login_cliente_lbl" value="rol: Cliente" style="text;html=1;fontSize=10;fontColor=#82B366;" vertex="1" parent="1">
+          <mxGeometry x="440" y="130" width="100" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_login_admin" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#d6b656;strokeWidth=2;" edge="1" parent="1" source="login" target="dashboard">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_login_admin_lbl" value="rol: Administrador" style="text;html=1;fontSize=10;fontColor=#D6B656;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="130" width="140" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ===== CONEXIONES FLUJO CLIENTE ===== -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="home_cliente" target="disponibilidad">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="disponibilidad" target="agendar">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="agendar" target="confirmacion">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="confirmacion" target="mis_citas">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="volver" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;dashed=1;fontSize=10;" edge="1" parent="1" source="mis_citas" target="home_cliente">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="120" y="640" />
+              <mxPoint x="120" y="230" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ===== CONEXIONES FLUJO ADMIN ===== -->
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="dashboard" target="gestion_staff">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="dashboard" target="listado_citas">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1460" y="260" />
+              <mxPoint x="1460" y="430" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="listado_citas" target="estado_cita">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="volver" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;dashed=1;fontSize=10;" edge="1" parent="1" source="estado_cita" target="dashboard">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1140" y="535" />
+              <mxPoint x="1140" y="230" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Leyenda -->
+        <mxCell id="leg1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="180" y="720" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1_lbl" value="Pantallas del Cliente" style="text;html=1;fontSize=11;align=left;" vertex="1" parent="1">
+          <mxGeometry x="205" y="718" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="720" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2_lbl" value="Pantallas del Administrador" style="text;html=1;fontSize=11;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1225" y="718" width="220" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
