@@ -1,0 +1,29 @@
+﻿@startuml HU02_secuencia
+actor Administrador
+participant "Interfaz de Staff" as UI
+participant "Controlador de Barbero" as CTRL
+database "Base de Datos" as DB
+
+Administrador -> UI : Carga nombre, telefono y horarios semanales
+UI -> CTRL : registrarBarbero(datos, horarios)
+
+alt Hora fin anterior a hora inicio (en algun horario cargado)
+    CTRL -> UI : error de rango de horario invalido
+    UI --> Administrador : Muestra mensaje de error
+else Horarios validos
+    CTRL -> DB : guardarBarbero(datos)
+    DB --> CTRL : idBarbero
+    CTRL -> DB : guardarHorarios(idBarbero, horarios)
+    DB --> CTRL : confirmacion
+    CTRL -> UI : registro exitoso
+    UI --> Administrador : Muestra barbero en listado de staff
+end
+
+== Edicion posterior de disponibilidad ==
+Administrador -> UI : Edita horario de un barbero existente
+UI -> CTRL : actualizarHorario(idBarbero, nuevoHorario)
+CTRL -> DB : actualizarHorario(idBarbero, nuevoHorario)
+DB --> CTRL : confirmacion
+CTRL -> UI : cambios reflejados
+UI --> Administrador : Disponibilidad actualizada en modulo de agendamiento
+@enduml

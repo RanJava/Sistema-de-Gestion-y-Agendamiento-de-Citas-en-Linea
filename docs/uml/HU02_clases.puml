@@ -1,0 +1,32 @@
+﻿@startuml HU02_clases
+class Barbero {
+  - idBarbero: int
+  - nombre: String
+  - telefono: String
+  + tieneHorarioCargado(): boolean
+}
+
+class HorarioDisponibilidad {
+  - idHorario: int
+  - diaSemana: String
+  - horaInicio: Time
+  - horaFin: Time
+  + esValido(): boolean
+}
+
+class ControladorBarbero {
+  + registrarBarbero(nombre: String, telefono: String, horarios: List): void
+  + actualizarHorario(idBarbero: int, horario: HorarioDisponibilidad): void
+  + validarRangoHorario(inicio: Time, fin: Time): boolean
+}
+
+class RepositorioBarbero {
+  + guardar(barbero: Barbero): int
+  + guardarHorarios(idBarbero: int, horarios: List): boolean
+  + actualizarHorario(idBarbero: int, horario: HorarioDisponibilidad): boolean
+}
+
+ControladorBarbero "1" --> "1" RepositorioBarbero : usa >
+Barbero "1" --> "0..*" HorarioDisponibilidad : tiene >
+RepositorioBarbero "1" --> "*" Barbero : administra >
+@enduml

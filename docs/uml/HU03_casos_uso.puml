@@ -1,0 +1,16 @@
+﻿@startuml HU03_casos_uso
+left to right direction
+actor Cliente
+
+rectangle "Sistema BarberLosPeluchitos" {
+  usecase "Consultar disponibilidad" as UC1
+  usecase "Filtrar turnos pasados" as UC2
+  usecase "Mostrar sin turnos disponibles" as UC3
+  usecase "Actualizar disponibilidad en tiempo real" as UC4
+}
+
+Cliente --> UC1
+UC1 .> UC2 : <<include>>
+UC3 .> UC1 : <<extend>>
+UC4 .> UC1 : <<extend>>
+@enduml
