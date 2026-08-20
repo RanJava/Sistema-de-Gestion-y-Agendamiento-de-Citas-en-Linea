@@ -1,0 +1,34 @@
+﻿@startuml HU03_secuencia
+actor Cliente
+participant "Interfaz de Agenda" as UI
+participant "Controlador de Disponibilidad" as CTRL
+database "Base de Datos" as DB
+
+Cliente -> UI : Selecciona barbero y fecha
+UI -> CTRL : consultarDisponibilidad(idBarbero, fecha)
+CTRL -> DB : obtenerHorarios(idBarbero, fecha)
+DB --> CTRL : lista de horarios
+CTRL -> CTRL : filtrarTurnosPasados(fecha, horaActual)
+
+alt No hay turnos disponibles
+    CTRL -> UI : lista vacia
+    UI --> Cliente : "Sin turnos disponibles para esta fecha" + opcion siguiente dia
+else Existen turnos disponibles
+    CTRL -> UI : lista de turnos libres
+    UI --> Cliente : Muestra horarios disponibles
+end
+
+== Actualizacion en tiempo real ==
+Cliente -> UI : Intenta seleccionar un turno
+UI -> CTRL : verificarDisponibilidad(idTurno)
+CTRL -> DB : consultarEstadoTurno(idTurno)
+DB --> CTRL : estado actual
+
+alt Turno tomado por otro usuario
+    CTRL -> UI : turno ya no disponible
+    UI --> Cliente : Actualiza agenda y bloquea seleccion
+else Turno sigue libre
+    CTRL -> UI : turno confirmado como libre
+    UI --> Cliente : Permite continuar seleccion
+end
+@enduml

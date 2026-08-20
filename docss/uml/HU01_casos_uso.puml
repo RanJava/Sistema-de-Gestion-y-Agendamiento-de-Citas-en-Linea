@@ -1,0 +1,16 @@
+﻿@startuml HU01_casos_uso
+left to right direction
+actor Cliente
+
+rectangle "Sistema BarberLosPeluchitos" {
+  usecase "Registrar cuenta" as UC1
+  usecase "Mostrar error: correo ya registrado" as UC2
+  usecase "Mostrar error: campo obligatorio vacio" as UC3
+  usecase "Mostrar error: formato de correo invalido" as UC4
+}
+
+Cliente --> UC1
+UC2 .> UC1 : <<extend>>
+UC3 .> UC1 : <<extend>>
+UC4 .> UC1 : <<extend>>
+@enduml

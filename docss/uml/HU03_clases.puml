@@ -1,0 +1,31 @@
+﻿@startuml HU03_clases
+class Turno {
+  - idTurno: int
+  - fecha: Date
+  - horaInicio: Time
+  - horaFin: Time
+  - estado: String
+  + estaDisponible(): boolean
+  + esPasado(horaActual: Time): boolean
+}
+
+class ControladorDisponibilidad {
+  + consultarDisponibilidad(idBarbero: int, fecha: Date): List
+  + filtrarTurnosPasados(turnos: List, horaActual: Time): List
+  + verificarDisponibilidad(idTurno: int): boolean
+}
+
+class RepositorioTurno {
+  + obtenerHorarios(idBarbero: int, fecha: Date): List
+  + consultarEstadoTurno(idTurno: int): String
+}
+
+class Barbero {
+  - idBarbero: int
+  - nombre: String
+}
+
+ControladorDisponibilidad "1" --> "1" RepositorioTurno : usa >
+Barbero "1" --> "0..*" Turno : ofrece >
+RepositorioTurno "1" --> "*" Turno : consulta >
+@enduml

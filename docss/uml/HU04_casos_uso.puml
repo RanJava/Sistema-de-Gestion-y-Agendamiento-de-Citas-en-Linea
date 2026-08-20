@@ -1,0 +1,18 @@
+﻿@startuml HU04_casos_uso
+left to right direction
+actor Cliente
+
+rectangle "Sistema BarberLosPeluchitos" {
+  usecase "Agendar cita" as UC1
+  usecase "Seleccionar servicio, barbero y horario" as UC2
+  usecase "Exigir inicio de sesion" as UC3
+  usecase "Mostrar alerta: turno ya tomado" as UC4
+  usecase "Calcular duracion/precio" as UC5
+}
+
+Cliente --> UC1
+UC1 .> UC2 : <<include>>
+UC3 .> UC1 : <<extend>>
+UC4 .> UC1 : <<extend>>
+UC1 .> UC5 : <<include>>
+@enduml
