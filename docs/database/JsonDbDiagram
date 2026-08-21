@@ -1,0 +1,68 @@
+// ============================================================
+// BarberLosPeluchitos - Modelo Fisico de Base de Datos
+// Sprint 1 (HU-01 a HU-04)
+// Pegar este contenido directo en https://dbdiagram.io
+// ============================================================
+
+Table cliente {
+  id_cliente serial [pk]
+  nombre varchar(50) [not null]
+  telefono varchar(20) [not null]
+  correo varchar(100) [not null, unique]
+  contrasena_hash varchar(255) [not null]
+  fecha_registro date [not null, default: `current_date`]
+}
+
+Table barbero {
+  id_barbero serial [pk]
+  nombre varchar(50) [not null]
+  telefono varchar(20) [not null]
+}
+
+Table horario_disponibilidad {
+  id_horario serial [pk]
+  id_barbero int [not null]
+  dia_semana varchar(10) [not null, note: 'Check: Lunes...Domingo']
+  hora_inicio time [not null]
+  hora_fin time [not null, note: 'Check: hora_fin > hora_inicio']
+}
+
+Table turno {
+  id_turno serial [pk]
+  id_barbero int [not null]
+  fecha date [not null]
+  hora_inicio time [not null]
+  hora_fin time [not null, note: 'Check: hora_fin > hora_inicio']
+  estado varchar(15) [not null, default: 'Disponible', note: 'Check: Disponible, Reservado']
+
+  indexes {
+    (id_barbero, fecha, hora_inicio) [unique]
+  }
+}
+
+Table servicio {
+  id_servicio serial [pk]
+  nombre varchar(50) [not null]
+  duracion_base int [not null, note: 'Check: > 0']
+  precio_base decimal(8,2) [not null, note: 'Check: > 0']
+}
+
+Table cita {
+  id_cita serial [pk]
+  id_cliente int [not null]
+  id_turno int [not null, unique]
+  id_servicio int [not null]
+  fecha_hora timestamp [not null]
+  estado varchar(15) [not null, default: 'Pendiente', note: 'Check: Pendiente, Atendida, Cancelada']
+  duracion int [not null, note: 'Snapshot de servicio.duracion_base. Check: > 0']
+  precio decimal(8,2) [not null, note: 'Snapshot de servicio.precio_base. Check: > 0']
+}
+
+// ============================================================
+// Relaciones
+// ============================================================
+Ref: horario_disponibilidad.id_barbero > barbero.id_barbero [delete: cascade]
+Ref: turno.id_barbero > barbero.id_barbero [delete: cascade]
+Ref: cita.id_cliente > cliente.id_cliente [delete: restrict]
+Ref: cita.id_turno > turno.id_turno [delete: restrict]
+Ref: cita.id_servicio > servicio.id_servicio [delete: restrict]
