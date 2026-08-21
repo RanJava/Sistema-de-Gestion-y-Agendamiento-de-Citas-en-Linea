@@ -33,4 +33,8 @@ Los diagramas UML del sistema —casos de uso, secuencia, clases y estados— se
 | **HU-03** — Ver disponibilidad de horarios en tiempo real | [Ver](docs/uml/HU03_casos_uso.png) | [Ver](docs/uml/HU03_secuencia.png) | [Ver](docs/uml/HU03_clases.png) | — |
 | **HU-04** — Agendar cita (servicio, barbero, horario) | [Ver](docs/uml/HU04_casos_uso.png) | [Ver](docs/uml/HU04_secuencia.png) | [Ver](docs/uml/HU04_clases.png) | [Ver](docs/uml/HU04_estados.png) |
 
+## Diseño de Base de Datos
+- [Diccionario de Datos y Diagrama ER](docs/database/dbdiagram.png)
+- [Script SQL (DDL)](docs/database/BarberLosPeluchitos.sql)
+
 > Los archivos fuente `.puml` de cada diagrama están disponibles en la misma carpeta `docs/uml/`, editables con [PlantUML](https://plantuml.com/) o su extensión correspondiente en VS Code.
