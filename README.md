@@ -35,7 +35,7 @@ Los diagramas UML del sistema —casos de uso, secuencia, clases y estados— se
 
 ## Diseño de Base de Datos
 - [Diccionario de Datos y Diagrama ER](docs/database/dbdiagram.png)
-  ! - [Diccionario de Datos y Diagrama ER](docs/database/dbdiagram.png)
+![Diccionario de Datos y Diagrama ER](docs/database/dbdiagram.png)
 - [Script SQL (DDL)](docs/database/BarberLosPeluchitos.sql)
 
 > Los archivos fuente `.puml` de cada diagrama están disponibles en la misma carpeta `docs/uml/`, editables con [PlantUML](https://plantuml.com/) o su extensión correspondiente en VS Code.
