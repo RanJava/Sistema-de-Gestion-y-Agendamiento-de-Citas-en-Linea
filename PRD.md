@@ -12,7 +12,7 @@
   - Carlos Alvaro Flores
 - **Docente Revisor:** Ing. Nelson Huanca
 - **Ubicación y Fecha:** Tarija, Bolivia – Agosto 2026
-- **Versión del PRD:** 1.1 (MVP) — actualizado: se corrige stack de backend y cita legal
+- **Versión del PRD:** 1.2 (MVP) — actualizado: stack de backend (ASP.NET Core) y citas legales verificadas contra fuentes oficiales
 - **Repositorio Oficial:** https://github.com/RanJava/Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea
 
 ---
@@ -274,22 +274,22 @@ CREATE INDEX idx_cita_fecha ON CITA(fecha_hora, estado);
 
 ## 4. Marco Legal y Cumplimiento Normativo (Leyes Bolivianas Citadas)
 
-El sistema BarberLosPeluchitos se rige bajo el marco jurídico vigente del Estado Plurinacional de Bolivia. **Nota de revisión:** las referencias a artículos específicos deben verificarse contra el texto oficial de cada norma antes de la entrega final; se corrigió al menos una imprecisión detectada en la revisión.
+El sistema BarberLosPeluchitos se rige bajo el marco jurídico vigente del Estado Plurinacional de Bolivia. **Nota de revisión:** las citas de esta sección fueron verificadas contra fuentes oficiales/secundarias disponibles en línea (Gaceta Oficial, Lexivox, vLex, WIPO Lex) el 24/08/2026. Se corrigieron varios errores de número de artículo y un error de tema (ver historial de cambios al final de la sección).
 
 ### 4.1 Ley N° 164 (Ley General de Telecomunicaciones, Tecnologías de Información y Comunicación)
 - **Artículo 5 (Principios):** Principios de confidencialidad, integridad y seguridad en el uso de medios y servicios digitales.
 - **Artículo 56 (Protección de Datos Personales — vía su Reglamento, D.S. N° 1793):** El sistema garantiza que los datos personales recabados (nombre, teléfono, correo) serán utilizados exclusivamente para la gestión operativa de citas y no serán cedidos ni comercializados a terceros sin consentimiento expreso.
-- **Artículo 79 y ss. (Comercio Electrónico y Mensajes de Datos):** Reconocimiento de la validez legal y probatoria de las transacciones electrónicas, confirmaciones automáticas digitales y cancelaciones cursadas a través de la WebApp. *(Pendiente de verificación textual.)*
+- **Artículo 78 (Comercio Electrónico y Mensajes de Datos):** Otorga validez jurídica y probatoria a los actos o negocios amparados por documentos digitales, mensajes electrónicos de datos y firma digital — respalda la validez de confirmaciones automáticas digitales y cancelaciones cursadas a través de la WebApp.
 
 ### 4.2 Decreto Supremo N° 1793 (Reglamento para el Desarrollo de Tecnologías de Información y Comunicación)
 - **Artículo 56 (Protección de datos personales):** Obligatoriedad de implementar mecanismos técnicos de protección sobre credenciales y accesos. Se prohíbe el almacenamiento de contraseñas en texto plano, obligando el uso de algoritmos criptográficos robustos de hash con salting (contrasena_hash).
 
 ### 4.3 Ley N° 453 (Ley General de los Derechos de las Usuarias y los Usuarios y de las Consumidoras y los Consumidores)
-- **Artículo 4 (Derechos Fundamentales):**
-  - Derecho a la Información: Los usuarios tienen derecho a conocer con exactitud la descripción del servicio, su duración estimada en minutos y el precio final en moneda de curso legal (Bolivianos - BOB) previo a confirmar la reserva.
-  - Derecho a un Trato Equitativo y No Discriminatorio: Asignación transparente de turnos basada en orden cronológico estricto de llegada de solicitudes (First-Come, First-Served).
-- **Artículos 12 y 13 (Transparencia en Precios y Ofertas):** Garantía de preservación de tarifa (snapshot de precio) acordada al momento de la reserva en caso de variaciones tarifarias posteriores en el catálogo de servicios. *(Pendiente de verificación textual.)*
-- **Artículo 35 (Condiciones de Cancelación):** El cliente tiene derecho a desistir o cancelar su cita con anticipación mediante la plataforma sin imposición de cobros arbitrarios o penalizaciones abusivas no pactadas. *(Pendiente de verificación textual.)*
+- **Artículo 13 (Derecho a la Información):** Los usuarios tienen derecho a recibir información fidedigna, veraz, completa, adecuada, gratuita y oportuna sobre las características de los servicios que utilizan — aplica a la descripción del servicio, su duración estimada en minutos y el precio final en moneda de curso legal (Bolivianos - BOB) previo a confirmar la reserva.
+- **Derecho al Trato Equitativo (reconocido en la Ley, en el capítulo de derechos que sigue al Art. 13):** Asignación transparente de turnos basada en orden cronológico estricto de llegada de solicitudes (First-Come, First-Served), sin discriminación entre clientes.
+- **Artículo 6 (Principio de Favorabilidad):** En caso de duda sobre el alcance de una condición de servicio (por ejemplo, una cancelación), se aplicará la interpretación más favorable al usuario — principio que respalda RN-05 y la posibilidad de cancelar una cita sin penalizaciones no pactadas.
+
+> **Nota:** la versión anterior de este PRD citaba el Art. 4 y el Art. 35 de la Ley 453 para estos puntos. Se verificó que el Art. 4 en realidad regula "Alcance de Políticas" (competencias del Estado, no derechos del consumidor) y que el Art. 35 regula "Alcance del Consumo Responsable y Sustentable" (consumo en armonía con el medio ambiente), sin relación con derechos de información o cancelación. Ambas citas fueron corregidas o retiradas.
 
 ### 4.4 Ley General del Trabajo de Bolivia (LGT) y D.S. Reglamentario
 Jornada Laboral y Descansos: La carga de horarios de disponibilidad para barberos y estilistas (HORARIO_DISPONIBILIDAD) debe respetar los límites legales de la jornada laboral diaria y los días de descanso obligatorio, validando que las franjas horarias no excedan los parámetros estipulados y asegurando el registro de horarios coherentes (hora_fin > hora_inicio).
