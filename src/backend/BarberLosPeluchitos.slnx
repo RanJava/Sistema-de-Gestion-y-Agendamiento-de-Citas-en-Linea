@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="BarberLosPeluchitos.API/BarberLosPeluchitos.API.csproj" />
+  <Project Path="BarberLosPeluchitos.Core/BarberLosPeluchitos.Core.csproj" />
+  <Project Path="BarberLosPeluchitos.Infrastructure/BarberLosPeluchitos.Infrastructure.csproj" />
+</Solution>

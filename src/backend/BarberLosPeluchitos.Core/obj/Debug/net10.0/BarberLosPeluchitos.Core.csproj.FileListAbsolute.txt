@@ -1,0 +1,12 @@
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.Core\bin\Debug\net10.0\BarberLosPeluchitos.Core.deps.json
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.Core\bin\Debug\net10.0\BarberLosPeluchitos.Core.dll
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.Core\bin\Debug\net10.0\BarberLosPeluchitos.Core.pdb
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.Core\obj\Debug\net10.0\BarberLosPeluchitos.Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.Core\obj\Debug\net10.0\BarberLosPeluchitos.Core.AssemblyInfoInputs.cache
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.Core\obj\Debug\net10.0\BarberLosPeluchitos.Core.AssemblyInfo.cs
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.Core\obj\Debug\net10.0\BarberLosPeluchitos.Core.csproj.CoreCompileInputs.cache
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.Core\obj\Debug\net10.0\BarberLosPeluchitos.Core.sourcelink.json
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.Core\obj\Debug\net10.0\BarberLosPeluchitos.Core.dll
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.Core\obj\Debug\net10.0\refint\BarberLosPeluchitos.Core.dll
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.Core\obj\Debug\net10.0\BarberLosPeluchitos.Core.pdb
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.Core\obj\Debug\net10.0\ref\BarberLosPeluchitos.Core.dll
