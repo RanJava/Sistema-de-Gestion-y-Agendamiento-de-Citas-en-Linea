@@ -40,4 +40,26 @@ public class ClienteRepository : IClienteRepository
         await _context.SaveChangesAsync(cancellationToken);
         return cliente;
     }
+
+    public async Task<IEnumerable<Cliente>> BuscarClientesAsync(string? buscar, int pagina = 1, int tamanoPagina = 10, CancellationToken cancellationToken = default)
+    {
+        var query = _context.Clientes.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(buscar))
+        {
+            var term = buscar.Trim().ToLower();
+            query = query.Where(c => c.Nombre.ToLower().Contains(term) ||
+                                     c.Telefono.Contains(term) ||
+                                     c.Correo.ToLower().Contains(term));
+        }
+
+        pagina = Math.Max(1, pagina);
+        tamanoPagina = Math.Clamp(tamanoPagina, 1, 50);
+
+        return await query
+            .OrderBy(c => c.Nombre)
+            .Skip((pagina - 1) * tamanoPagina)
+            .Take(tamanoPagina)
+            .ToListAsync(cancellationToken);
+    }
 }

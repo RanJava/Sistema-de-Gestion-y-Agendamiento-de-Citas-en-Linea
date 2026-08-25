@@ -1,0 +1,35 @@
+@startuml HU09_secuencia
+actor Administrador
+participant "Panel Admin Historial (Vite React)" as UI
+participant "AdminClientesController" as API
+participant "ClienteRepository" as CLIENTE_REPO
+participant "CitaRepository" as CITA_REPO
+database "Base de Datos (EF Core)" as DB
+
+== Paso 1: Búsqueda de Cliente ==
+Administrador -> UI : Ingresa nombre o teléfono ("70000002")
+UI -> API : GET /api/admin/clientes?buscar=70000002&pagina=1
+API -> CLIENTE_REPO : BuscarClientesAsync("70000002", 1, 10)
+CLIENTE_REPO -> DB : Query Clientes Where(Nombre.Contains || Telefono.Contains) Skip Take
+DB --> CLIENTE_REPO : Lista de Clientes
+CLIENTE_REPO --> API : Colección de Clientes
+API --> UI : HTTP 200 OK [ClienteDto, ...]
+
+== Paso 2: Consulta de Historial ==
+Administrador -> UI : Selecciona Cliente ("Ver Historial")
+UI -> API : GET /api/admin/clientes/{id}/historial?pagina=1
+API -> CITA_REPO : ObtenerHistorialClienteAsync(idCliente, 1, 10)
+CITA_REPO -> DB : Query Citas Include(Cliente, Servicio, Turno, Barbero) Where(IdCliente) OrderByDescending(Fecha, HoraInicio)
+DB --> CITA_REPO : Lista de Citas pasadas
+
+alt Cliente tiene citas registradas
+    CITA_REPO --> API : Colección de Citas
+    API -> API : Proyección MapearCitaResponse() con snapshots (Duración y Precio)
+    API --> UI : HTTP 200 OK [CitaResponseDto, ...]
+    UI --> Administrador : Muestra perfil + tabla de historial cronológico desc.
+else Cliente sin historial previo
+    CITA_REPO --> API : Colección vacía []
+    API --> UI : HTTP 200 OK []
+    UI --> Administrador : Muestra mensaje "Sin historial disponible"
+end
+@enduml

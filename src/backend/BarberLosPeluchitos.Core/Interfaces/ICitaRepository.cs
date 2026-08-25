@@ -38,4 +38,10 @@ public interface ICitaRepository
     /// Lanza InvalidOperationException con "CitaAtendidaNoCancelable" si la cita fue marcada como 'Atendida'.
     /// </summary>
     Task<Cita> CancelarCitaTransaccionalAsync(int idCita, CancellationToken ct = default);
+
+    /// <summary>
+    /// HU-09 Criterio 1: Obtiene la lista paginada del historial de citas de un cliente ordenadas descendentemente por fecha.
+    /// Preserva los valores snapshot (precio y duración al momento de la cita).
+    /// </summary>
+    Task<IEnumerable<Cita>> ObtenerHistorialClienteAsync(int idCliente, int pagina = 1, int tamanoPagina = 10, CancellationToken ct = default);
 }

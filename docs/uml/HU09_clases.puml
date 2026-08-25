@@ -1,0 +1,45 @@
+@startuml HU09_clases
+class ClienteDto {
+  + idCliente: int
+  + nombre: String
+  + telefono: String
+  + correo: String
+  + fechaRegistro: DateTime
+  + totalCitas: int
+}
+
+class CitaResponseDto {
+  + idCita: int
+  + clienteNombre: String
+  + servicioNombre: String
+  + duracion: int
+  + precio: decimal
+  + fecha: String
+  + horaInicio: String
+  + horaFin: String
+  + barberoNombre: String
+  + estado: String
+}
+
+interface IClienteRepository {
+  + BuscarClientesAsync(buscar: String, pagina: int, tamanoPagina: int, ct: CancellationToken): Task<IEnumerable<Cliente>>
+}
+
+interface ICitaRepository {
+  + ObtenerHistorialClienteAsync(idCliente: int, pagina: int, tamanoPagina: int, ct: CancellationToken): Task<IEnumerable<Cita>>
+}
+
+class AdminClientesController {
+  - _clienteRepository: IClienteRepository
+  - _citaRepository: ICitaRepository
+  + BuscarClientes(buscar: String, pagina: int, tamanoPagina: int, ct: CancellationToken): Task<IActionResult>
+  + ObtenerHistorialCliente(idCliente: int, pagina: int, tamanoPagina: int, ct: CancellationToken): Task<IActionResult>
+}
+
+IClienteRepository <|.. ClienteRepository
+ICitaRepository <|.. CitaRepository
+AdminClientesController --> IClienteRepository : consulta clientes >
+AdminClientesController --> ICitaRepository : consulta historial >
+AdminClientesController --> ClienteDto : mapea >
+AdminClientesController --> CitaResponseDto : mapea snapshots >
+@enduml

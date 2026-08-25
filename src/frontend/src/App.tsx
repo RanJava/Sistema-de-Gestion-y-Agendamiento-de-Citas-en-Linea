@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Scissors, RefreshCw, UserPlus, Users, Calendar, BookOpen, LogOut, LogIn, Shield, CalendarCheck, CalendarDays } from 'lucide-react';
+import { Scissors, RefreshCw, UserPlus, Users, Calendar, BookOpen, LogOut, LogIn, Shield, CalendarCheck, CalendarDays, History as HistoryIcon } from 'lucide-react';
 import { checkApiHealth } from './services/api';
 import { useAuth } from './contexts/AuthContext';
 import { RegisterModal } from './components/RegisterModal';
@@ -9,9 +9,10 @@ import { AgendaDisponibilidad } from './components/AgendaDisponibilidad';
 import { BookingWizard } from './components/BookingWizard';
 import { MisCitasCliente } from './components/MisCitasCliente';
 import { AdminCitasDia } from './components/AdminCitasDia';
+import { AdminHistorialClientes } from './components/AdminHistorialClientes';
 import type { Cliente } from './types';
 
-type Tab = 'booking' | 'disponibilidad' | 'staff' | 'miscitas' | 'citasdia';
+type Tab = 'booking' | 'disponibilidad' | 'staff' | 'miscitas' | 'citasdia' | 'historialclientes';
 
 export function App() {
   const { user, isAuthenticated, isCliente, isAdmin, logout, login } = useAuth();
@@ -32,10 +33,10 @@ export function App() {
     if (isAdmin && (activeTab === 'booking' || activeTab === 'miscitas' || activeTab === 'disponibilidad')) {
       setActiveTab('staff');
     }
-    if (isCliente && (activeTab === 'staff' || activeTab === 'citasdia')) {
+    if (isCliente && (activeTab === 'staff' || activeTab === 'citasdia' || activeTab === 'historialclientes')) {
       setActiveTab('booking');
     }
-    if (!isAuthenticated && (activeTab === 'miscitas' || activeTab === 'citasdia' || activeTab === 'staff')) {
+    if (!isAuthenticated && (activeTab === 'miscitas' || activeTab === 'citasdia' || activeTab === 'staff' || activeTab === 'historialclientes')) {
       setActiveTab('booking');
     }
   }, [isAdmin, isCliente, isAuthenticated, activeTab]);
@@ -99,6 +100,7 @@ export function App() {
       return [
         { key: 'staff', label: 'Gestión de Staff (HU-02)', icon: <Users className="w-3.5 h-3.5" />, mobileLabel: '👥 Staff' },
         { key: 'citasdia', label: 'Citas del Día (HU-07/08)', icon: <CalendarDays className="w-3.5 h-3.5" />, mobileLabel: '📋 Citas' },
+        { key: 'historialclientes', label: 'Historial Clientes (HU-09)', icon: <HistoryIcon className="w-3.5 h-3.5" />, mobileLabel: '📜 Historial' },
       ];
     }
 
@@ -275,6 +277,12 @@ export function App() {
         {activeTab === 'citasdia' && isAdmin && (
           <div className="animate-in fade-in duration-200">
             <AdminCitasDia />
+          </div>
+        )}
+
+        {activeTab === 'historialclientes' && isAdmin && (
+          <div className="animate-in fade-in duration-200">
+            <AdminHistorialClientes />
           </div>
         )}
       </main>

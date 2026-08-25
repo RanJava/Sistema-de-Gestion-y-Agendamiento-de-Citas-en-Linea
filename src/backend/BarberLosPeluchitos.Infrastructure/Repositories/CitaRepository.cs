@@ -205,4 +205,22 @@ public class CitaRepository : ICitaRepository
             throw;
         }
     }
+
+    public async Task<IEnumerable<Cita>> ObtenerHistorialClienteAsync(int idCliente, int pagina = 1, int tamanoPagina = 10, CancellationToken ct = default)
+    {
+        pagina = Math.Max(1, pagina);
+        tamanoPagina = Math.Clamp(tamanoPagina, 1, 50);
+
+        return await _context.Citas
+            .Include(c => c.Cliente)
+            .Include(c => c.Servicio)
+            .Include(c => c.Turno)
+                .ThenInclude(t => t.Barbero)
+            .Where(c => c.IdCliente == idCliente)
+            .OrderByDescending(c => c.Turno.Fecha)
+            .ThenByDescending(c => c.Turno.HoraInicio)
+            .Skip((pagina - 1) * tamanoPagina)
+            .Take(tamanoPagina)
+            .ToListAsync(ct);
+    }
 }
