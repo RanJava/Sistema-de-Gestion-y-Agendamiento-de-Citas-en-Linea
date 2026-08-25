@@ -18,6 +18,8 @@ builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IBarberoRepository, BarberoRepository>();
 builder.Services.AddScoped<ITurnoRepository, TurnoRepository>();
+builder.Services.AddScoped<IServicioRepository, ServicioRepository>();
+builder.Services.AddScoped<ICitaRepository, CitaRepository>();
 
 // 3. Configuración de CORS permisiva para desarrollo
 builder.Services.AddCors(options =>
@@ -36,6 +38,23 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Seeding inicial de catálogo de servicios si está vacío
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    if (!context.Servicios.Any())
+    {
+        context.Servicios.AddRange(
+            new BarberLosPeluchitos.Core.Entities.Servicio { Nombre = "Corte Clásico", DuracionBase = 30, PrecioBase = 35.00m },
+            new BarberLosPeluchitos.Core.Entities.Servicio { Nombre = "Perfilado de Barba", DuracionBase = 20, PrecioBase = 25.00m },
+            new BarberLosPeluchitos.Core.Entities.Servicio { Nombre = "Combo Completo Peluchitos", DuracionBase = 45, PrecioBase = 50.00m },
+            new BarberLosPeluchitos.Core.Entities.Servicio { Nombre = "Corte Fade / Degradado", DuracionBase = 35, PrecioBase = 40.00m },
+            new BarberLosPeluchitos.Core.Entities.Servicio { Nombre = "Tratamiento Capilar & Lavado", DuracionBase = 25, PrecioBase = 30.00m }
+        );
+        context.SaveChanges();
+    }
+}
 
 // 5. Configuración del Pipeline HTTP
 if (app.Environment.IsDevelopment())

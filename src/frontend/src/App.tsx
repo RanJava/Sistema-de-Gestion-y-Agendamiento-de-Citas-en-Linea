@@ -1,20 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Scissors, Server, CheckCircle2, RefreshCw, AlertCircle, UserPlus, Sparkles, Lock, Users, Calendar, ArrowRight } from 'lucide-react';
+import { Scissors, CheckCircle2, RefreshCw, AlertCircle, UserPlus, Sparkles, Users, Calendar, ArrowRight, BookOpen, LogOut, Server, Lock } from 'lucide-react';
 import { checkApiHealth, type HealthCheckResponse } from './services/api';
 import { RegisterModal } from './components/RegisterModal';
 import AdminBarberos from './components/AdminBarberos';
 import { AgendaDisponibilidad } from './components/AgendaDisponibilidad';
+import { BookingWizard } from './components/BookingWizard';
 import type { Cliente } from './types';
 
-type Tab = 'disponibilidad' | 'staff' | 'overview';
+type Tab = 'booking' | 'disponibilidad' | 'staff' | 'overview';
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<Tab>('disponibilidad');
+  const [activeTab, setActiveTab] = useState<Tab>('booking');
+  const [currentUser, setCurrentUser] = useState<Cliente | null>(null);
   const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'offline'>('checking');
   const [healthData, setHealthData] = useState<HealthCheckResponse | null>(null);
   const [isRetrying, setIsRetrying] = useState<boolean>(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState<boolean>(false);
-  const [lastRegisteredClient, setLastRegisteredClient] = useState<Cliente | null>(null);
 
   const testConnection = async () => {
     setIsRetrying(true);
@@ -57,7 +58,19 @@ export function App() {
           </div>
 
           {/* Navegación por pestañas */}
-          <nav className="hidden md:flex items-center gap-1.5 bg-slate-950/70 p-1.5 rounded-2xl border border-slate-800">
+          <nav className="hidden md:flex items-center gap-1 bg-slate-950/70 p-1.5 rounded-2xl border border-slate-800">
+            <button
+              onClick={() => setActiveTab('booking')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+                activeTab === 'booking'
+                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              }`}
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Agendar Cita (HU-04)</span>
+            </button>
+
             <button
               onClick={() => setActiveTab('disponibilidad')}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
@@ -79,7 +92,7 @@ export function App() {
               }`}
             >
               <Users className="w-3.5 h-3.5" />
-              <span>Gestión de Staff (HU-02)</span>
+              <span>Staff (HU-02)</span>
             </button>
 
             <button
@@ -91,20 +104,34 @@ export function App() {
               }`}
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Resumen Sistema & HU-01</span>
+              <span>Resumen</span>
             </button>
           </nav>
 
-          <div className="flex items-center gap-3">
-            {/* Botón de Registro HU-01 */}
-            <button
-              onClick={() => setIsRegisterOpen(true)}
-              className="py-1.5 px-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold flex items-center gap-1.5 shadow-md shadow-amber-500/20 transition-all cursor-pointer"
-            >
-              <UserPlus className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Registrar Cliente</span>
-              <span className="sm:hidden">Registro</span>
-            </button>
+          <div className="flex items-center gap-2.5">
+            {/* Chip de Usuario Autenticado / Logout */}
+            {currentUser ? (
+              <div className="flex items-center gap-1.5 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800">
+                <span className="text-xs font-bold text-amber-300 truncate max-w-[120px]">
+                  👤 {currentUser.nombre}
+                </span>
+                <button
+                  onClick={() => setCurrentUser(null)}
+                  title="Cerrar sesión / Navegar como invitado"
+                  className="text-slate-400 hover:text-rose-400 p-1 transition-colors cursor-pointer"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setIsRegisterOpen(true)}
+                className="py-1.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 border border-slate-800 transition-all cursor-pointer"
+              >
+                <UserPlus className="w-3.5 h-3.5 text-amber-400" />
+                <span className="hidden sm:inline">Crear Cuenta</span>
+              </button>
+            )}
 
             <button
               onClick={testConnection}
@@ -143,6 +170,14 @@ export function App() {
         {/* Mobile Navigation bar */}
         <div className="flex md:hidden border-t border-slate-800/80 px-4 py-2 gap-2 overflow-x-auto">
           <button
+            onClick={() => setActiveTab('booking')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap ${
+              activeTab === 'booking' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 bg-slate-900'
+            }`}
+          >
+            ✂️ Agendar (HU-04)
+          </button>
+          <button
             onClick={() => setActiveTab('disponibilidad')}
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap ${
               activeTab === 'disponibilidad' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 bg-slate-900'
@@ -164,30 +199,23 @@ export function App() {
               activeTab === 'overview' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 bg-slate-900'
             }`}
           >
-            ✨ Resumen HU-01
+            ✨ Resumen
           </button>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
-        {/* Banner de último cliente registrado si existe */}
-        {lastRegisteredClient && (
-          <div className="max-w-4xl mx-auto w-full mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 flex items-center justify-between animate-in fade-in">
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-              <div>
-                <p className="text-xs font-semibold text-white">Último cliente registrado:</p>
-                <p className="text-xs">{lastRegisteredClient.nombre} ({lastRegisteredClient.correo}) • ID #{lastRegisteredClient.idCliente}</p>
-              </div>
-            </div>
-            <span className="text-[11px] px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 font-mono">
-              HU-01 OK
-            </span>
+        {/* Renderizado de Pestañas */}
+        {activeTab === 'booking' && (
+          <div className="animate-in fade-in duration-200">
+            <BookingWizard
+              currentUser={currentUser}
+              onUserLogin={setCurrentUser}
+            />
           </div>
         )}
 
-        {/* Renderizado de Pestañas */}
         {activeTab === 'disponibilidad' && (
           <div className="animate-in fade-in duration-200">
             <AgendaDisponibilidad />
@@ -328,7 +356,7 @@ export function App() {
         isOpen={isRegisterOpen}
         onClose={() => setIsRegisterOpen(false)}
         onSuccess={(cliente) => {
-          setLastRegisteredClient(cliente);
+          setCurrentUser(cliente);
         }}
       />
 
