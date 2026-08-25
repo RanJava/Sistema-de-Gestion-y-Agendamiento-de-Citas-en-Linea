@@ -1,8 +1,13 @@
+using System.Text;
+using BarberLosPeluchitos.Core.Entities;
 using BarberLosPeluchitos.Core.Interfaces;
 using BarberLosPeluchitos.Infrastructure.Data;
 using BarberLosPeluchitos.Infrastructure.Repositories;
 using BarberLosPeluchitos.Infrastructure.Security;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,13 +20,43 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // 2. Inyección de Dependencias de Servicios y Repositorios
 builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IBarberoRepository, BarberoRepository>();
 builder.Services.AddScoped<ITurnoRepository, TurnoRepository>();
 builder.Services.AddScoped<IServicioRepository, ServicioRepository>();
 builder.Services.AddScoped<ICitaRepository, CitaRepository>();
 
-// 3. Configuración de CORS permisiva para desarrollo
+// 3. Configuración de Autenticación con JWT
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "BarberLosPeluchitosKeySeguraSuperSecreta2026!#$JWT";
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "BarberLosPeluchitos";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "BarberLosPeluchitosApp";
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        ValidateIssuer = true,
+        ValidIssuer = jwtIssuer,
+        ValidateAudience = true,
+        ValidAudience = jwtAudience,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.AddAuthorization();
+
+// 4. Configuración de CORS permisiva para desarrollo
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -32,31 +67,86 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 4. Registro de Controladores y Swagger
+// 5. Registro de Controladores y Swagger con soporte para Bearer Token
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "BarberLosPeluchitos API",
+        Version = "v1",
+        Description = "Sistema de Gestión y Agendamiento de Citas en Línea con Autenticación JWT y Roles."
+    });
+
+    var scheme = new OpenApiSecurityScheme
+    {
+        Description = "Encabezado de autorización JWT utilizando el esquema Bearer. Ejemplo: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT"
+    };
+
+    c.AddSecurityDefinition("Bearer", scheme);
+
+    c.AddSecurityRequirement(doc => new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecuritySchemeReference("Bearer", doc),
+            new List<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 
-// Seeding inicial de catálogo de servicios si está vacío
+// 6. Inicialización de base de datos y Seeding (Servicios y Administrador Seed)
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+
+    // Crear tabla administrador si no existiera en PostgreSQL
+    context.Database.ExecuteSqlRaw(@"
+        CREATE TABLE IF NOT EXISTS administrador (
+            id_administrador serial PRIMARY KEY,
+            nombre varchar(50) NOT NULL,
+            correo varchar(100) UNIQUE NOT NULL,
+            contrasena_hash varchar(255) NOT NULL,
+            fecha_creacion timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+    ");
+
+    // Seed de Servicios
     if (!context.Servicios.Any())
     {
         context.Servicios.AddRange(
-            new BarberLosPeluchitos.Core.Entities.Servicio { Nombre = "Corte Clásico", DuracionBase = 30, PrecioBase = 35.00m },
-            new BarberLosPeluchitos.Core.Entities.Servicio { Nombre = "Perfilado de Barba", DuracionBase = 20, PrecioBase = 25.00m },
-            new BarberLosPeluchitos.Core.Entities.Servicio { Nombre = "Combo Completo Peluchitos", DuracionBase = 45, PrecioBase = 50.00m },
-            new BarberLosPeluchitos.Core.Entities.Servicio { Nombre = "Corte Fade / Degradado", DuracionBase = 35, PrecioBase = 40.00m },
-            new BarberLosPeluchitos.Core.Entities.Servicio { Nombre = "Tratamiento Capilar & Lavado", DuracionBase = 25, PrecioBase = 30.00m }
+            new Servicio { Nombre = "Corte Clásico", DuracionBase = 30, PrecioBase = 35.00m },
+            new Servicio { Nombre = "Perfilado de Barba", DuracionBase = 20, PrecioBase = 25.00m },
+            new Servicio { Nombre = "Combo Completo Peluchitos", DuracionBase = 45, PrecioBase = 50.00m },
+            new Servicio { Nombre = "Corte Fade / Degradado", DuracionBase = 35, PrecioBase = 40.00m },
+            new Servicio { Nombre = "Tratamiento Capilar & Lavado", DuracionBase = 25, PrecioBase = 30.00m }
         );
+        context.SaveChanges();
+    }
+
+    // Seed del Administrador Principal
+    if (!context.Administradores.Any())
+    {
+        context.Administradores.Add(new Administrador
+        {
+            Nombre = "Administrador Principal",
+            Correo = "admin@peluchitos.com",
+            ContrasenaHash = hasher.HashPassword("AdminPeluchitos2026!"),
+            FechaCreacion = DateTime.UtcNow
+        });
         context.SaveChanges();
     }
 }
 
-// 5. Configuración del Pipeline HTTP
+// 7. Configuración del Pipeline HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -70,6 +160,9 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseCors("AllowAll");
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Redirección de la raíz "/" a Swagger
 app.MapGet("/", () => Results.Redirect("/swagger"));

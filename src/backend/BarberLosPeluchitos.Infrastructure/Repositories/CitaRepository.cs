@@ -105,4 +105,36 @@ public class CitaRepository : ICitaRepository
             .OrderByDescending(c => c.FechaHora)
             .ToListAsync(ct);
     }
+
+    public async Task<IEnumerable<Cita>> ObtenerCitasDelDiaAsync(DateOnly fecha, CancellationToken ct = default)
+    {
+        return await _context.Citas
+            .Include(c => c.Cliente)
+            .Include(c => c.Servicio)
+            .Include(c => c.Turno)
+                .ThenInclude(t => t.Barbero)
+            .Where(c => c.Turno.Fecha == fecha)
+            .OrderBy(c => c.Turno.HoraInicio)
+            .ToListAsync(ct);
+    }
+
+    public async Task<bool> ActualizarEstadoCitaAsync(int idCita, string nuevoEstado, CancellationToken ct = default)
+    {
+        var cita = await _context.Citas
+            .Include(c => c.Turno)
+            .FirstOrDefaultAsync(c => c.IdCita == idCita, ct);
+
+        if (cita == null) return false;
+
+        cita.Estado = nuevoEstado;
+
+        // Si la cita se cancela, liberar automáticamente el turno asociado
+        if (string.Equals(nuevoEstado, "Cancelada", StringComparison.OrdinalIgnoreCase) && cita.Turno != null)
+        {
+            cita.Turno.Estado = "Disponible";
+        }
+
+        var rows = await _context.SaveChangesAsync(ct);
+        return rows > 0;
+    }
 }

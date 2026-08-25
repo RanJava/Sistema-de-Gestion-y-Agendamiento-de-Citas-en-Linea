@@ -64,3 +64,26 @@ export interface Cita {
   turno?: Turno;
   servicio?: Servicio;
 }
+
+// ─── Auth Types ────────────────────────────────────────────────────────────────
+
+export interface AuthUser {
+  idUsuario: number;
+  nombre: string;
+  correo: string;
+  rol: 'Cliente' | 'Administrador';
+}
+
+export interface AuthResponse {
+  token: string;
+  idUsuario: number;
+  nombre: string;
+  correo: string;
+  rol: 'Cliente' | 'Administrador';
+  expiracion: string;
+}
+
+export interface LoginDto {
+  correo: string;
+  contrasena: string;
+}

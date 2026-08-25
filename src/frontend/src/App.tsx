@@ -1,32 +1,62 @@
 import { useState, useEffect } from 'react';
-import { Scissors, CheckCircle2, RefreshCw, AlertCircle, UserPlus, Sparkles, Users, Calendar, ArrowRight, BookOpen, LogOut, Server, Lock } from 'lucide-react';
-import { checkApiHealth, type HealthCheckResponse } from './services/api';
+import { Scissors, RefreshCw, UserPlus, Users, Calendar, BookOpen, LogOut, LogIn, Shield, CalendarCheck, CalendarDays } from 'lucide-react';
+import { checkApiHealth } from './services/api';
+import { useAuth } from './contexts/AuthContext';
 import { RegisterModal } from './components/RegisterModal';
+import { LoginModal } from './components/LoginModal';
 import AdminBarberos from './components/AdminBarberos';
 import { AgendaDisponibilidad } from './components/AgendaDisponibilidad';
 import { BookingWizard } from './components/BookingWizard';
+import { MisCitasCliente } from './components/MisCitasCliente';
+import { AdminCitasDia } from './components/AdminCitasDia';
 import type { Cliente } from './types';
 
-type Tab = 'booking' | 'disponibilidad' | 'staff' | 'overview';
+type Tab = 'booking' | 'disponibilidad' | 'staff' | 'miscitas' | 'citasdia';
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<Tab>('booking');
-  const [currentUser, setCurrentUser] = useState<Cliente | null>(null);
+  const { user, isAuthenticated, isCliente, isAdmin, logout, login } = useAuth();
+
+  const getDefaultTab = (): Tab => {
+    if (isAdmin) return 'staff';
+    return 'booking';
+  };
+
+  const [activeTab, setActiveTab] = useState<Tab>(getDefaultTab());
   const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'offline'>('checking');
-  const [healthData, setHealthData] = useState<HealthCheckResponse | null>(null);
   const [isRetrying, setIsRetrying] = useState<boolean>(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState<boolean>(false);
+  const [isLoginOpen, setIsLoginOpen] = useState<boolean>(false);
+
+  // Al cambiar de rol, asegurarse de que la pestaña actual sea válida
+  useEffect(() => {
+    if (isAdmin && (activeTab === 'booking' || activeTab === 'miscitas' || activeTab === 'disponibilidad')) {
+      setActiveTab('staff');
+    }
+    if (isCliente && (activeTab === 'staff' || activeTab === 'citasdia')) {
+      setActiveTab('booking');
+    }
+    if (!isAuthenticated && (activeTab === 'miscitas' || activeTab === 'citasdia' || activeTab === 'staff')) {
+      setActiveTab('booking');
+    }
+  }, [isAdmin, isCliente, isAuthenticated, activeTab]);
+
+  // Derivar currentUser compatible con BookingWizard
+  const currentUser: Cliente | null = isCliente && user ? {
+    idCliente: user.idUsuario,
+    nombre: user.nombre,
+    telefono: '',
+    correo: user.correo,
+    fechaRegistro: '',
+  } : null;
 
   const testConnection = async () => {
     setIsRetrying(true);
     setBackendStatus('checking');
     try {
-      const data = await checkApiHealth();
-      setHealthData(data);
+      await checkApiHealth();
       setBackendStatus('connected');
     } catch {
       setBackendStatus('offline');
-      setHealthData(null);
     } finally {
       setIsRetrying(false);
     }
@@ -37,6 +67,54 @@ export function App() {
     const interval = setInterval(testConnection, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleRegisterSuccess = (cliente: Cliente) => {
+    // Auto-login tras registro: usamos AuthContext
+    // Nota: RegisterModal ya hace el POST y devuelve token en la respuesta
+    // Aquí hacemos login con los datos del cliente
+    login('', {
+      idUsuario: cliente.idCliente,
+      nombre: cliente.nombre,
+      correo: cliente.correo,
+      rol: 'Cliente',
+    });
+  };
+
+  const handleUserLogin = (cliente: Cliente) => {
+    // BookingWizard legacy callback
+    login('', {
+      idUsuario: cliente.idCliente,
+      nombre: cliente.nombre,
+      correo: cliente.correo,
+      rol: 'Cliente',
+    });
+  };
+
+  // ─── Definir tabs según rol ─────────────────────────────────────────────────
+
+  type NavItem = { key: Tab; label: string; icon: React.ReactNode; mobileLabel: string };
+
+  const getNavItems = (): NavItem[] => {
+    if (isAdmin) {
+      return [
+        { key: 'staff', label: 'Gestión de Staff (HU-02)', icon: <Users className="w-3.5 h-3.5" />, mobileLabel: '👥 Staff' },
+        { key: 'citasdia', label: 'Citas del Día (HU-07/08)', icon: <CalendarDays className="w-3.5 h-3.5" />, mobileLabel: '📋 Citas' },
+      ];
+    }
+
+    const items: NavItem[] = [
+      { key: 'booking', label: 'Agendar Cita (HU-04)', icon: <BookOpen className="w-3.5 h-3.5" />, mobileLabel: '✂️ Agendar' },
+      { key: 'disponibilidad', label: 'Agenda y Horarios (HU-03)', icon: <Calendar className="w-3.5 h-3.5" />, mobileLabel: '📅 Agenda' },
+    ];
+
+    if (isCliente) {
+      items.push({ key: 'miscitas', label: 'Mis Citas (HU-06)', icon: <CalendarCheck className="w-3.5 h-3.5" />, mobileLabel: '📋 Mis Citas' });
+    }
+
+    return items;
+  };
+
+  const navItems = getNavItems();
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-amber-500/30 selection:text-amber-200">
@@ -57,80 +135,62 @@ export function App() {
             </div>
           </div>
 
-          {/* Navegación por pestañas */}
+          {/* Navegación Desktop */}
           <nav className="hidden md:flex items-center gap-1 bg-slate-950/70 p-1.5 rounded-2xl border border-slate-800">
-            <button
-              onClick={() => setActiveTab('booking')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
-                activeTab === 'booking'
-                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
-              }`}
-            >
-              <BookOpen className="w-3.5 h-3.5" />
-              <span>Agendar Cita (HU-04)</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('disponibilidad')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
-                activeTab === 'disponibilidad'
-                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
-              }`}
-            >
-              <Calendar className="w-3.5 h-3.5" />
-              <span>Agenda en Tiempo Real (HU-03)</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('staff')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
-                activeTab === 'staff'
-                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
-              }`}
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span>Staff (HU-02)</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
-                activeTab === 'overview'
-                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Resumen</span>
-            </button>
+            {navItems.map(item => (
+              <button
+                key={item.key}
+                onClick={() => setActiveTab(item.key)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+                  activeTab === item.key
+                    ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                }`}
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </button>
+            ))}
           </nav>
 
+          {/* Acciones de usuario */}
           <div className="flex items-center gap-2.5">
-            {/* Chip de Usuario Autenticado / Logout */}
-            {currentUser ? (
+            {isAuthenticated && user ? (
               <div className="flex items-center gap-1.5 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800">
+                {isAdmin && (
+                  <Shield className="w-3.5 h-3.5 text-amber-400" />
+                )}
                 <span className="text-xs font-bold text-amber-300 truncate max-w-[120px]">
-                  👤 {currentUser.nombre}
+                  {user.nombre}
+                </span>
+                <span className="text-[10px] text-slate-500 font-medium hidden sm:inline">
+                  ({user.rol})
                 </span>
                 <button
-                  onClick={() => setCurrentUser(null)}
-                  title="Cerrar sesión / Navegar como invitado"
+                  onClick={logout}
+                  title="Cerrar sesión"
                   className="text-slate-400 hover:text-rose-400 p-1 transition-colors cursor-pointer"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                 </button>
               </div>
             ) : (
-              <button
-                onClick={() => setIsRegisterOpen(true)}
-                className="py-1.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 border border-slate-800 transition-all cursor-pointer"
-              >
-                <UserPlus className="w-3.5 h-3.5 text-amber-400" />
-                <span className="hidden sm:inline">Crear Cuenta</span>
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setIsLoginOpen(true)}
+                  className="py-1.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold flex items-center gap-1.5 shadow-md shadow-amber-500/20 transition-all cursor-pointer"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Iniciar Sesión</span>
+                </button>
+                <button
+                  onClick={() => setIsRegisterOpen(true)}
+                  className="py-1.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 border border-slate-800 transition-all cursor-pointer"
+                >
+                  <UserPlus className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="hidden sm:inline">Registro</span>
+                </button>
+              </div>
             )}
 
             <button
@@ -160,58 +220,36 @@ export function App() {
                 backendStatus === 'connected' 
                   ? 'En Línea' 
                   : backendStatus === 'checking' 
-                  ? 'Verificando...' 
-                  : 'Desconectado'
+                  ? '...' 
+                  : 'Offline'
               }
             </span>
           </div>
         </div>
 
-        {/* Mobile Navigation bar */}
+        {/* Mobile Navigation */}
         <div className="flex md:hidden border-t border-slate-800/80 px-4 py-2 gap-2 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('booking')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap ${
-              activeTab === 'booking' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 bg-slate-900'
-            }`}
-          >
-            ✂️ Agendar (HU-04)
-          </button>
-          <button
-            onClick={() => setActiveTab('disponibilidad')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap ${
-              activeTab === 'disponibilidad' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 bg-slate-900'
-            }`}
-          >
-            📅 Agenda (HU-03)
-          </button>
-          <button
-            onClick={() => setActiveTab('staff')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap ${
-              activeTab === 'staff' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 bg-slate-900'
-            }`}
-          >
-            👥 Staff (HU-02)
-          </button>
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap ${
-              activeTab === 'overview' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 bg-slate-900'
-            }`}
-          >
-            ✨ Resumen
-          </button>
+          {navItems.map(item => (
+            <button
+              key={item.key}
+              onClick={() => setActiveTab(item.key)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap cursor-pointer ${
+                activeTab === item.key ? 'bg-amber-500 text-slate-950' : 'text-slate-400 bg-slate-900'
+              }`}
+            >
+              {item.mobileLabel}
+            </button>
+          ))}
         </div>
       </header>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
-        {/* Renderizado de Pestañas */}
         {activeTab === 'booking' && (
           <div className="animate-in fade-in duration-200">
             <BookingWizard
               currentUser={currentUser}
-              onUserLogin={setCurrentUser}
+              onUserLogin={handleUserLogin}
             />
           </div>
         )}
@@ -228,136 +266,30 @@ export function App() {
           </div>
         )}
 
-        {activeTab === 'overview' && (
+        {activeTab === 'miscitas' && isCliente && (
           <div className="animate-in fade-in duration-200">
-            <div className="text-center max-w-3xl mx-auto mb-10">
-              <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold mb-4 border ${
-                backendStatus === 'connected'
-                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                  : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-              }`}>
-                {backendStatus === 'connected' ? (
-                  <>
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    Backend Conectado: {healthData?.system ?? 'API Activa'}
-                  </>
-                ) : (
-                  <>
-                    <AlertCircle className="w-3.5 h-3.5" />
-                    Esperando respuesta del servicio en /api/health
-                  </>
-                )}
-              </div>
+            <MisCitasCliente />
+          </div>
+        )}
 
-              <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white mb-4">
-                BarberLosPeluchitos <span className="bg-gradient-to-r from-amber-400 to-amber-200 bg-clip-text text-transparent">• Módulos HU-01 & HU-02</span>
-              </h1>
-              <p className="text-slate-400 text-base sm:text-lg leading-relaxed">
-                Endpoints de gestión de cuentas y barberos implementados con ASP.NET Core y PostgreSQL.
-              </p>
-
-              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-                <button
-                  onClick={() => setIsRegisterOpen(true)}
-                  className="py-3 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold flex items-center gap-2 shadow-xl shadow-amber-500/20 transition-all cursor-pointer"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span>Probar Formulario de Registro</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('staff')}
-                  className="py-3 px-5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 text-sm font-semibold border border-slate-700/80 flex items-center gap-2 transition-all cursor-pointer"
-                >
-                  <Users className="w-4 h-4 text-amber-400" />
-                  <span>Ir a Gestión de Staff (HU-02)</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Status Grid Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto w-full mb-10">
-              {/* Card 1: Backend HU02 */}
-              <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/80 hover:border-slate-700 transition-all shadow-xl">
-                <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4">
-                  <Users className="w-6 h-6" />
-                </div>
-                <h2 className="text-lg font-semibold text-white mb-1">BarberosController (HU-02)</h2>
-                <p className="text-xs text-slate-400 mb-4">Gestión de Staff y Horarios</p>
-                <ul className="text-xs text-slate-300 space-y-2">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                    <span><code className="text-amber-300">POST /api/barberos</code> (Registro staff)</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                    <span><code className="text-amber-300">GET /api/barberos/disponibles</code></span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                    <span><code className="text-amber-300">PUT /api/barberos/{`{id}`}/horarios</code></span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Card 2: Backend HU01 */}
-              <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/80 hover:border-slate-700 transition-all shadow-xl">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-4">
-                  <Server className="w-6 h-6" />
-                </div>
-                <h2 className="text-lg font-semibold text-white mb-1">CuentasController (HU-01)</h2>
-                <p className="text-xs text-slate-400 mb-4">Registro y Autenticación</p>
-                <ul className="text-xs text-slate-300 space-y-2">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
-                    <span><code className="text-blue-300">POST /api/cuentas/registro</code></span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
-                    <span><code className="text-blue-300">GET /api/cuentas/verificar-correo</code></span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
-                    <span>Hash BCrypt & Unicidad</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Card 3: Reglas de Negocio */}
-              <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/80 hover:border-slate-700 transition-all shadow-xl">
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
-                  <Lock className="w-6 h-6" />
-                </div>
-                <h2 className="text-lg font-semibold text-white mb-1">Reglas de Negocio HU-02</h2>
-                <p className="text-xs text-slate-400 mb-4">RN-03 y RN-06 / LGT</p>
-                <ul className="text-xs text-slate-300 space-y-2">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>Validación: <code>hora_fin &gt; hora_inicio</code></span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>Barbero sin horario no visible a cliente</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>Sincronización en tiempo real</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
+        {activeTab === 'citasdia' && isAdmin && (
+          <div className="animate-in fade-in duration-200">
+            <AdminCitasDia />
           </div>
         )}
       </main>
 
-      {/* Modal de Registro HU-01 */}
+      {/* Modals */}
+      <LoginModal
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        onOpenRegistro={() => setIsRegisterOpen(true)}
+      />
+
       <RegisterModal
         isOpen={isRegisterOpen}
         onClose={() => setIsRegisterOpen(false)}
-        onSuccess={(cliente) => {
-          setCurrentUser(cliente);
-        }}
+        onSuccess={handleRegisterSuccess}
       />
 
       {/* Footer */}

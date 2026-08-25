@@ -11,15 +11,18 @@ public class CuentasController : ControllerBase
 {
     private readonly IClienteRepository _clienteRepository;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly IJwtTokenService _jwtTokenService;
     private readonly ILogger<CuentasController> _logger;
 
     public CuentasController(
         IClienteRepository clienteRepository,
         IPasswordHasher passwordHasher,
+        IJwtTokenService jwtTokenService,
         ILogger<CuentasController> logger)
     {
         _clienteRepository = clienteRepository;
         _passwordHasher = passwordHasher;
+        _jwtTokenService = jwtTokenService;
         _logger = logger;
     }
 
@@ -33,7 +36,6 @@ public class CuentasController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Registrar([FromBody] RegistroClienteDto dto, CancellationToken cancellationToken)
     {
-        // 1. Validación de campos obligatorios y formato
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
@@ -41,7 +43,7 @@ public class CuentasController : ControllerBase
 
         var correoNormalizado = dto.Correo.Trim().ToLowerInvariant();
 
-        // 2. Validación de correo duplicado (RN-01 / HU-01 Criterio 2)
+        // Validación de correo duplicado (RN-01 / HU-01 Criterio 2)
         var correoExiste = await _clienteRepository.ExisteCorreoAsync(correoNormalizado, cancellationToken);
         if (correoExiste)
         {
@@ -53,10 +55,9 @@ public class CuentasController : ControllerBase
             });
         }
 
-        // 3. Hasheo irreversible de la contraseña con salt (Ley 164 / D.S. 1793 Art. 56)
+        // Hasheo irreversible con BCrypt (Ley 164 / D.S. 1793 Art. 56)
         var hashContrasena = _passwordHasher.HashPassword(dto.Contrasena);
 
-        // 4. Creación de la entidad
         var cliente = new Cliente
         {
             Nombre = dto.Nombre.Trim(),
@@ -66,7 +67,6 @@ public class CuentasController : ControllerBase
             FechaRegistro = DateOnly.FromDateTime(DateTime.UtcNow)
         };
 
-        // 5. Persistencia en PostgreSQL
         await _clienteRepository.GuardarAsync(cliente, cancellationToken);
 
         _logger.LogInformation("Cliente registrado exitosamente con ID {IdCliente}", cliente.IdCliente);
@@ -80,10 +80,54 @@ public class CuentasController : ControllerBase
             FechaRegistro = cliente.FechaRegistro
         };
 
+        // Generar token JWT automático tras el registro
+        var token = _jwtTokenService.GenerarToken(cliente.IdCliente, cliente.Nombre, cliente.Correo, "Cliente");
+
         return CreatedAtAction(nameof(ObtenerPorId), new { id = cliente.IdCliente }, new
         {
             mensaje = "Cuenta registrada exitosamente.",
-            cliente = responseDto
+            cliente = responseDto,
+            token,
+            rol = "Cliente"
+        });
+    }
+
+    /// <summary>
+    /// Inicio de sesión para clientes registrados.
+    /// Valida correo y contraseña mediante BCrypt y entrega token JWT con rol 'Cliente'.
+    /// </summary>
+    [HttpPost("login")]
+    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Login([FromBody] LoginClienteDto dto, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var correoNormalizado = dto.Correo.Trim().ToLowerInvariant();
+        var cliente = await _clienteRepository.BuscarPorCorreoAsync(correoNormalizado, cancellationToken);
+
+        if (cliente == null || !_passwordHasher.VerifyPassword(dto.Contrasena, cliente.ContrasenaHash))
+        {
+            _logger.LogWarning("Intento de login fallido para correo: {Correo}", correoNormalizado);
+            return Unauthorized(new { mensaje = "Correo electrónico o contraseña incorrectos." });
+        }
+
+        var token = _jwtTokenService.GenerarToken(cliente.IdCliente, cliente.Nombre, cliente.Correo, "Cliente");
+
+        _logger.LogInformation("Login exitoso para cliente #{IdCliente} ({Correo})", cliente.IdCliente, cliente.Correo);
+
+        return Ok(new AuthResponseDto
+        {
+            Token = token,
+            IdUsuario = cliente.IdCliente,
+            Nombre = cliente.Nombre,
+            Correo = cliente.Correo,
+            Rol = "Cliente",
+            Expiracion = DateTime.UtcNow.AddHours(24)
         });
     }
 

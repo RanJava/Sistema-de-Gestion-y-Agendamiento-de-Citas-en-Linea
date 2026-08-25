@@ -1,6 +1,7 @@
 using BarberLosPeluchitos.Core.DTOs;
 using BarberLosPeluchitos.Core.Entities;
 using BarberLosPeluchitos.Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BarberLosPeluchitos.API.Controllers;
@@ -22,14 +23,13 @@ public class CitasController : ControllerBase
 
     /// <summary>
     /// HU-04 Criterios 1, 2, 3 y 4: Agendamiento de cita en el local.
-    /// - Exige servicio, barbero y horario (Criterio 1).
-    /// - Exige cliente autenticado (Criterio 2).
-    /// - Maneja condiciones de carrera atómicamente retornando 409 Conflict si el turno fue tomado (Criterio 3).
-    /// - Almacena snapshot de tarifa y duración del servicio y asigna estado 'Pendiente' (Criterio 4).
+    /// Exige autenticación de Cliente o Administrador.
     /// </summary>
     [HttpPost]
+    [Authorize(Roles = "Cliente,Administrador")]
     [ProducesResponseType(typeof(CitaResponseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> AgendarCita([FromBody] AgendarCitaDto dto, CancellationToken cancellationToken)
@@ -85,7 +85,9 @@ public class CitasController : ControllerBase
     /// Consulta el detalle de una cita agendada por su identificador.
     /// </summary>
     [HttpGet("{id:int}")]
+    [Authorize]
     [ProducesResponseType(typeof(CitaResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ObtenerPorId(int id, CancellationToken cancellationToken)
     {
@@ -99,15 +101,104 @@ public class CitasController : ControllerBase
     }
 
     /// <summary>
-    /// Retorna todas las citas reservadas por un cliente específico.
+    /// Retorna todas las citas reservadas por un cliente específico (HU-06).
     /// </summary>
     [HttpGet("cliente/{idCliente:int}")]
+    [Authorize(Roles = "Cliente,Administrador")]
     [ProducesResponseType(typeof(IEnumerable<CitaResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> ObtenerPorCliente(int idCliente, CancellationToken cancellationToken)
     {
         var citas = await _citaRepository.ObtenerPorClienteAsync(idCliente, cancellationToken);
         var response = citas.Select(MapearCitaResponse);
         return Ok(response);
+    }
+
+    /// <summary>
+    /// HU-07: Listado de todas las citas del día para el panel de administración.
+    /// </summary>
+    [HttpGet("hoy")]
+    [Authorize(Roles = "Administrador")]
+    [ProducesResponseType(typeof(IEnumerable<CitaResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> ObtenerCitasDelDia([FromQuery] string? fecha, CancellationToken cancellationToken)
+    {
+        DateOnly fechaConsulta;
+        if (string.IsNullOrWhiteSpace(fecha) || !DateOnly.TryParse(fecha, out fechaConsulta))
+        {
+            fechaConsulta = DateOnly.FromDateTime(DateTime.Now);
+        }
+
+        var citas = await _citaRepository.ObtenerCitasDelDiaAsync(fechaConsulta, cancellationToken);
+        var response = citas.Select(MapearCitaResponse);
+        return Ok(response);
+    }
+
+    /// <summary>
+    /// HU-08: Actualización de estado de una cita ('Atendida' o 'Cancelada') por parte del Administrador.
+    /// </summary>
+    [HttpPatch("{id:int}/estado")]
+    [Authorize(Roles = "Administrador")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ActualizarEstado(int id, [FromBody] ActualizarEstadoCitaDto dto, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var actualizado = await _citaRepository.ActualizarEstadoCitaAsync(id, dto.NuevoEstado, cancellationToken);
+        if (!actualizado)
+        {
+            return NotFound(new { mensaje = $"No se encontró la cita con ID #{id}." });
+        }
+
+        _logger.LogInformation("Estado de cita #{IdCita} actualizado a '{NuevoEstado}' por Administrador.", id, dto.NuevoEstado);
+
+        return Ok(new
+        {
+            mensaje = $"El estado de la cita #{id} se actualizó a '{dto.NuevoEstado}' exitosamente.",
+            idCita = id,
+            nuevoEstado = dto.NuevoEstado
+        });
+    }
+
+    /// <summary>
+    /// HU-06: Cancelación de cita por parte del Cliente (libera el turno automáticamente).
+    /// </summary>
+    [HttpPatch("{id:int}/cancelar")]
+    [Authorize(Roles = "Cliente,Administrador")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CancelarCita(int id, CancellationToken cancellationToken)
+    {
+        var cita = await _citaRepository.ObtenerPorIdAsync(id, cancellationToken);
+        if (cita == null)
+        {
+            return NotFound(new { mensaje = $"No se encontró la cita con ID #{id}." });
+        }
+
+        if (cita.Estado == "Cancelada")
+        {
+            return BadRequest(new { mensaje = "La cita ya se encuentra cancelada." });
+        }
+
+        await _citaRepository.ActualizarEstadoCitaAsync(id, "Cancelada", cancellationToken);
+
+        _logger.LogInformation("Cita #{IdCita} cancelada por el cliente.", id);
+
+        return Ok(new
+        {
+            mensaje = "Cita cancelada exitosamente. El horario ha sido liberado para otros clientes.",
+            idCita = id,
+            nuevoEstado = "Cancelada"
+        });
     }
 
     private static CitaResponseDto MapearCitaResponse(Cita cita)

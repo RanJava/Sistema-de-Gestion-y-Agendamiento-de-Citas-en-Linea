@@ -15,6 +15,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Turno> Turnos => Set<Turno>();
     public DbSet<Servicio> Servicios => Set<Servicio>();
     public DbSet<Cita> Citas => Set<Cita>();
+    public DbSet<Administrador> Administradores => Set<Administrador>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -124,6 +125,19 @@ public class ApplicationDbContext : DbContext
 
             entity.HasIndex(e => e.IdTurno).IsUnique();
             entity.HasIndex(e => new { e.FechaHora, e.Estado });
+        });
+
+        // ADMINISTRADOR
+        modelBuilder.Entity<Administrador>(entity =>
+        {
+            entity.ToTable("administrador");
+            entity.HasKey(e => e.IdAdministrador);
+            entity.Property(e => e.IdAdministrador).HasColumnName("id_administrador");
+            entity.Property(e => e.Nombre).HasColumnName("nombre").HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Correo).HasColumnName("correo").HasMaxLength(100).IsRequired();
+            entity.HasIndex(e => e.Correo).IsUnique();
+            entity.Property(e => e.ContrasenaHash).HasColumnName("contrasena_hash").HasMaxLength(255).IsRequired();
+            entity.Property(e => e.FechaCreacion).HasColumnName("fecha_creacion").HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
     }
 }

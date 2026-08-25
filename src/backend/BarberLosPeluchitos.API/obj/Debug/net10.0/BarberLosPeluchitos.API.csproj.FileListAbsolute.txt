@@ -129,3 +129,11 @@ D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendam
 D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.API\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.API\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
 D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.API\bin\Debug\net10.0\BCrypt-Net-Next.dll
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.API\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.API\bin\Debug\net10.0\Microsoft.IdentityModel.Abstractions.dll
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.API\bin\Debug\net10.0\Microsoft.IdentityModel.JsonWebTokens.dll
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.API\bin\Debug\net10.0\Microsoft.IdentityModel.Logging.dll
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.API\bin\Debug\net10.0\Microsoft.IdentityModel.Protocols.dll
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.API\bin\Debug\net10.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.API\bin\Debug\net10.0\Microsoft.IdentityModel.Tokens.dll
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.API\bin\Debug\net10.0\System.IdentityModel.Tokens.Jwt.dll

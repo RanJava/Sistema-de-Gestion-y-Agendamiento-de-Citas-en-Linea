@@ -1,6 +1,7 @@
 using BarberLosPeluchitos.Core.DTOs;
 using BarberLosPeluchitos.Core.Entities;
 using BarberLosPeluchitos.Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BarberLosPeluchitos.API.Controllers;
@@ -72,8 +73,11 @@ public class BarberosController : ControllerBase
     /// Valida que hora_fin sea estrictamente posterior a hora_inicio.
     /// </summary>
     [HttpPost]
+    [Authorize(Roles = "Administrador")]
     [ProducesResponseType(typeof(BarberoResponseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Registrar([FromBody] RegistrarBarberoDto dto, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
@@ -113,6 +117,7 @@ public class BarberosController : ControllerBase
     /// Actualiza los datos personales (nombre, teléfono) de un barbero.
     /// </summary>
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Administrador")]
     [ProducesResponseType(typeof(BarberoResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -146,6 +151,7 @@ public class BarberosController : ControllerBase
     /// Los cambios se reflejan de inmediato en las consultas del módulo de agendamiento.
     /// </summary>
     [HttpPut("{id:int}/horarios")]
+    [Authorize(Roles = "Administrador")]
     [ProducesResponseType(typeof(BarberoResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -188,6 +194,7 @@ public class BarberosController : ControllerBase
     /// Elimina un barbero y sus horarios asociados del sistema.
     /// </summary>
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Administrador")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Eliminar(int id, CancellationToken cancellationToken)

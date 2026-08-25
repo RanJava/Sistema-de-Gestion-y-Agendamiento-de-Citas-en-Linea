@@ -15,4 +15,15 @@ public interface ICitaRepository
     Task<Cita?> ObtenerPorIdAsync(int idCita, CancellationToken ct = default);
 
     Task<IEnumerable<Cita>> ObtenerPorClienteAsync(int idCliente, CancellationToken ct = default);
+
+    /// <summary>
+    /// HU-07: Obtiene todas las citas programadas para una fecha determinada (ej. hoy) para el panel de administración.
+    /// </summary>
+    Task<IEnumerable<Cita>> ObtenerCitasDelDiaAsync(DateOnly fecha, CancellationToken ct = default);
+
+    /// <summary>
+    /// HU-08 / HU-06: Actualiza el estado de una cita ('Atendida' o 'Cancelada').
+    /// Si se cancela, libera automáticamente el turno asociado poniéndolo en estado 'Disponible'.
+    /// </summary>
+    Task<bool> ActualizarEstadoCitaAsync(int idCita, string nuevoEstado, CancellationToken ct = default);
 }
