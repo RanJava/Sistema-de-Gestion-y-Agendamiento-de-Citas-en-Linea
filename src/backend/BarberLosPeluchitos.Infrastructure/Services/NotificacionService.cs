@@ -84,6 +84,56 @@ public class NotificacionService : INotificacionService
         return result;
     }
 
+    public async Task<NotificacionResultDto> EnviarNotificacionCancelacionAsync(CitaResponseDto cita, CancellationToken cancellationToken = default)
+    {
+        var destinatario = !string.IsNullOrWhiteSpace(cita.ClienteCorreo) ? cita.ClienteCorreo : "cliente@peluchitos.com";
+        var asunto = $"❌ Cancelación de Cita #{cita.IdCita} - Barbería Los Peluchitos";
+        
+        var cuerpo = $"""
+            ¡Hola {cita.ClienteNombre}!
+            
+            Confirmamos que tu cita con código #{cita.IdCita} para el servicio {cita.ServicioNombre}
+            con el profesional {cita.BarberoNombre} el día {cita.Fecha} en el horario {cita.HoraInicio} ha sido CANCELADA.
+            
+            El horario correspondiente ha sido liberado en el sistema. Puedes volver a agendar en el momento que desees.
+            
+            Atentamente,
+            Barbería Los Peluchitos
+            """;
+
+        var result = new NotificacionResultDto
+        {
+            Destinatario = destinatario,
+            FechaHora = DateTime.UtcNow
+        };
+
+        try
+        {
+            _logger.LogInformation("HU-06 Criterio 2: Enviando notificación de cancelación para Cita #{IdCita} a '{Destinatario}'...", cita.IdCita, destinatario);
+
+            var exito = await _emailSender.SendEmailAsync(destinatario, asunto, cuerpo, cancellationToken);
+
+            result.Exitoso = exito;
+            result.Mensaje = $"Notificación de cancelación enviada correctamente a {destinatario}.";
+            _logger.LogInformation("HU-06: Notificación de cancelación enviada con éxito para Cita #{IdCita}.", cita.IdCita);
+
+            await RegistrarLogAsync(cita.IdCita, destinatario, true, result.Mensaje, null);
+        }
+        catch (Exception ex)
+        {
+            result.Exitoso = false;
+            result.Mensaje = "Ocurrió un error al enviar el correo de aviso de cancelación.";
+            result.ErrorDetalle = ex.Message;
+
+            _logger.LogError(ex, "HU-06: Falló el envío de correo de cancelación para Cita #{IdCita}. Error: {Error}", 
+                cita.IdCita, ex.Message);
+
+            await RegistrarLogAsync(cita.IdCita, destinatario, false, result.Mensaje, ex.ToString());
+        }
+
+        return result;
+    }
+
     private async Task RegistrarLogAsync(int idCita, string destinatario, bool exitoso, string mensaje, string? errorDetalle)
     {
         try

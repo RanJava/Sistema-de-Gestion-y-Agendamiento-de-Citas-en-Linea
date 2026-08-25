@@ -1,0 +1,40 @@
+@startuml HU06_clases
+class Cita {
+  - idCita: int
+  - estado: String
+  + PuedeCancelar(): boolean
+  + Cancelar(turno: Turno): void
+}
+
+class Turno {
+  - idTurno: int
+  - estado: String
+  + Liberar(): void
+}
+
+interface ICitaRepository {
+  + CancelarCitaTransaccionalAsync(idCita: int, ct: CancellationToken): Task<Cita>
+}
+
+class CitaRepository {
+  - _context: ApplicationDbContext
+  + CancelarCitaTransaccionalAsync(idCita: int, ct: CancellationToken): Task<Cita>
+}
+
+interface INotificacionService {
+  + EnviarConfirmacionCitaAsync(cita: CitaResponseDto, cancellationToken: CancellationToken): Task<NotificacionResultDto>
+  + EnviarNotificacionCancelacionAsync(cita: CitaResponseDto, cancellationToken: CancellationToken): Task<NotificacionResultDto>
+}
+
+class CitasController {
+  - _citaRepository: ICitaRepository
+  - _notificacionService: INotificacionService
+  + CancelarCita(id: int, ct: CancellationToken): Task<IActionResult>
+}
+
+ICitaRepository <|.. CitaRepository
+CitasController --> ICitaRepository : invoca >
+CitasController --> INotificacionService : notifica asincrónicamente >
+CitaRepository --> Cita : gestiona >
+Cita --> Turno : libera >
+@enduml

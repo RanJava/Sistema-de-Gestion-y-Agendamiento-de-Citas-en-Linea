@@ -36,4 +36,33 @@ public class Cita
         FechaHora = DateTime.UtcNow;
         return true;
     }
+
+    /// <summary>
+    /// HU-06 Criterios 1 y 3: Verifica si la cita es cancelable (sólo en estado 'Pendiente').
+    /// </summary>
+    public bool PuedeCancelar() => string.Equals(Estado, "Pendiente", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// HU-06 Criterios 1 y 3 / Diagrama de Estados: Cancela la cita y libera de forma atómica el turno asociado.
+    /// Lanza excepción de negocio si la cita ya fue marcada como 'Atendida' o 'Cancelada'.
+    /// </summary>
+    public void Cancelar(Turno? turno)
+    {
+        if (string.Equals(Estado, "Atendida", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("CitaAtendidaNoCancelable");
+        }
+
+        if (string.Equals(Estado, "Cancelada", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("CitaYaCancelada");
+        }
+
+        Estado = "Cancelada";
+
+        if (turno != null)
+        {
+            turno.Estado = "Disponible";
+        }
+    }
 }

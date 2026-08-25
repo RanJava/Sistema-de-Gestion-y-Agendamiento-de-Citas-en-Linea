@@ -43,12 +43,14 @@ export const MisCitasCliente: React.FC = () => {
   const handleCancelar = async (idCita: number) => {
     setCancelando(idCita);
     setMensaje(null);
+    setError(null);
     try {
       const res = await citaService.cancelarCita(idCita);
       setMensaje(res.mensaje);
       await cargarCitas();
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error al cancelar la cita.');
+    } catch (err: any) {
+      const mensajeError = err?.response?.data?.mensaje || err?.message || 'Error al cancelar la cita.';
+      setError(mensajeError);
     } finally {
       setCancelando(null);
     }

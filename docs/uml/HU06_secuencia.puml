@@ -1,0 +1,36 @@
+@startuml HU06_secuencia
+actor Cliente
+participant "Interfaz (Vite React)" as UI
+participant "CitasController" as API
+participant "CitaRepository" as REPO
+database "Base de Datos (EF Core)" as DB
+participant "NotificacionService" as NOTIF
+
+Cliente -> UI : Presiona "Cancelar Cita"
+UI -> API : PATCH /api/citas/{id}/cancelar
+API -> REPO : CancelarCitaTransaccionalAsync(idCita)
+
+REPO -> DB : BeginTransactionAsync()
+REPO -> DB : Obtener Cita y Turno por idCita
+
+alt Cita está en estado "Atendida"
+    REPO --> API : Excepción "CitaAtendidaNoCancelable"
+    API --> UI : HTTP 409 Conflict ("No se puede cancelar una cita marcada como Atendida")
+    UI --> Cliente : Alerta de error (409 Conflict)
+else Cita está en estado "Cancelada"
+    REPO --> API : Excepción "CitaYaCancelada"
+    API --> UI : HTTP 400 Bad Request ("La cita ya se encuentra cancelada")
+    UI --> Cliente : Mensaje informativo
+else Cita está en estado "Pendiente"
+    REPO -> DB : Cita.Estado = "Cancelada"
+    REPO -> DB : Turno.Estado = "Disponible"
+    REPO -> DB : SaveChangesAsync()
+    REPO -> DB : CommitAsync()
+    REPO --> API : Cita actualizada
+
+    note over API, NOTIF : Disparo asíncrono no bloqueante
+    API -> NOTIF : EnviarNotificacionCancelacionAsync(citaDto)
+    API --> UI : HTTP 200 OK (Cita cancelada y turno liberado)
+    UI --> Cliente : Actualiza interfaz a "Cancelada" + mensaje de éxito
+end
+@enduml

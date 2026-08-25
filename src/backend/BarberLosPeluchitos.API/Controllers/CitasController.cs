@@ -185,36 +185,70 @@ public class CitasController : ControllerBase
     }
 
     /// <summary>
-    /// HU-06: Cancelación de cita por parte del Cliente (libera el turno automáticamente).
+    /// HU-06 Criterios 1, 2 y 3: Cancelación de cita agendada con liberación atómica del turno.
+    /// Valida la máquina de estados: rechaza la cancelación con 409 Conflict si la cita ya fue 'Atendida'.
+    /// Dispara notificación de cancelación de forma asíncrona no bloqueante.
     /// </summary>
     [HttpPatch("{id:int}/cancelar")]
     [Authorize(Roles = "Cliente,Administrador")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CitaResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CancelarCita(int id, CancellationToken cancellationToken)
     {
-        var cita = await _citaRepository.ObtenerPorIdAsync(id, cancellationToken);
-        if (cita == null)
+        try
         {
-            return NotFound(new { mensaje = $"No se encontró la cita con ID #{id}." });
+            var cita = await _citaRepository.CancelarCitaTransaccionalAsync(id, cancellationToken);
+            var responseDto = MapearCitaResponse(cita);
+
+            _logger.LogInformation("HU-06: Cita #{IdCita} cancelada exitosamente y turno liberado a 'Disponible'.", id);
+
+            // HU-06 Criterio 2: Disparo asíncrono no bloqueante de la notificación de cancelación
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _notificacionService.EnviarNotificacionCancelacionAsync(responseDto, CancellationToken.None);
+                }
+                catch (Exception exNotif)
+                {
+                    _logger.LogError(exNotif, "Error no capturado en ejecución en segundo plano de notificación de cancelación para Cita #{IdCita}.", responseDto.IdCita);
+                }
+            });
+
+            return Ok(new
+            {
+                mensaje = "Cita cancelada exitosamente. El horario ha sido liberado para otros clientes.",
+                idCita = id,
+                nuevoEstado = "Cancelada",
+                cita = responseDto
+            });
         }
-
-        if (cita.Estado == "Cancelada")
+        catch (InvalidOperationException ex) when (ex.Message == "CitaAtendidaNoCancelable")
         {
-            return BadRequest(new { mensaje = "La cita ya se encuentra cancelada." });
+            _logger.LogWarning("HU-06 CRITERIO 3: Intento rechazado de cancelar la Cita #{IdCita} porque ya se encuentra en estado 'Atendida'.", id);
+            return StatusCode(StatusCodes.Status409Conflict, new
+            {
+                mensaje = "No se puede cancelar una cita que ya ha sido marcada como 'Atendida' por la administración.",
+                idCita = id,
+                estadoActual = "Atendida"
+            });
         }
-
-        await _citaRepository.ActualizarEstadoCitaAsync(id, "Cancelada", cancellationToken);
-
-        _logger.LogInformation("Cita #{IdCita} cancelada por el cliente.", id);
-
-        return Ok(new
+        catch (InvalidOperationException ex) when (ex.Message == "CitaYaCancelada")
         {
-            mensaje = "Cita cancelada exitosamente. El horario ha sido liberado para otros clientes.",
-            idCita = id,
-            nuevoEstado = "Cancelada"
-        });
+            return BadRequest(new
+            {
+                mensaje = "La cita ya se encuentra en estado 'Cancelada'.",
+                idCita = id,
+                estadoActual = "Cancelada"
+            });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensaje = ex.Message });
+        }
     }
 
     private static CitaResponseDto MapearCitaResponse(Cita cita)

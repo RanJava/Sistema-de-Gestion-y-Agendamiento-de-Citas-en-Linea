@@ -26,4 +26,10 @@ public interface ICitaRepository
     /// Si se cancela, libera automáticamente el turno asociado poniéndolo en estado 'Disponible'.
     /// </summary>
     Task<bool> ActualizarEstadoCitaAsync(int idCita, string nuevoEstado, CancellationToken ct = default);
+
+    /// <summary>
+    /// HU-06 Criterios 1 y 3: Cancela transaccionalmente una cita 'Pendiente' y libera atómicamente el turno asociado.
+    /// Lanza InvalidOperationException con "CitaAtendidaNoCancelable" si la cita fue marcada como 'Atendida'.
+    /// </summary>
+    Task<Cita> CancelarCitaTransaccionalAsync(int idCita, CancellationToken ct = default);
 }

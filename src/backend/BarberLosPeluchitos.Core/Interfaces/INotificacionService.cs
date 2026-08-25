@@ -9,4 +9,9 @@ public interface INotificacionService
     /// Garantiza no lanzar excepciones que afecten la transacción principal.
     /// </summary>
     Task<NotificacionResultDto> EnviarConfirmacionCitaAsync(CitaResponseDto cita, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// HU-06 Criterio 2: Dispara la notificación de cancelación de cita exitosa de forma desacoplada y asíncrona.
+    /// </summary>
+    Task<NotificacionResultDto> EnviarNotificacionCancelacionAsync(CitaResponseDto cita, CancellationToken cancellationToken = default);
 }

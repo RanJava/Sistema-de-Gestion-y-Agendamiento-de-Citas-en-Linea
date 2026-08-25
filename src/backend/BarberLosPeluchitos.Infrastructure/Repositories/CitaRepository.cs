@@ -137,4 +137,36 @@ public class CitaRepository : ICitaRepository
         var rows = await _context.SaveChangesAsync(ct);
         return rows > 0;
     }
+
+    public async Task<Cita> CancelarCitaTransaccionalAsync(int idCita, CancellationToken ct = default)
+    {
+        using var transaction = await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted, ct);
+        try
+        {
+            var cita = await _context.Citas
+                .Include(c => c.Cliente)
+                .Include(c => c.Servicio)
+                .Include(c => c.Turno)
+                    .ThenInclude(t => t.Barbero)
+                .FirstOrDefaultAsync(c => c.IdCita == idCita, ct);
+
+            if (cita == null)
+            {
+                throw new KeyNotFoundException($"No se encontró la cita con ID #{idCita}.");
+            }
+
+            // HU-06 Criterios 1 y 3: Invoca método de dominio de la entidad Cita
+            cita.Cancelar(cita.Turno);
+
+            await _context.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+
+            return cita;
+        }
+        catch
+        {
+            await transaction.RollbackAsync(ct);
+            throw;
+        }
+    }
 }
