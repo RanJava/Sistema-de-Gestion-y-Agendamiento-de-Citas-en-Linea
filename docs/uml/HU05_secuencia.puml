@@ -1,0 +1,31 @@
+@startuml HU05_secuencia
+actor Cliente
+participant "Interfaz Vite (React)" as UI
+participant "CitasController" as API
+database "Base de Datos (EF Core)" as DB
+participant "NotificacionService" as NOTIF
+participant "IEmailSender (Mock)" as EMAIL
+
+Cliente -> UI : Confirma reserva
+UI -> API : POST /api/citas (AgendarCitaDto)
+API -> DB : AgendarCitaTransaccionalAsync()
+DB --> API : Cita creada (Estado: "Pendiente")
+
+note over API, NOTIF : Disparo asíncrono no bloqueante (Task.Run / Background)
+API -> NOTIF : EnviarConfirmacionCitaAsync(citaDto)
+API --> UI : HTTP 201 Created (Cita registrada)
+UI --> Cliente : Muestra Pantalla de Confirmación + Botón Cancelar (HU-06)
+
+NOTIF -> EMAIL : SendEmailAsync(destinatario, asunto, cuerpo)
+
+alt Envío de correo exitoso
+    EMAIL --> NOTIF : Éxito (True)
+    NOTIF -> DB : Registrar NotificacionLog (Exitoso = true)
+    NOTIF -> NOTIF : ILogger.LogInformation("Notificación enviada")
+else Fallo en el servidor de correo
+    EMAIL --> NOTIF : Excepción / Error (False)
+    NOTIF -> DB : Registrar NotificacionLog (Exitoso = false, ErrorDetalle)
+    NOTIF -> NOTIF : ILogger.LogError("Error enviando notificación")
+    note over DB : La Cita PERMANECE intacta en estado "Pendiente" (Sin Rollback)
+end
+@enduml

@@ -1,0 +1,52 @@
+@startuml HU05_clases
+interface INotificacionService {
+  + EnviarConfirmacionCitaAsync(cita: CitaResponseDto, cancellationToken: CancellationToken): Task<NotificacionResultDto>
+}
+
+interface IEmailSender {
+  + SendEmailAsync(to: String, subject: String, body: String): Task<boolean>
+}
+
+class NotificacionService {
+  - _emailSender: IEmailSender
+  - _logger: ILogger<NotificacionService>
+  - _context: ApplicationDbContext
+  + EnviarConfirmacionCitaAsync(cita: CitaResponseDto, cancellationToken: CancellationToken): Task<NotificacionResultDto>
+  + RegistrarLogAuditAsync(citaId: int, exito: boolean, mensaje: String): Task
+}
+
+class MockEmailSender {
+  - _logger: ILogger<MockEmailSender>
+  + SendEmailAsync(to: String, subject: String, body: String): Task<boolean>
+}
+
+class NotificacionResultDto {
+  + Exitoso: boolean
+  + Mensaje: String
+  + FechaHora: DateTime
+  + ErrorDetalle: String
+}
+
+class NotificacionLog {
+  + IdLog: int
+  + IdCita: int
+  + Destinatario: String
+  + Exitoso: boolean
+  + Mensaje: String
+  + FechaRegistro: DateTime
+}
+
+class CitasController {
+  - _citaRepository: ICitaRepository
+  - _notificacionService: INotificacionService
+  + AgendarCita(dto: AgendarCitaDto): Task<IActionResult>
+  + CancelarCita(id: int): Task<IActionResult>
+}
+
+INotificacionService <|.. NotificacionService
+IEmailSender <|.. MockEmailSender
+NotificacionService --> IEmailSender : usa >
+NotificacionService --> NotificacionResultDto : genera >
+NotificacionService --> NotificacionLog : registra >
+CitasController --> INotificacionService : notifica asincrónicamente >
+@enduml

@@ -1,0 +1,15 @@
+@startuml HU05_estados
+[*] --> Agendada : Transacción exitosa (HU-04)
+
+state Agendada {
+  [*] --> Pendiente
+  Pendiente --> Notificada : Envío de correo exitoso (HU-05)
+  Pendiente --> NotificacionFallida : Fallo de correo (Logger/Audit)
+}
+
+Agendada --> Cancelada : Cliente presiona "Cancelar Cita" (HU-06)
+Agendada --> Atendida : Administrador marca atendida (HU-08)
+
+Cancelada --> [*] : Turno liberado a Disponible
+Atendida --> [*] : Cita completada
+@enduml

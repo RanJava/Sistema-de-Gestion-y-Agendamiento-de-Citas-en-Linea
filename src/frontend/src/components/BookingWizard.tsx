@@ -12,6 +12,8 @@ import {
   RotateCcw,
   Receipt,
   Lock,
+  Mail,
+  XCircle,
 } from 'lucide-react';
 import { servicioService } from '../services/servicioService';
 import { barberoService } from '../services/barberoService';
@@ -58,9 +60,11 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
   const [loadingBarberos, setLoadingBarberos] = useState(true);
   const [loadingTurnos, setLoadingTurnos] = useState(false);
   const [bookingLoading, setBookingLoading] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
   const [concurrencyAlert, setConcurrencyAlert] = useState<string | null>(null);
+  const [cancelFeedback, setCancelFeedback] = useState<string | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [confirmedCita, setConfirmedCita] = useState<CitaResponseDto | null>(null);
 
@@ -185,10 +189,29 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
   const resetearFormulario = () => {
     setConfirmedCita(null);
     setSelectedTurno(null);
+    setCancelFeedback(null);
     consultarDisponibilidad();
   };
 
-  // ─── Vista de Comprobante / Ticket Exitoso (HU-04 Criterio 4) ─────────────
+  const handleCancelarCita = async () => {
+    if (!confirmedCita) return;
+    if (!window.confirm(`¿Estás seguro de que deseas cancelar la cita #${confirmedCita.idCita}? El horario se liberará inmediatamente.`)) {
+      return;
+    }
+
+    setCancelLoading(true);
+    try {
+      await citaService.cancelarCita(confirmedCita.idCita);
+      setConfirmedCita({ ...confirmedCita, estado: 'Cancelada' });
+      setCancelFeedback('Cita cancelada exitosamente. El horario ha sido liberado.');
+    } catch (err: any) {
+      setError(err?.response?.data?.mensaje || 'No se pudo cancelar la cita.');
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
+  // ─── Vista de Comprobante / Ticket Exitoso (HU-04, HU-05 y HU-06) ─────────────
   if (confirmedCita) {
     return (
       <div className="max-w-2xl mx-auto space-y-6 animate-in zoom-in-95 duration-300">
@@ -206,9 +229,26 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
               ¡Reserva Confirmada!
             </h2>
             <p className="text-xs text-slate-400">
-              Tu turno ha sido bloqueado en el sistema y se encuentra en estado inicial <span className="text-amber-400 font-semibold">Pendiente</span>.
+              Tu turno ha sido reservado en el sistema y se encuentra en estado <span className={`font-semibold ${confirmedCita.estado === 'Cancelada' ? 'text-red-400' : 'text-amber-400'}`}>{confirmedCita.estado}</span>.
             </p>
           </div>
+
+          {/* Banner de Notificación Automática (HU-05 Criterio 1) */}
+          <div className="mt-4 bg-emerald-500/10 border border-emerald-500/20 p-3.5 rounded-2xl flex items-center gap-3 text-xs text-emerald-300">
+            <Mail className="w-5 h-5 text-emerald-400 shrink-0" />
+            <div>
+              <span className="font-bold text-white block">Confirmación Automática (HU-05)</span>
+              <span>Notificación enviada a <strong className="text-emerald-200">{confirmedCita.clienteCorreo || 'tu correo registrado'}</strong> con los detalles de tu cita y enlace de gestión.</span>
+            </div>
+          </div>
+
+          {/* Mensaje de Confirmación de Cancelación */}
+          {cancelFeedback && (
+            <div className="mt-3 bg-red-500/10 border border-red-500/30 p-3 rounded-2xl text-xs text-red-300 flex items-center gap-2">
+              <XCircle className="w-4 h-4 text-red-400 shrink-0" />
+              <span>{cancelFeedback}</span>
+            </div>
+          )}
 
           {/* Cuerpo del Ticket con Snapshot de Precio y Duración */}
           <div className="py-6 space-y-4 text-xs">
@@ -251,27 +291,51 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                 <span className="text-xs font-bold text-white block">{confirmedCita.clienteNombre}</span>
                 <span className="text-[11px] text-slate-400 block">📞 {confirmedCita.clienteTelefono} • ✉️ {confirmedCita.clienteCorreo}</span>
               </div>
-              <span className="px-3 py-1 rounded-xl text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
-                {confirmedCita.estado}
+              <span className={`px-3 py-1 rounded-xl text-xs font-bold border ${confirmedCita.estado === 'Cancelada'
+                  ? 'bg-red-500/15 text-red-300 border-red-500/30'
+                  : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                }`}>
+                {confirmedCita.estado}await citaService.cancelarCita(confirmedCita.idCi
               </span>
             </div>
           </div>
 
-          {/* Acciones */}
-          <div className="pt-4 border-t border-slate-800 flex flex-col sm:flex-row gap-3">
+          {/* Acciones (Incluye enlace de cancelación HU-05 Criterio 3 & HU-06) */}
+          <div className="pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center gap-3">
             <button
               onClick={resetearFormulario}
-              className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-amber-500/20"
+              className="flex-1 w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-amber-500/20"
             >
               <RotateCcw className="w-4 h-4" />
               <span>Agendar Otra Cita</span>
             </button>
+
+            {confirmedCita.estado !== 'Cancelada' ? (
+              <button
+                onClick={handleCancelarCita}
+                disabled={cancelLoading}
+                className="w-full sm:w-auto py-3 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 text-xs font-semibold flex items-center justify-center gap-2 border border-red-500/30 transition-all cursor-pointer"
+              >
+                {cancelLoading ? (
+                  <div className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <XCircle className="w-4 h-4 text-red-400" />
+                )}
+                <span>Cancelar Cita (HU-06)</span>
+              </button>
+            ) : (
+              <div className="w-full sm:w-auto px-4 py-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5">
+                <XCircle className="w-4 h-4" />
+                <span>Cita Cancelada</span>
+              </div>
+            )}
+
             <button
               onClick={() => window.print()}
-              className="py-3 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700 transition-all cursor-pointer"
+              className="w-full sm:w-auto py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700 transition-all cursor-pointer"
             >
               <Receipt className="w-4 h-4 text-amber-400" />
-              <span>Imprimir Comprobante</span>
+              <span>Imprimir</span>
             </button>
           </div>
         </div>
@@ -374,11 +438,10 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                   <button
                     key={s.idServicio}
                     onClick={() => setSelectedServicio(s)}
-                    className={`w-full text-left p-3 rounded-2xl border transition-all flex items-center justify-between gap-2 cursor-pointer ${
-                      selectedServicio?.idServicio === s.idServicio
+                    className={`w-full text-left p-3 rounded-2xl border transition-all flex items-center justify-between gap-2 cursor-pointer ${selectedServicio?.idServicio === s.idServicio
                         ? 'bg-amber-500/15 border-amber-500 text-amber-200 shadow-md shadow-amber-500/10'
                         : 'bg-slate-950/60 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-900/60'
-                    }`}
+                      }`}
                   >
                     <div>
                       <p className="text-xs font-bold text-white">{s.nombre}</p>
@@ -416,11 +479,10 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                   <button
                     key={b.idBarbero}
                     onClick={() => setSelectedBarbero(b)}
-                    className={`w-full text-left p-3 rounded-2xl border transition-all flex items-center gap-3 cursor-pointer ${
-                      selectedBarbero?.idBarbero === b.idBarbero
+                    className={`w-full text-left p-3 rounded-2xl border transition-all flex items-center gap-3 cursor-pointer ${selectedBarbero?.idBarbero === b.idBarbero
                         ? 'bg-amber-500/15 border-amber-500 text-amber-200 shadow-md shadow-amber-500/10'
                         : 'bg-slate-950/60 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-900/60'
-                    }`}
+                      }`}
                   >
                     <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-400 text-slate-950 font-bold flex items-center justify-center text-xs shrink-0">
                       {b.nombre.charAt(0).toUpperCase()}
@@ -500,11 +562,10 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
                       <button
                         key={t.idTurno}
                         onClick={() => setSelectedTurno(t)}
-                        className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center justify-center gap-0.5 cursor-pointer ${
-                          isSelected
+                        className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center justify-center gap-0.5 cursor-pointer ${isSelected
                             ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 ring-2 ring-emerald-500/30 shadow-lg shadow-emerald-500/10'
                             : 'bg-slate-950/80 border-slate-800 text-slate-200 hover:border-amber-500/60 hover:bg-slate-900 hover:text-white'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center gap-1 text-xs font-bold">
                           <Clock className={`w-3 h-3 ${isSelected ? 'text-emerald-400' : 'text-amber-400'}`} />
@@ -552,11 +613,10 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
               <button
                 onClick={handleConfirmarClick}
                 disabled={!isFormComplete || bookingLoading}
-                className={`w-full py-3.5 px-6 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-xl ${
-                  isFormComplete && !bookingLoading
+                className={`w-full py-3.5 px-6 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-xl ${isFormComplete && !bookingLoading
                     ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-amber-500/20 cursor-pointer active:scale-[0.99]'
                     : 'bg-slate-800/80 text-slate-500 border border-slate-800 cursor-not-allowed'
-                }`}
+                  }`}
               >
                 {bookingLoading ? (
                   <>

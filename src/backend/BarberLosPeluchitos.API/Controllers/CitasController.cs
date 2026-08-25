@@ -11,18 +11,21 @@ namespace BarberLosPeluchitos.API.Controllers;
 public class CitasController : ControllerBase
 {
     private readonly ICitaRepository _citaRepository;
+    private readonly INotificacionService _notificacionService;
     private readonly ILogger<CitasController> _logger;
 
     public CitasController(
         ICitaRepository citaRepository,
+        INotificacionService notificacionService,
         ILogger<CitasController> logger)
     {
         _citaRepository = citaRepository;
+        _notificacionService = notificacionService;
         _logger = logger;
     }
 
     /// <summary>
-    /// HU-04 Criterios 1, 2, 3 y 4: Agendamiento de cita en el local.
+    /// HU-04 y HU-05: Agendamiento transaccional de cita y disparo de confirmación automática asíncrona.
     /// Exige autenticación de Cliente o Administrador.
     /// </summary>
     [HttpPost]
@@ -52,9 +55,22 @@ public class CitasController : ControllerBase
 
             var responseDto = MapearCitaResponse(cita);
 
+            // HU-05 CRITERIO 1: Disparo asíncrono desacoplado de la notificación (No bloquea la respuesta HTTP)
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _notificacionService.EnviarConfirmacionCitaAsync(responseDto, CancellationToken.None);
+                }
+                catch (Exception exNotif)
+                {
+                    _logger.LogError(exNotif, "Error no capturado en ejecución en segundo plano de notificación para Cita #{IdCita}.", responseDto.IdCita);
+                }
+            });
+
             return CreatedAtAction(nameof(ObtenerPorId), new { id = cita.IdCita }, new
             {
-                mensaje = "Cita agendada exitosamente.",
+                mensaje = "Cita agendada exitosamente. Se ha enviado una confirmación a tu correo registrado.",
                 cita = responseDto
             });
         }

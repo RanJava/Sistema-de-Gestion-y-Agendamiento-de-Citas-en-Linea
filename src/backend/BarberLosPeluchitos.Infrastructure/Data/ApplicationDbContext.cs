@@ -16,6 +16,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Servicio> Servicios => Set<Servicio>();
     public DbSet<Cita> Citas => Set<Cita>();
     public DbSet<Administrador> Administradores => Set<Administrador>();
+    public DbSet<NotificacionLog> NotificacionesLog => Set<NotificacionLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -138,6 +139,21 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.Correo).IsUnique();
             entity.Property(e => e.ContrasenaHash).HasColumnName("contrasena_hash").HasMaxLength(255).IsRequired();
             entity.Property(e => e.FechaCreacion).HasColumnName("fecha_creacion").HasDefaultValueSql("CURRENT_TIMESTAMP");
+        });
+
+        // NOTIFICACION_LOG
+        modelBuilder.Entity<NotificacionLog>(entity =>
+        {
+            entity.ToTable("notificacion_log");
+            entity.HasKey(e => e.IdLog);
+            entity.Property(e => e.IdLog).HasColumnName("id_log");
+            entity.Property(e => e.IdCita).HasColumnName("id_cita").IsRequired();
+            entity.Property(e => e.Destinatario).HasColumnName("destinatario").HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Tipo).HasColumnName("tipo").HasMaxLength(30).HasDefaultValue("EmailConfirmacion").IsRequired();
+            entity.Property(e => e.Exitoso).HasColumnName("exitoso").IsRequired();
+            entity.Property(e => e.Mensaje).HasColumnName("mensaje").HasMaxLength(255).IsRequired();
+            entity.Property(e => e.ErrorDetalle).HasColumnName("error_detalle");
+            entity.Property(e => e.FechaRegistro).HasColumnName("fecha_registro").HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
     }
 }

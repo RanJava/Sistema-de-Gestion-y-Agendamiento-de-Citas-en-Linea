@@ -4,6 +4,7 @@ using BarberLosPeluchitos.Core.Interfaces;
 using BarberLosPeluchitos.Infrastructure.Data;
 using BarberLosPeluchitos.Infrastructure.Repositories;
 using BarberLosPeluchitos.Infrastructure.Security;
+using BarberLosPeluchitos.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -16,7 +17,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(connectionString)
+           .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
 // 2. Inyección de Dependencias de Servicios y Repositorios
 builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
@@ -26,6 +28,8 @@ builder.Services.AddScoped<IBarberoRepository, BarberoRepository>();
 builder.Services.AddScoped<ITurnoRepository, TurnoRepository>();
 builder.Services.AddScoped<IServicioRepository, ServicioRepository>();
 builder.Services.AddScoped<ICitaRepository, CitaRepository>();
+builder.Services.AddScoped<IEmailSender, MockEmailSender>();
+builder.Services.AddScoped<INotificacionService, NotificacionService>();
 
 // 3. Configuración de Autenticación con JWT
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "BarberLosPeluchitosKeySeguraSuperSecreta2026!#$JWT";
@@ -108,7 +112,10 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
 
-    // Crear tabla administrador si no existiera en PostgreSQL
+    // Aplicar migraciones pendientes de PostgreSQL
+    context.Database.Migrate();
+
+    // Crear tabla administrador y notificacion_log si no existieran en PostgreSQL
     context.Database.ExecuteSqlRaw(@"
         CREATE TABLE IF NOT EXISTS administrador (
             id_administrador serial PRIMARY KEY,
@@ -116,6 +123,17 @@ using (var scope = app.Services.CreateScope())
             correo varchar(100) UNIQUE NOT NULL,
             contrasena_hash varchar(255) NOT NULL,
             fecha_creacion timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS notificacion_log (
+            id_log serial PRIMARY KEY,
+            id_cita int NOT NULL,
+            destinatario varchar(100) NOT NULL,
+            tipo varchar(30) NOT NULL DEFAULT 'EmailConfirmacion',
+            exitoso boolean NOT NULL,
+            mensaje varchar(255) NOT NULL,
+            error_detalle text NULL,
+            fecha_registro timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
     ");
 
@@ -142,6 +160,42 @@ using (var scope = app.Services.CreateScope())
             ContrasenaHash = hasher.HashPassword("AdminPeluchitos2026!"),
             FechaCreacion = DateTime.UtcNow
         });
+        context.SaveChanges();
+    }
+
+    // Seed de Barberos de Ejemplo
+    if (!context.Barberos.Any())
+    {
+        var barbero1 = new Barbero
+        {
+            Nombre = "Carlos 'El Tijeras' Gómez",
+            Telefono = "70011223",
+            HorariosDisponibilidad = new List<HorarioDisponibilidad>
+            {
+                new HorarioDisponibilidad { DiaSemana = "Lunes", HoraInicio = new TimeOnly(9, 0), HoraFin = new TimeOnly(18, 0) },
+                new HorarioDisponibilidad { DiaSemana = "Martes", HoraInicio = new TimeOnly(9, 0), HoraFin = new TimeOnly(18, 0) },
+                new HorarioDisponibilidad { DiaSemana = "Miércoles", HoraInicio = new TimeOnly(9, 0), HoraFin = new TimeOnly(18, 0) },
+                new HorarioDisponibilidad { DiaSemana = "Jueves", HoraInicio = new TimeOnly(9, 0), HoraFin = new TimeOnly(18, 0) },
+                new HorarioDisponibilidad { DiaSemana = "Viernes", HoraInicio = new TimeOnly(9, 0), HoraFin = new TimeOnly(18, 0) },
+                new HorarioDisponibilidad { DiaSemana = "Sábado", HoraInicio = new TimeOnly(9, 0), HoraFin = new TimeOnly(14, 0) }
+            }
+        };
+
+        var barbero2 = new Barbero
+        {
+            Nombre = "Mateo 'BarbaPro' Rodríguez",
+            Telefono = "70044556",
+            HorariosDisponibilidad = new List<HorarioDisponibilidad>
+            {
+                new HorarioDisponibilidad { DiaSemana = "Martes", HoraInicio = new TimeOnly(10, 0), HoraFin = new TimeOnly(19, 0) },
+                new HorarioDisponibilidad { DiaSemana = "Miércoles", HoraInicio = new TimeOnly(10, 0), HoraFin = new TimeOnly(19, 0) },
+                new HorarioDisponibilidad { DiaSemana = "Jueves", HoraInicio = new TimeOnly(10, 0), HoraFin = new TimeOnly(19, 0) },
+                new HorarioDisponibilidad { DiaSemana = "Viernes", HoraInicio = new TimeOnly(10, 0), HoraFin = new TimeOnly(19, 0) },
+                new HorarioDisponibilidad { DiaSemana = "Sábado", HoraInicio = new TimeOnly(9, 0), HoraFin = new TimeOnly(16, 0) }
+            }
+        };
+
+        context.Barberos.AddRange(barbero1, barbero2);
         context.SaveChanges();
     }
 }
