@@ -16,6 +16,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // 2. Inyección de Dependencias de Servicios y Repositorios
 builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddScoped<IBarberoRepository, BarberoRepository>();
 
 // 3. Configuración de CORS permisiva para desarrollo
 builder.Services.AddCors(options =>
@@ -52,14 +53,6 @@ app.UseCors("AllowAll");
 
 // Redirección de la raíz "/" a Swagger
 app.MapGet("/", () => Results.Redirect("/swagger"));
-
-// Endpoint de Health Check
-app.MapGet("/api/health", () => Results.Ok(new
-{
-    status = "Healthy",
-    system = "BarberLosPeluchitos API",
-    timestamp = DateTime.UtcNow
-}));
 
 // Mapeo de Controladores
 app.MapControllers();

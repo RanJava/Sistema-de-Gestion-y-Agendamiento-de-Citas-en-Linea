@@ -9,4 +9,9 @@ public class Barbero
     // Relaciones de navegación
     public ICollection<HorarioDisponibilidad> HorariosDisponibilidad { get; set; } = new List<HorarioDisponibilidad>();
     public ICollection<Turno> Turnos { get; set; } = new List<Turno>();
+
+    /// <summary>
+    /// HU-02 Criterio 4 / Diagrama de Clases: Verifica si el barbero cuenta con horarios asignados.
+    /// </summary>
+    public bool TieneHorarioCargado() => HorariosDisponibilidad.Count > 0;
 }

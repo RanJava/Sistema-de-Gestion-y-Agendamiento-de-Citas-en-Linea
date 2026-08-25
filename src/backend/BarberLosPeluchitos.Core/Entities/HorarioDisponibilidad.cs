@@ -10,4 +10,9 @@ public class HorarioDisponibilidad
 
     // Relaciones de navegación
     public Barbero Barbero { get; set; } = null!;
+
+    /// <summary>
+    /// HU-02 Criterio 3 / Diagrama de Clases: Verifica si la franja horaria es válida (horaFin > horaInicio).
+    /// </summary>
+    public bool EsValido() => HoraFin > HoraInicio;
 }
