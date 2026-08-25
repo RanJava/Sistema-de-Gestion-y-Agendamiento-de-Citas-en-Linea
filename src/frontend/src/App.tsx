@@ -3,13 +3,13 @@ import { Scissors, Server, CheckCircle2, RefreshCw, AlertCircle, UserPlus, Spark
 import { checkApiHealth, type HealthCheckResponse } from './services/api';
 import { RegisterModal } from './components/RegisterModal';
 import AdminBarberos from './components/AdminBarberos';
-import { DisponibilidadPreview } from './components/DisponibilidadPreview';
+import { AgendaDisponibilidad } from './components/AgendaDisponibilidad';
 import type { Cliente } from './types';
 
-type Tab = 'staff' | 'disponibilidad' | 'overview';
+type Tab = 'disponibilidad' | 'staff' | 'overview';
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<Tab>('staff');
+  const [activeTab, setActiveTab] = useState<Tab>('disponibilidad');
   const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'offline'>('checking');
   const [healthData, setHealthData] = useState<HealthCheckResponse | null>(null);
   const [isRetrying, setIsRetrying] = useState<boolean>(false);
@@ -59,6 +59,18 @@ export function App() {
           {/* Navegación por pestañas */}
           <nav className="hidden md:flex items-center gap-1.5 bg-slate-950/70 p-1.5 rounded-2xl border border-slate-800">
             <button
+              onClick={() => setActiveTab('disponibilidad')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+                activeTab === 'disponibilidad'
+                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              }`}
+            >
+              <Calendar className="w-3.5 h-3.5" />
+              <span>Agenda en Tiempo Real (HU-03)</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('staff')}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
                 activeTab === 'staff'
@@ -71,18 +83,6 @@ export function App() {
             </button>
 
             <button
-              onClick={() => setActiveTab('disponibilidad')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
-                activeTab === 'disponibilidad'
-                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
-              }`}
-            >
-              <Calendar className="w-3.5 h-3.5" />
-              <span>Vista Cliente (Disponibilidad)</span>
-            </button>
-
-            <button
               onClick={() => setActiveTab('overview')}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
                 activeTab === 'overview'
@@ -91,7 +91,7 @@ export function App() {
               }`}
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Resumen HU-01</span>
+              <span>Resumen Sistema & HU-01</span>
             </button>
           </nav>
 
@@ -143,20 +143,20 @@ export function App() {
         {/* Mobile Navigation bar */}
         <div className="flex md:hidden border-t border-slate-800/80 px-4 py-2 gap-2 overflow-x-auto">
           <button
-            onClick={() => setActiveTab('staff')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap ${
-              activeTab === 'staff' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 bg-slate-900'
-            }`}
-          >
-            👥 Gestión Staff (HU-02)
-          </button>
-          <button
             onClick={() => setActiveTab('disponibilidad')}
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap ${
               activeTab === 'disponibilidad' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 bg-slate-900'
             }`}
           >
-            📅 Vista Cliente
+            📅 Agenda (HU-03)
+          </button>
+          <button
+            onClick={() => setActiveTab('staff')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap ${
+              activeTab === 'staff' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 bg-slate-900'
+            }`}
+          >
+            👥 Staff (HU-02)
           </button>
           <button
             onClick={() => setActiveTab('overview')}
@@ -188,15 +188,15 @@ export function App() {
         )}
 
         {/* Renderizado de Pestañas */}
-        {activeTab === 'staff' && (
+        {activeTab === 'disponibilidad' && (
           <div className="animate-in fade-in duration-200">
-            <AdminBarberos />
+            <AgendaDisponibilidad />
           </div>
         )}
 
-        {activeTab === 'disponibilidad' && (
+        {activeTab === 'staff' && (
           <div className="animate-in fade-in duration-200">
-            <DisponibilidadPreview />
+            <AdminBarberos />
           </div>
         )}
 

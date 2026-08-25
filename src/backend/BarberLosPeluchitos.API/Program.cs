@@ -17,6 +17,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IBarberoRepository, BarberoRepository>();
+builder.Services.AddScoped<ITurnoRepository, TurnoRepository>();
 
 // 3. Configuración de CORS permisiva para desarrollo
 builder.Services.AddCors(options =>
