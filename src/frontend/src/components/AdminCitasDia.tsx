@@ -68,15 +68,44 @@ export const AdminCitasDia: React.FC = () => {
     cargarCitas();
   }, [cargarCitas]);
 
-  const handleCambiarEstado = async (idCita: number, nuevoEstado: 'Atendida' | 'Cancelada') => {
+  const [modalConfirmacion, setModalConfirmacion] = useState<{
+    open: boolean;
+    cita: CitaResponseDto | null;
+    nuevoEstado: string | null;
+  }>({ open: false, cita: null, nuevoEstado: null });
+
+  const handleCambiarEstado = async (idCita: number, nuevoEstado: string, forzar: boolean = false) => {
+    const citaActual = citas.find(c => c.idCita === idCita);
+
+    // HU-08 Criterio 3: Si la cita ya está Cancelada y no se ha forzado explicitamente, abrir modal
+    if (citaActual && citaActual.estado === 'Cancelada' && !forzar) {
+      setModalConfirmacion({
+        open: true,
+        cita: citaActual,
+        nuevoEstado
+      });
+      return;
+    }
+
     setActualizando(idCita);
     setMensaje(null);
+    setError(null);
+
     try {
-      const res = await citaService.actualizarEstado(idCita, nuevoEstado);
+      const res = await citaService.actualizarEstado(idCita, nuevoEstado, forzar);
       setMensaje(res.mensaje);
+      setModalConfirmacion({ open: false, cita: null, nuevoEstado: null });
       await cargarCitas();
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error al actualizar el estado de la cita.');
+    } catch (err: any) {
+      if (err?.response?.status === 409 && err?.response?.data?.requiereConfirmacion) {
+        setModalConfirmacion({
+          open: true,
+          cita: citaActual || null,
+          nuevoEstado
+        });
+      } else {
+        setError(err?.response?.data?.mensaje || err?.message || 'Error al actualizar el estado de la cita.');
+      }
     } finally {
       setActualizando(null);
     }
@@ -101,6 +130,9 @@ export const AdminCitasDia: React.FC = () => {
         return 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30';
       case 'Cancelada':
         return 'bg-rose-500/15 text-rose-300 border-rose-500/30';
+      case 'No asistió':
+      case 'NoAsistio':
+        return 'bg-purple-500/15 text-purple-300 border-purple-500/30';
       default:
         return 'bg-slate-800 text-slate-400 border-slate-700';
     }
@@ -120,7 +152,7 @@ export const AdminCitasDia: React.FC = () => {
               Citas del Día
             </h2>
             <p className="text-xs text-slate-400 mt-1">
-              Gestiona las citas programadas: marca como Atendida o Cancelada.
+              Gestiona las citas programadas: marca como Atendida, Cancelada o No asistió.
             </p>
           </div>
 
@@ -232,7 +264,7 @@ export const AdminCitasDia: React.FC = () => {
         <div className="py-16 text-center bg-slate-900/40 border border-dashed border-slate-800 rounded-3xl space-y-3">
           <Filter className="w-10 h-10 text-amber-400 mx-auto opacity-60" />
           <p className="text-sm font-bold text-white">
-            {citas.length === 0 ? 'No hay citas para esta fecha' : 'Sin resultados para el filtro seleccionado'}
+            {citas.length === 0 ? 'Sin citas para esta fecha' : 'Sin resultados para el filtro seleccionado'}
           </p>
           <p className="text-xs text-slate-400">
             {citas.length === 0 ? 'Selecciona otra fecha o espera a que se agenden nuevas citas.' : 'Prueba otro filtro de estado.'}
@@ -305,13 +337,13 @@ export const AdminCitasDia: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Acciones (HU-08) */}
-                {cita.estado === 'Pendiente' && (
-                  <div className="flex lg:flex-col gap-2 shrink-0">
+                {/* Acciones Rápidas (HU-08) */}
+                <div className="flex flex-wrap lg:flex-col gap-2 shrink-0">
+                  {cita.estado !== 'Atendida' && (
                     <button
                       onClick={() => handleCambiarEstado(cita.idCita, 'Atendida')}
                       disabled={actualizando === cita.idCita}
-                      className="flex-1 lg:w-auto px-4 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 hover:text-emerald-200 text-xs font-bold flex items-center justify-center gap-2 border border-emerald-500/30 transition-all cursor-pointer disabled:opacity-50"
+                      className="flex-1 lg:w-auto px-3.5 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 hover:text-emerald-200 text-xs font-bold flex items-center justify-center gap-2 border border-emerald-500/30 transition-all cursor-pointer disabled:opacity-50"
                     >
                       {actualizando === cita.idCita ? (
                         <div className="w-3.5 h-3.5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
@@ -320,10 +352,24 @@ export const AdminCitasDia: React.FC = () => {
                       )}
                       <span>Atendida</span>
                     </button>
+                  )}
+
+                  {cita.estado !== 'No asistió' && cita.estado !== 'NoAsistio' && (
+                    <button
+                      onClick={() => handleCambiarEstado(cita.idCita, 'No asistió')}
+                      disabled={actualizando === cita.idCita}
+                      className="flex-1 lg:w-auto px-3.5 py-2 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-purple-200 text-xs font-bold flex items-center justify-center gap-2 border border-purple-500/30 transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      <AlertTriangle className="w-4 h-4 text-purple-400" />
+                      <span>No asistió</span>
+                    </button>
+                  )}
+
+                  {cita.estado !== 'Cancelada' && (
                     <button
                       onClick={() => handleCambiarEstado(cita.idCita, 'Cancelada')}
                       disabled={actualizando === cita.idCita}
-                      className="flex-1 lg:w-auto px-4 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 hover:text-rose-200 text-xs font-bold flex items-center justify-center gap-2 border border-rose-500/30 transition-all cursor-pointer disabled:opacity-50"
+                      className="flex-1 lg:w-auto px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 hover:text-rose-200 text-xs font-bold flex items-center justify-center gap-2 border border-rose-500/30 transition-all cursor-pointer disabled:opacity-50"
                     >
                       {actualizando === cita.idCita ? (
                         <div className="w-3.5 h-3.5 border-2 border-rose-400 border-t-transparent rounded-full animate-spin" />
@@ -332,11 +378,48 @@ export const AdminCitasDia: React.FC = () => {
                       )}
                       <span>Cancelar</span>
                     </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Modal de Confirmación Explicit Forzada (HU-08 Criterio 3) */}
+      {modalConfirmacion.open && modalConfirmacion.cita && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 animate-in fade-in zoom-in-95">
+            <div className="flex items-center gap-3 text-amber-400">
+              <div className="p-3 bg-amber-500/10 rounded-2xl border border-amber-500/20">
+                <AlertTriangle className="w-6 h-6 shrink-0" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-white text-lg">Confirmar Sobrescritura</h3>
+                <p className="text-xs text-slate-400">Cita #{modalConfirmacion.cita.idCita}</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800">
+              Esta cita se encuentra en estado <strong className="text-rose-400">Cancelada</strong>.
+              ¿Estás seguro de que deseas sobrescribir su estado a <strong className="text-amber-400">'{modalConfirmacion.nuevoEstado}'</strong>?
+            </p>
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                onClick={() => setModalConfirmacion({ open: false, cita: null, nuevoEstado: null })}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => modalConfirmacion.cita && modalConfirmacion.nuevoEstado && handleCambiarEstado(modalConfirmacion.cita.idCita, modalConfirmacion.nuevoEstado, true)}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-extrabold shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+              >
+                Sí, sobrescribir (Forzar)
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

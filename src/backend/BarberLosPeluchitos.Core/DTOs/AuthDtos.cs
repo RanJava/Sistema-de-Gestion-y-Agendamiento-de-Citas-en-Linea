@@ -35,6 +35,11 @@ public class AuthResponseDto
 public class ActualizarEstadoCitaDto
 {
     [Required(ErrorMessage = "El nuevo estado es obligatorio.")]
-    [RegularExpression("^(Pendiente|Atendida|Cancelada)$", ErrorMessage = "El estado debe ser 'Pendiente', 'Atendida' o 'Cancelada'.")]
+    [RegularExpression("^(Pendiente|Atendida|Cancelada|No asistió|NoAsistio)$", ErrorMessage = "El estado debe ser 'Pendiente', 'Atendida', 'Cancelada' o 'No asistió'.")]
     public string NuevoEstado { get; set; } = string.Empty;
+
+    /// <summary>
+    /// HU-08 Criterio 3: Flag de confirmación explícita para sobrescribir citas que se encuentran en estado 'Cancelada'.
+    /// </summary>
+    public bool Forzar { get; set; } = false;
 }

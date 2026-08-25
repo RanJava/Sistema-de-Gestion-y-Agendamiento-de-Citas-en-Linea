@@ -1,0 +1,38 @@
+@startuml HU08_clases
+class ActualizarEstadoCitaDto {
+  + nuevoEstado: String
+  + forzar: boolean
+}
+
+class Cita {
+  - idCita: int
+  - estado: String
+  + ActualizarEstado(nuevoEstado: String, forzar: boolean): boolean
+}
+
+class Turno {
+  - idTurno: int
+  - estado: String
+  + Liberar(): void
+}
+
+interface ICitaRepository {
+  + ActualizarEstadoCitaAsync(idCita: int, nuevoEstado: String, forzar: boolean, usuarioAuditoria: String, ct: CancellationToken): Task<ResultadoActualizacionState>
+}
+
+class CitaRepository {
+  - _context: ApplicationDbContext
+  + ActualizarEstadoCitaAsync(idCita: int, nuevoEstado: String, forzar: boolean, usuarioAuditoria: String, ct: CancellationToken): Task<ResultadoActualizacionState>
+}
+
+class CitasController {
+  - _citaRepository: ICitaRepository
+  + ActualizarEstado(id: int, dto: ActualizarEstadoCitaDto, ct: CancellationToken): Task<IActionResult>
+}
+
+ICitaRepository <|.. CitaRepository
+CitasController --> ICitaRepository : invoca >
+CitasController --> ActualizarEstadoCitaDto : recibe >
+CitaRepository --> Cita : actualiza >
+Cita --> Turno : libera si cancelada/no asistió >
+@enduml

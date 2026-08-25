@@ -22,10 +22,16 @@ public interface ICitaRepository
     Task<IEnumerable<Cita>> ObtenerCitasDelDiaAsync(DateOnly fecha, int? barberoId = null, CancellationToken ct = default);
 
     /// <summary>
-    /// HU-08 / HU-06: Actualiza el estado de una cita ('Atendida' o 'Cancelada').
-    /// Si se cancela, libera automáticamente el turno asociado poniéndolo en estado 'Disponible'.
+    /// HU-08: Actualiza el estado de una cita ('Atendida', 'Cancelada', 'No asistió' o 'Pendiente').
+    /// Reutiliza la liberación atómica del turno asociado cuando el nuevo estado es 'Cancelada' o 'No asistió'.
+    /// Si la cita ya está 'Cancelada' y forzar es false, rechaza con requiereConfirmacion = true.
     /// </summary>
-    Task<bool> ActualizarEstadoCitaAsync(int idCita, string nuevoEstado, CancellationToken ct = default);
+    Task<(bool exito, string mensaje, bool requiereConfirmacion)> ActualizarEstadoCitaAsync(
+        int idCita, 
+        string nuevoEstado, 
+        bool forzar = false, 
+        string? usuarioAuditoria = null, 
+        CancellationToken ct = default);
 
     /// <summary>
     /// HU-06 Criterios 1 y 3: Cancela transaccionalmente una cita 'Pendiente' y libera atómicamente el turno asociado.

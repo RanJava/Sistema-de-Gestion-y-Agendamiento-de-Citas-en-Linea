@@ -1,0 +1,41 @@
+@startuml HU08_secuencia
+actor Administrador
+participant "Panel Admin (Vite React)" as UI
+participant "Modal Confirmación" as MODAL
+participant "CitasController" as API
+participant "CitaRepository" as REPO
+database "Base de Datos (EF Core)" as DB
+
+Administrador -> UI : Selecciona acción ("Atendida", "Cancelada", "No asistió")
+UI -> API : PATCH /api/admin/citas/{id}/estado { nuevoEstado, forzar: false }
+
+API -> REPO : ActualizarEstadoCitaAsync(id, nuevoEstado, forzar: false)
+REPO -> DB : Consultar Cita y Turno por idCita
+
+alt Cita actual está en estado "Cancelada" y forzar == false
+    REPO --> API : (exito: false, requiereConfirmacion: true)
+    API --> UI : HTTP 409 Conflict ("La cita está Cancelada. Confirme para sobrescribir")
+    UI -> MODAL : Abre Modal ("¿Confirmar sobrescritura de cita cancelada?")
+    Administrador -> MODAL : Hace clic en "Sí, sobrescribir"
+    MODAL -> UI : Confirma acción con forzar = true
+    UI -> API : PATCH /api/admin/citas/{id}/estado { nuevoEstado, forzar: true }
+    API -> REPO : ActualizarEstadoCitaAsync(id, nuevoEstado, forzar: true)
+    REPO -> DB : Actualizar Cita.Estado
+    alt nuevoEstado == "Cancelada" o "No asistió"
+        REPO -> DB : Turno.Estado = "Disponible" (Liberación)
+    end
+    REPO -> DB : SaveChangesAsync() + LogAuditoria
+    REPO --> API : (exito: true, mensaje: "Estado actualizado")
+    API --> UI : HTTP 200 OK
+    UI --> Administrador : Notificación de éxito y lista actualizada
+else Transición normal (Pendiente -> Atendida / Cancelada / No asistió)
+    REPO -> DB : Cita.Estado = nuevoEstado
+    alt nuevoEstado == "Cancelada" o "No asistió"
+        REPO -> DB : Turno.Estado = "Disponible"
+    end
+    REPO -> DB : SaveChangesAsync() + LogAuditoria
+    REPO --> API : (exito: true, mensaje: "Estado actualizado")
+    API --> UI : HTTP 200 OK
+    UI --> Administrador : Actualización en vivo
+end
+@enduml

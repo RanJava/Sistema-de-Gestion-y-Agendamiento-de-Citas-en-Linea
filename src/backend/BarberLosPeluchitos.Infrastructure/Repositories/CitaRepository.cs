@@ -2,16 +2,20 @@ using BarberLosPeluchitos.Core.Entities;
 using BarberLosPeluchitos.Core.Interfaces;
 using BarberLosPeluchitos.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace BarberLosPeluchitos.Infrastructure.Repositories;
 
 public class CitaRepository : ICitaRepository
 {
     private readonly ApplicationDbContext _context;
+    private readonly ILogger<CitaRepository> _logger;
 
-    public CitaRepository(ApplicationDbContext context)
+    public CitaRepository(ApplicationDbContext context, ILogger<CitaRepository>? logger = null)
     {
         _context = context;
+        _logger = logger ?? NullLogger<CitaRepository>.Instance;
     }
 
     public async Task<Cita> AgendarCitaTransaccionalAsync(int idCliente, int idServicio, int idTurno, CancellationToken ct = default)
@@ -125,24 +129,49 @@ public class CitaRepository : ICitaRepository
             .ToListAsync(ct);
     }
 
-    public async Task<bool> ActualizarEstadoCitaAsync(int idCita, string nuevoEstado, CancellationToken ct = default)
+    public async Task<(bool exito, string mensaje, bool requiereConfirmacion)> ActualizarEstadoCitaAsync(
+        int idCita, 
+        string nuevoEstado, 
+        bool forzar = false, 
+        string? usuarioAuditoria = null, 
+        CancellationToken ct = default)
     {
         var cita = await _context.Citas
             .Include(c => c.Turno)
             .FirstOrDefaultAsync(c => c.IdCita == idCita, ct);
 
-        if (cita == null) return false;
+        if (cita == null)
+        {
+            return (false, $"No se encontró la cita con ID #{idCita}.", false);
+        }
+
+        var estadoAnterior = cita.Estado;
+
+        // HU-08 Criterio 3: Si la cita ya está "Cancelada" y forzar es false, exigir confirmación adicional
+        if (string.Equals(estadoAnterior, "Cancelada", StringComparison.OrdinalIgnoreCase) && !forzar)
+        {
+            return (false, "La cita se encuentra en estado 'Cancelada'. Requiere confirmación explícita para sobrescribir su estado.", true);
+        }
 
         cita.Estado = nuevoEstado;
 
-        // Si la cita se cancela, liberar automáticamente el turno asociado
-        if (string.Equals(nuevoEstado, "Cancelada", StringComparison.OrdinalIgnoreCase) && cita.Turno != null)
+        // HU-08 Criterio 2 / HU-06: Liberación atómica del turno si pasa a "Cancelada" o "No asistió"
+        var esCanceladaONoAsistio = string.Equals(nuevoEstado, "Cancelada", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(nuevoEstado, "No asistió", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(nuevoEstado, "NoAsistio", StringComparison.OrdinalIgnoreCase);
+
+        if (esCanceladaONoAsistio && cita.Turno != null)
         {
             cita.Turno.Estado = "Disponible";
         }
 
-        var rows = await _context.SaveChangesAsync(ct);
-        return rows > 0;
+        await _context.SaveChangesAsync(ct);
+
+        // HU-08 Criterio 1: Auditoría de cambio de estado
+        _logger.LogInformation("Auditoría HU-08: Usuario '{Usuario}' actualizó el estado de la Cita #{IdCita} de '{EstadoAnterior}' a '{NuevoEstado}' en {FechaHora}.", 
+            usuarioAuditoria ?? "Administrador", idCita, estadoAnterior, nuevoEstado, DateTime.UtcNow);
+
+        return (true, $"El estado de la cita #{idCita} se actualizó de '{estadoAnterior}' a '{nuevoEstado}' exitosamente.", false);
     }
 
     public async Task<Cita> CancelarCitaTransaccionalAsync(int idCita, CancellationToken ct = default)

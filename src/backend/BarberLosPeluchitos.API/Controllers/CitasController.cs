@@ -157,15 +157,18 @@ public class CitasController : ControllerBase
     }
 
     /// <summary>
-    /// HU-08: Actualización de estado de una cita ('Atendida' o 'Cancelada') por parte del Administrador.
+    /// HU-08 Criterios 1, 2 y 3: Actualización de estado de cita por parte del Administrador ('Atendida', 'Cancelada', 'No asistió', 'Pendiente').
+    /// Registra auditoría, libera el turno atómicamente si pasa a 'Cancelada' / 'No asistió' y exige confirmación (forzar=true) si la cita ya está 'Cancelada'.
     /// </summary>
     [HttpPatch("{id:int}/estado")]
+    [HttpPatch("/api/admin/citas/{id:int}/estado")]
     [Authorize(Roles = "Administrador")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ActualizarEstado(int id, [FromBody] ActualizarEstadoCitaDto dto, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
@@ -173,17 +176,37 @@ public class CitasController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var actualizado = await _citaRepository.ActualizarEstadoCitaAsync(id, dto.NuevoEstado, cancellationToken);
-        if (!actualizado)
+        var usuarioAuditoria = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value 
+            ?? User.Identity?.Name 
+            ?? "Administrador";
+
+        var (exito, mensaje, requiereConfirmacion) = await _citaRepository.ActualizarEstadoCitaAsync(
+            id, 
+            dto.NuevoEstado, 
+            dto.Forzar, 
+            usuarioAuditoria, 
+            cancellationToken);
+
+        if (requiereConfirmacion)
         {
-            return NotFound(new { mensaje = $"No se encontró la cita con ID #{id}." });
+            return StatusCode(StatusCodes.Status409Conflict, new
+            {
+                mensaje,
+                idCita = id,
+                estadoActual = "Cancelada",
+                nuevoEstadoSolicitado = dto.NuevoEstado,
+                requiereConfirmacion = true
+            });
         }
 
-        _logger.LogInformation("Estado de cita #{IdCita} actualizado a '{NuevoEstado}' por Administrador.", id, dto.NuevoEstado);
+        if (!exito)
+        {
+            return NotFound(new { mensaje });
+        }
 
         return Ok(new
         {
-            mensaje = $"El estado de la cita #{id} se actualizó a '{dto.NuevoEstado}' exitosamente.",
+            mensaje,
             idCita = id,
             nuevoEstado = dto.NuevoEstado
         });

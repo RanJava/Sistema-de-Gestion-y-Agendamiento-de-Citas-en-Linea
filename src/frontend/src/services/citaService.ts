@@ -54,10 +54,13 @@ export const citaService = {
   },
 
   /**
-   * HU-08: Actualizar estado de cita (Atendida/Cancelada) por Administrador.
+   * HU-08: Actualizar estado de cita (Atendida/Cancelada/No asistió/Pendiente) por Administrador con flag de confirmación forzada.
    */
-  async actualizarEstado(idCita: number, nuevoEstado: string): Promise<{ mensaje: string; idCita: number; nuevoEstado: string }> {
-    const response = await api.patch<{ mensaje: string; idCita: number; nuevoEstado: string }>(`/citas/${idCita}/estado`, { nuevoEstado });
+  async actualizarEstado(idCita: number, nuevoEstado: string, forzar: boolean = false): Promise<{ mensaje: string; idCita: number; nuevoEstado: string }> {
+    const response = await api.patch<{ mensaje: string; idCita: number; nuevoEstado: string }>(`/citas/${idCita}/estado`, {
+      nuevoEstado,
+      forzar
+    });
     return response.data;
   },
 };

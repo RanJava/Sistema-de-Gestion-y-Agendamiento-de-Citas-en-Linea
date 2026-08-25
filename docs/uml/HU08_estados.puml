@@ -1,0 +1,28 @@
+@startuml HU08_estados
+[*] --> Pendiente : Agendamiento de Cita
+
+state Pendiente {
+  Pendiente --> Atendida : Marcar como Atendida (HU-08)
+  Pendiente --> Cancelada : Cancelar cita (HU-06 / HU-08)
+  Pendiente --> NoAsistio : Marcar como No asistió (HU-08)
+}
+
+state Atendida {
+  Atendida --> [*] : Cita completada
+}
+
+state NoAsistio {
+  NoAsistio --> [*] : Turno liberado a "Disponible"
+}
+
+state Cancelada {
+  Cancelada --> Atendida : Sobrescribir con forzar=true (HU-08)
+  Cancelada --> Pendiente : Sobrescribir con forzar=true (HU-08)
+  Cancelada --> [*] : Turno liberado a "Disponible"
+}
+
+note right of Cancelada
+  Transición desde "Cancelada" requiere
+  confirmación explícita (forzar=true)
+end note
+@enduml
