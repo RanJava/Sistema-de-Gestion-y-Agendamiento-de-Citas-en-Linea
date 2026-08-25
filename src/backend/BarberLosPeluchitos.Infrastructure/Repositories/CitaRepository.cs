@@ -106,14 +106,21 @@ public class CitaRepository : ICitaRepository
             .ToListAsync(ct);
     }
 
-    public async Task<IEnumerable<Cita>> ObtenerCitasDelDiaAsync(DateOnly fecha, CancellationToken ct = default)
+    public async Task<IEnumerable<Cita>> ObtenerCitasDelDiaAsync(DateOnly fecha, int? barberoId = null, CancellationToken ct = default)
     {
-        return await _context.Citas
+        var query = _context.Citas
             .Include(c => c.Cliente)
             .Include(c => c.Servicio)
             .Include(c => c.Turno)
                 .ThenInclude(t => t.Barbero)
-            .Where(c => c.Turno.Fecha == fecha)
+            .Where(c => c.Turno.Fecha == fecha);
+
+        if (barberoId.HasValue && barberoId.Value > 0)
+        {
+            query = query.Where(c => c.Turno.IdBarbero == barberoId.Value);
+        }
+
+        return await query
             .OrderBy(c => c.Turno.HoraInicio)
             .ToListAsync(ct);
     }

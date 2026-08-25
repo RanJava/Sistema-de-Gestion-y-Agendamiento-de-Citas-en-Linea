@@ -1,0 +1,34 @@
+@startuml HU07_clases
+class CitaResponseDto {
+  + idCita: int
+  + clienteNombre: String
+  + clienteTelefono: String
+  + clienteCorreo: String
+  + servicioNombre: String
+  + duracion: int
+  + precio: decimal
+  + fecha: String
+  + horaInicio: String
+  + horaFin: String
+  + barberoNombre: String
+  + estado: String
+}
+
+interface ICitaRepository {
+  + ObtenerCitasDelDiaAsync(fecha: DateOnly, barberoId: int?, ct: CancellationToken): Task<IEnumerable<Cita>>
+}
+
+class CitaRepository {
+  - _context: ApplicationDbContext
+  + ObtenerCitasDelDiaAsync(fecha: DateOnly, barberoId: int?, ct: CancellationToken): Task<IEnumerable<Cita>>
+}
+
+class CitasController {
+  - _citaRepository: ICitaRepository
+  + ObtenerCitasDelDia(fecha: String, barberoId: int?, ct: CancellationToken): Task<IActionResult>
+}
+
+ICitaRepository <|.. CitaRepository
+CitasController --> ICitaRepository : consulta >
+CitasController --> CitaResponseDto : proyecta >
+@enduml

@@ -14,7 +14,9 @@ import {
   Filter,
 } from 'lucide-react';
 import { citaService } from '../services/citaService';
+import { barberoService } from '../services/barberoService';
 import type { CitaResponseDto } from '../types/cita';
+import type { BarberoResponseDto } from '../types/barbero';
 
 export const AdminCitasDia: React.FC = () => {
   const getTodayString = () => {
@@ -26,6 +28,8 @@ export const AdminCitasDia: React.FC = () => {
   };
 
   const [fecha, setFecha] = useState(getTodayString());
+  const [selectedBarberoId, setSelectedBarberoId] = useState<number | ''>('');
+  const [barberos, setBarberos] = useState<BarberoResponseDto[]>([]);
   const [citas, setCitas] = useState<CitaResponseDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,18 +37,32 @@ export const AdminCitasDia: React.FC = () => {
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [filtroEstado, setFiltroEstado] = useState<string>('todos');
 
+  // 1. Cargar lista de barberos para el selector de filtro
+  useEffect(() => {
+    const cargarBarberos = async () => {
+      try {
+        const data = await barberoService.obtenerDisponibles();
+        setBarberos(data);
+      } catch (err) {
+        console.error('Error al cargar catálogo de barberos para el filtro:', err);
+      }
+    };
+    cargarBarberos();
+  }, []);
+
   const cargarCitas = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await citaService.obtenerCitasHoy(fecha);
+      const bId = selectedBarberoId !== '' ? Number(selectedBarberoId) : undefined;
+      const data = await citaService.obtenerCitasHoy(fecha, bId);
       setCitas(data);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al cargar citas del día.');
     } finally {
       setLoading(false);
     }
-  }, [fecha]);
+  }, [fecha, selectedBarberoId]);
 
   useEffect(() => {
     cargarCitas();
@@ -106,17 +124,33 @@ export const AdminCitasDia: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Selector de Barbero (HU-07 Criterio 3) */}
+            <select
+              value={selectedBarberoId}
+              onChange={e => setSelectedBarberoId(e.target.value ? Number(e.target.value) : '')}
+              className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-xs focus:border-amber-500 outline-none cursor-pointer"
+            >
+              <option value="">Todos los Barberos</option>
+              {barberos.map(b => (
+                <option key={b.idBarbero} value={b.idBarbero}>
+                  ✂️ {b.nombre}
+                </option>
+              ))}
+            </select>
+
+            {/* Selector de Fecha (HU-07 Criterio 1) */}
             <input
               type="date"
               value={fecha}
               onChange={e => setFecha(e.target.value)}
-              className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-xs focus:border-amber-500 outline-none"
+              className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-xs focus:border-amber-500 outline-none cursor-pointer"
             />
             <button
               onClick={cargarCitas}
               disabled={loading}
               className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 cursor-pointer transition-all disabled:opacity-50"
+              title="Refrescar listado de citas"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </button>

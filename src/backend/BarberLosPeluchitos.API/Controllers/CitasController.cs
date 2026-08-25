@@ -131,14 +131,19 @@ public class CitasController : ControllerBase
     }
 
     /// <summary>
-    /// HU-07: Listado de todas las citas del día para el panel de administración.
+    /// HU-07: Listado de todas las citas del día para el panel de administración con filtro opcional por barbero.
+    /// Protegido con rol Administrador. Retorna lista vacía [] si no existen citas para la fecha/filtro.
     /// </summary>
     [HttpGet("hoy")]
+    [HttpGet("/api/admin/citas")]
     [Authorize(Roles = "Administrador")]
     [ProducesResponseType(typeof(IEnumerable<CitaResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> ObtenerCitasDelDia([FromQuery] string? fecha, CancellationToken cancellationToken)
+    public async Task<IActionResult> ObtenerCitasDelDia(
+        [FromQuery] string? fecha,
+        [FromQuery] int? barberoId,
+        CancellationToken cancellationToken)
     {
         DateOnly fechaConsulta;
         if (string.IsNullOrWhiteSpace(fecha) || !DateOnly.TryParse(fecha, out fechaConsulta))
@@ -146,7 +151,7 @@ public class CitasController : ControllerBase
             fechaConsulta = DateOnly.FromDateTime(DateTime.Now);
         }
 
-        var citas = await _citaRepository.ObtenerCitasDelDiaAsync(fechaConsulta, cancellationToken);
+        var citas = await _citaRepository.ObtenerCitasDelDiaAsync(fechaConsulta, barberoId, cancellationToken);
         var response = citas.Select(MapearCitaResponse);
         return Ok(response);
     }

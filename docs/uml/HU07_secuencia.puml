@@ -1,0 +1,26 @@
+@startuml HU07_secuencia
+actor Administrador
+participant "Panel Admin (Vite React)" as UI
+participant "CitasController" as API
+participant "CitaRepository" as REPO
+database "Base de Datos (EF Core / PostgreSQL)" as DB
+
+Administrador -> UI : Ingresa al Panel / Selecciona fecha y barbero
+UI -> API : GET /api/admin/citas?fecha=2026-08-26&barberoId=1
+note over API : Validar Token JWT con Rol "Administrador"
+
+API -> REPO : ObtenerCitasDelDiaAsync(fecha, barberoId)
+REPO -> DB : Query EF Core con Include(Cliente, Servicio, Turno, Barbero) + Where(Fecha && BarberoId) + OrderBy(HoraInicio)
+DB --> REPO : Listado de entidades Cita
+
+alt Citas encontradas
+    REPO --> API : Colección de Citas
+    API -> API : Proyección MapearCitaResponse() (Evita N+1)
+    API --> UI : HTTP 200 OK [CitaResponseDto, ...]
+    UI --> Administrador : Muestra tabla cronológica de citas del día
+else Sin citas registradas
+    REPO --> API : Colección vacía []
+    API --> UI : HTTP 200 OK []
+    UI --> Administrador : Muestra "Sin citas para esta fecha / barbero"
+end
+@enduml

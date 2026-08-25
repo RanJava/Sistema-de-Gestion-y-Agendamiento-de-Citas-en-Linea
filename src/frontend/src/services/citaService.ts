@@ -42,11 +42,14 @@ export const citaService = {
   },
 
   /**
-   * HU-07: Obtener citas del día para panel de Administrador (requiere token Admin).
+   * HU-07: Obtener citas del día para panel de Administrador con filtro por barbero (requiere token Admin).
    */
-  async obtenerCitasHoy(fecha?: string): Promise<CitaResponseDto[]> {
-    const params = fecha ? `?fecha=${fecha}` : '';
-    const response = await api.get<CitaResponseDto[]>(`/citas/hoy${params}`);
+  async obtenerCitasHoy(fecha?: string, barberoId?: number): Promise<CitaResponseDto[]> {
+    const queryParams = new URLSearchParams();
+    if (fecha) queryParams.append('fecha', fecha);
+    if (barberoId && barberoId > 0) queryParams.append('barberoId', barberoId.toString());
+    const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+    const response = await api.get<CitaResponseDto[]>(`/citas/hoy${queryString}`);
     return response.data;
   },
 
