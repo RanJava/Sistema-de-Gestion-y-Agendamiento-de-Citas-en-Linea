@@ -1,4 +1,7 @@
+using BarberLosPeluchitos.Core.Interfaces;
 using BarberLosPeluchitos.Infrastructure.Data;
+using BarberLosPeluchitos.Infrastructure.Repositories;
+using BarberLosPeluchitos.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +13,11 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// 2. Configuración de CORS permisiva para desarrollo
+// 2. Inyección de Dependencias de Servicios y Repositorios
+builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
+builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+
+// 3. Configuración de CORS permisiva para desarrollo
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -21,14 +28,14 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 3. Registro de Controladores y Swagger
+// 4. Registro de Controladores y Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// 4. Configuración del Pipeline HTTP
+// 5. Configuración del Pipeline HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();

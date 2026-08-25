@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Scissors, Database, Server, Layout, CheckCircle2, Calendar, RefreshCw, AlertCircle } from 'lucide-react';
+import { Scissors, Server, Layout, CheckCircle2, RefreshCw, AlertCircle, UserPlus, Sparkles, Lock, ArrowRight } from 'lucide-react';
 import { checkApiHealth, type HealthCheckResponse } from './services/api';
+import { RegisterModal } from './components/RegisterModal';
+import type { Cliente } from './types';
 
 export function App() {
   const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'offline'>('checking');
   const [healthData, setHealthData] = useState<HealthCheckResponse | null>(null);
   const [isRetrying, setIsRetrying] = useState<boolean>(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState<boolean>(false);
+  const [lastRegisteredClient, setLastRegisteredClient] = useState<Cliente | null>(null);
 
   const testConnection = async () => {
     setIsRetrying(true);
@@ -24,7 +28,6 @@ export function App() {
 
   useEffect(() => {
     testConnection();
-    // Sondeo periódico cada 10 segundos
     const interval = setInterval(testConnection, 10000);
     return () => clearInterval(interval);
   }, []);
@@ -32,7 +35,7 @@ export function App() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-amber-500/30 selection:text-amber-200">
       {/* Header / Navbar */}
-      <header className="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
+      <header className="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center shadow-lg shadow-amber-500/20 text-slate-950 font-bold">
@@ -49,6 +52,15 @@ export function App() {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Botón de Registro HU-01 */}
+            <button
+              onClick={() => setIsRegisterOpen(true)}
+              className="py-1.5 px-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold flex items-center gap-1.5 shadow-md shadow-amber-500/20 transition-all cursor-pointer"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              <span>Registrarse (HU-01)</span>
+            </button>
+
             <button
               onClick={testConnection}
               disabled={isRetrying}
@@ -80,16 +92,28 @@ export function App() {
                   : 'Desconectado'
               }
             </span>
-
-            <span className="text-xs px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono hidden sm:inline-block">
-              v1.2 MVP Base
-            </span>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1 flex flex-col justify-center">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 flex flex-col justify-center">
+        {/* Banner de último cliente registrado si existe */}
+        {lastRegisteredClient && (
+          <div className="max-w-3xl mx-auto w-full mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 flex items-center justify-between animate-in fade-in">
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+              <div>
+                <p className="text-xs font-semibold text-white">Último cliente registrado:</p>
+                <p className="text-xs">{lastRegisteredClient.nombre} ({lastRegisteredClient.correo}) • ID #{lastRegisteredClient.idCliente}</p>
+              </div>
+            </div>
+            <span className="text-[11px] px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 font-mono">
+              HU-01 OK
+            </span>
+          </div>
+        )}
+
         <div className="text-center max-w-3xl mx-auto mb-10">
           <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold mb-4 border ${
             backendStatus === 'connected'
@@ -110,105 +134,114 @@ export function App() {
           </div>
 
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white mb-4">
-            Plataforma Lista para el Desarrollo de <span className="bg-gradient-to-r from-amber-400 to-amber-200 bg-clip-text text-transparent">Historias de Usuario</span>
+            Módulo <span className="bg-gradient-to-r from-amber-400 to-amber-200 bg-clip-text text-transparent">HU-01: Registro de Clientes</span> Implementado
           </h1>
           <p className="text-slate-400 text-base sm:text-lg leading-relaxed">
-            Se ha configurado la arquitectura desacoplada en 3 capas (.NET 10 Web API con Swagger UI), el modelo de datos relacional para PostgreSQL y la SPA moderna en React 19 con Tailwind CSS.
+            Se ha implementado el endpoint <code className="text-amber-300 bg-slate-900 px-2 py-0.5 rounded text-sm">POST /api/cuentas/registro</code> con hash seguro BCrypt (Ley 164 / D.S. 1793), validación de unicidad de correo y el formulario interactivo en el cliente.
           </p>
+
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <button
+              onClick={() => setIsRegisterOpen(true)}
+              className="py-3 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold flex items-center gap-2 shadow-xl shadow-amber-500/20 transition-all cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>Probar Formulario de Registro</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+
+            <a
+              href="http://localhost:5000/swagger"
+              target="_blank"
+              rel="noreferrer"
+              className="py-3 px-5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 text-sm font-semibold border border-slate-700/80 flex items-center gap-2 transition-all"
+            >
+              <span>Ver Swagger Docs</span>
+            </a>
+          </div>
         </div>
 
         {/* Status Grid Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto w-full mb-10">
-          {/* Card 1: Backend */}
+          {/* Card 1: Backend HU01 */}
           <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/80 hover:border-slate-700 transition-all shadow-xl">
             <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-4">
               <Server className="w-6 h-6" />
             </div>
-            <h2 className="text-lg font-semibold text-white mb-1">Backend ASP.NET Core</h2>
-            <p className="text-xs text-slate-400 mb-4">Arquitectura Limpia / 3 Capas (.NET 10)</p>
+            <h2 className="text-lg font-semibold text-white mb-1">CuentasController</h2>
+            <p className="text-xs text-slate-400 mb-4">Controlador y Repositorio HU-01</p>
             <ul className="text-xs text-slate-300 space-y-2">
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
-                <span><code className="text-blue-300">Swagger UI</code> activo en <a href="http://localhost:5000/swagger" target="_blank" rel="noreferrer" className="underline hover:text-white">/swagger</a></span>
+                <span><code className="text-blue-300">POST /api/cuentas/registro</code></span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
-                <span><code className="text-blue-300">Health Check</code> en <code className="text-blue-300">/api/health</code></span>
+                <span><code className="text-blue-300">GET /api/cuentas/verificar-correo</code></span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
-                <span>Controladores registrados & CORS habilitado</span>
+                <span><code className="text-blue-300">IClienteRepository</code> + EF Core</span>
               </li>
             </ul>
           </div>
 
-          {/* Card 2: Persistence & PostgreSQL */}
+          {/* Card 2: Seguridad & Ley 164 */}
           <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/80 hover:border-slate-700 transition-all shadow-xl">
             <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
-              <Database className="w-6 h-6" />
+              <Lock className="w-6 h-6" />
             </div>
-            <h2 className="text-lg font-semibold text-white mb-1">Persistencia PostgreSQL</h2>
-            <p className="text-xs text-slate-400 mb-4">ApplicationDbContext & Npgsql</p>
+            <h2 className="text-lg font-semibold text-white mb-1">Seguridad & Normativa</h2>
+            <p className="text-xs text-slate-400 mb-4">Ley 164 & D.S. 1793 Art. 56</p>
             <ul className="text-xs text-slate-300 space-y-2">
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Tablas: <code className="text-emerald-300">cliente</code>, <code className="text-emerald-300">barbero</code>, <code className="text-emerald-300">turno</code></span>
+                <span>Cifrado irreversible con <strong>BCrypt (workFactor 11)</strong></span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Tablas: <code className="text-emerald-300">servicio</code>, <code className="text-emerald-300">cita</code>, <code className="text-emerald-300">horario</code></span>
+                <span>Control estricto de unicidad en correo</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Índices únicos & restricciones de integridad</span>
+                <span>Contraseñas nunca almacenadas en texto plano</span>
               </li>
             </ul>
           </div>
 
-          {/* Card 3: Frontend SPA */}
+          {/* Card 3: Frontend Formulario */}
           <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/80 hover:border-slate-700 transition-all shadow-xl">
             <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4">
               <Layout className="w-6 h-6" />
             </div>
-            <h2 className="text-lg font-semibold text-white mb-1">Frontend SPA React 19</h2>
-            <p className="text-xs text-slate-400 mb-4">Vite + TypeScript + Tailwind CSS</p>
+            <h2 className="text-lg font-semibold text-white mb-1">Formulario Reactivo</h2>
+            <p className="text-xs text-slate-400 mb-4">RegisterModal Component</p>
             <ul className="text-xs text-slate-300 space-y-2">
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Estructura <code className="text-amber-300">components/</code>, <code className="text-amber-300">pages/</code>, <code className="text-amber-300">services/</code></span>
+                <span>Validaciones de formato, longitud y coincidencia</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Modelos y tipos TypeScript sincronizados</span>
+                <span>Manejo de errores 409 (Correo Duplicado) y 400</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Sondeo automático de estado hacia el Backend</span>
+                <span>Respuesta visual con datos creados</span>
               </li>
             </ul>
           </div>
         </div>
-
-        {/* Roadmap info */}
-        <div className="max-w-4xl mx-auto w-full bg-gradient-to-r from-slate-900 via-slate-900/80 to-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-400 border border-amber-500/20 shrink-0">
-              <Calendar className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-white">Siguiente Paso: Implementación por Historias de Usuario</h3>
-              <p className="text-xs text-slate-400">
-                La base está lista. Puedes solicitar la implementación de HU-01 (Registro de Cliente), HU-02 (Barberos & Horarios), HU-03 (Disponibilidad en tiempo real), etc.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="text-xs font-mono px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">
-              Esperando instrucción de HU
-            </span>
-          </div>
-        </div>
       </main>
+
+      {/* Modal de Registro HU-01 */}
+      <RegisterModal
+        isOpen={isRegisterOpen}
+        onClose={() => setIsRegisterOpen(false)}
+        onSuccess={(cliente) => {
+          setLastRegisteredClient(cliente);
+        }}
+      />
 
       {/* Footer */}
       <footer className="border-t border-slate-900 bg-slate-950 py-6 text-center text-xs text-slate-400">

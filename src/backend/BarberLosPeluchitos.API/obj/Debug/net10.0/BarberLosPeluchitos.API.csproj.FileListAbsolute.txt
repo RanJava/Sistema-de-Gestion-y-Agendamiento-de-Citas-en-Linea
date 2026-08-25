@@ -128,3 +128,4 @@ D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendam
 D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.API\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
 D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.API\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.API\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+D:\UPDS\SEMESTRE VI\SistemasDeInformacion1\Proyecto\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\src\backend\BarberLosPeluchitos.API\bin\Debug\net10.0\BCrypt-Net-Next.dll

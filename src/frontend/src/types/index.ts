@@ -6,6 +6,18 @@ export interface Cliente {
   fechaRegistro: string;
 }
 
+export interface RegistroClienteDto {
+  nombre: string;
+  telefono: string;
+  correo: string;
+  contrasena: string;
+}
+
+export interface RegistroClienteResponse {
+  mensaje: string;
+  cliente: Cliente;
+}
+
 export interface Barbero {
   idBarbero: number;
   nombre: string;

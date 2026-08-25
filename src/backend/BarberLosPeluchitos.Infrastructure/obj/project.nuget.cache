@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "yJpv96Q6P88=",
+  "dgSpecHash": "emS1pqZjEJk=",
   "success": true,
   "projectFilePath": "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Infrastructure\\BarberLosPeluchitos.Infrastructure.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\aguay\\.nuget\\packages\\bcrypt.net-next\\4.2.0\\bcrypt.net-next.4.2.0.nupkg.sha512",
     "C:\\Users\\aguay\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\aguay\\.nuget\\packages\\microsoft.build.framework\\18.0.2\\microsoft.build.framework.18.0.2.nupkg.sha512",
     "C:\\Users\\aguay\\.nuget\\packages\\microsoft.codeanalysis.analyzers\\3.11.0\\microsoft.codeanalysis.analyzers.3.11.0.nupkg.sha512",
