@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BarberLosPeluchitos.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+27540292621bad20bf1811186ab3e1e3faf11f6b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ffcf04cebddb94058e3029bfda3808b8ecfa536c")]
 [assembly: System.Reflection.AssemblyProductAttribute("BarberLosPeluchitos.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BarberLosPeluchitos.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

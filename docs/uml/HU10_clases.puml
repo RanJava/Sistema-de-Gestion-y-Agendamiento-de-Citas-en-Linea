@@ -1,3 +1,4 @@
+' HU-10: Recordatorio de cita próxima
 @startuml HU10_clases
 skinparam classAttributeIconSize 0
 

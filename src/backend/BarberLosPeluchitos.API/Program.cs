@@ -232,3 +232,4 @@ app.MapGet("/", () => Results.Redirect("/swagger"));
 app.MapControllers();
 
 app.Run();
+// HU-10: Recordatorio de cita próxima - Configuración de pipeline

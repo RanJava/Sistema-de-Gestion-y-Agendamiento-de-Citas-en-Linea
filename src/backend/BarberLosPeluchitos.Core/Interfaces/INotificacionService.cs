@@ -20,3 +20,4 @@ public interface INotificacionService
     /// </summary>
     Task<NotificacionResultDto> EnviarRecordatorioCitaAsync(CitaResponseDto cita, CancellationToken cancellationToken = default);
 }
+// HU-10: Recordatorio de cita próxima - Extensión del servicio de notificaciones

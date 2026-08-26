@@ -75,3 +75,4 @@ public class Cita
         RecordatorioEnviado = true;
     }
 }
+// HU-10: Recordatorio de cita próxima - Modificación de entidad de dominio

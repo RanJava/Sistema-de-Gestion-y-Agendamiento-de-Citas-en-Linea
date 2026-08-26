@@ -179,3 +179,4 @@ public class CitaRecordatorioTests
         Assert.False(citaDb.RecordatorioEnviado);
     }
 }
+// HU-10: Recordatorio de cita próxima - Pruebas unitarias

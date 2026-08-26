@@ -158,3 +158,4 @@ public class ApplicationDbContext : DbContext
         });
     }
 }
+// HU-10: Recordatorio de cita próxima - Mapeo de columna recordatorio_enviado

@@ -1,3 +1,4 @@
+' HU-10: Recordatorio de cita próxima
 @startuml HU10_secuencia
 autonumber
 actor SystemTimer as Timer

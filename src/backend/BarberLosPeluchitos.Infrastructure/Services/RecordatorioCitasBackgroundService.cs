@@ -118,3 +118,4 @@ public class RecordatorioCitasBackgroundService : BackgroundService
         }
     }
 }
+// HU-10: Recordatorio de cita próxima - BackgroundService IHostedService

@@ -55,3 +55,4 @@ public interface ICitaRepository
     /// </summary>
     Task MarcarRecordatorioEnviadoAsync(int idCita, CancellationToken ct = default);
 }
+// HU-10: Recordatorio de cita próxima - Métodos del repositorio
