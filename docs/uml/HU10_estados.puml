@@ -1,0 +1,18 @@
+@startuml HU10_estados
+[*] --> Pendiente : Cita Agendada (HU-04)
+
+state Pendiente {
+  [*] --> SinRecordatorio
+  SinRecordatorio --> RecordatorioEnviado : Faltan <= X horas AND Revalidación Pendiente
+}
+
+Pendiente --> Cancelada : Cancelación por cliente/admin (HU-06 / HU-08)
+Pendiente --> Atendida : Marcada como Atendida (HU-08)
+
+state Cancelada {
+  [*] --> NoEnviarRecordatorio : Omitir envio en BackgroundWorker (HU-10 Criterio 2)
+}
+
+RecordatorioEnviado --> Atendida : Cliente acude a la cita
+RecordatorioEnviado --> Cancelada : Cancelación post-recordatorio
+@enduml

@@ -1,0 +1,50 @@
+@startuml HU10_secuencia
+autonumber
+actor SystemTimer as Timer
+participant "RecordatorioCitasBackgroundService" as Worker
+participant "ICitaRepository" as Repo
+participant "ApplicationDbContext" as DB
+participant "INotificacionService" as NotifService
+participant "IEmailSender" as EmailSender
+
+Timer -> Worker : PeriodicTimer.WaitForNextTickAsync()
+activate Worker
+Worker -> Repo : ObtenerCitasPendientesParaRecordatorioAsync(horasAnticipacion)
+activate Repo
+Repo -> DB : Query Citas (Estado == 'Pendiente' AND !RecordatorioEnviado)
+activate DB
+DB --> Repo : List<Cita>
+deactivate DB
+Repo --> Worker : IEnumerable<Cita>
+deactivate Repo
+
+loop para cada cita proxima
+  Worker -> DB : Revalidar Estado Cita en tiempo real
+  activate DB
+  DB --> Worker : Cita (Estado actual)
+  deactivate DB
+  
+  alt Estado == 'Pendiente'
+    Worker -> NotifService : EnviarRecordatorioCitaAsync(citaDto)
+    activate NotifService
+    NotifService -> EmailSender : SendEmailAsync(correo, asunto, cuerpo)
+    activate EmailSender
+    EmailSender --> NotifService : exitoso
+    deactivate EmailSender
+    NotifService --> Worker : NotificacionResultDto
+    deactivate NotifService
+
+    Worker -> Repo : MarcarRecordatorioEnviadoAsync(idCita)
+    activate Repo
+    Repo -> DB : SaveChangesAsync()
+    activate DB
+    DB --> Repo : OK
+    deactivate DB
+    Repo --> Worker : OK
+    deactivate Repo
+  else Estado != 'Pendiente' (Cancelada / Atendida)
+    Worker -> Worker : Omitir envio (HU-10 Criterio 2)
+  end
+end
+deactivate Worker
+@enduml

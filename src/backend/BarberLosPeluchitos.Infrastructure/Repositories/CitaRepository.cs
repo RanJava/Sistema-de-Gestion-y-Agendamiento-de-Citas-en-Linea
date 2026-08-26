@@ -223,4 +223,35 @@ public class CitaRepository : ICitaRepository
             .Take(tamanoPagina)
             .ToListAsync(ct);
     }
+
+    public async Task<IEnumerable<Cita>> ObtenerCitasPendientesParaRecordatorioAsync(int horasAnticipacion, CancellationToken ct = default)
+    {
+        var citas = await _context.Citas
+            .Include(c => c.Cliente)
+            .Include(c => c.Servicio)
+            .Include(c => c.Turno)
+                .ThenInclude(t => t.Barbero)
+            .Where(c => c.Estado == "Pendiente" && !c.RecordatorioEnviado)
+            .ToListAsync(ct);
+
+        var ahora = DateTime.Now;
+        var umbralMaximo = ahora.AddHours(horasAnticipacion);
+
+        return citas.Where(c =>
+        {
+            if (c.Turno == null) return false;
+            var fechaHoraTurno = c.Turno.Fecha.ToDateTime(c.Turno.HoraInicio);
+            return fechaHoraTurno > ahora && fechaHoraTurno <= umbralMaximo;
+        });
+    }
+
+    public async Task MarcarRecordatorioEnviadoAsync(int idCita, CancellationToken ct = default)
+    {
+        var cita = await _context.Citas.FirstOrDefaultAsync(c => c.IdCita == idCita, ct);
+        if (cita != null)
+        {
+            cita.MarcarRecordatorioEnviado();
+            await _context.SaveChangesAsync(ct);
+        }
+    }
 }

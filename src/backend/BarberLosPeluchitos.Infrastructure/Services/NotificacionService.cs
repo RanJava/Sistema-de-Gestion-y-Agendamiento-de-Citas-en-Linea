@@ -67,7 +67,7 @@ public class NotificacionService : INotificacionService
             result.Mensaje = $"Confirmación enviada correctamente a {destinatario}.";
             _logger.LogInformation("HU-05: Notificación enviada con éxito para Cita #{IdCita}.", cita.IdCita);
 
-            await RegistrarLogAsync(cita.IdCita, destinatario, true, result.Mensaje, null);
+            await RegistrarLogAsync(cita.IdCita, destinatario, "EmailConfirmacion", true, result.Mensaje, null);
         }
         catch (Exception ex)
         {
@@ -78,7 +78,7 @@ public class NotificacionService : INotificacionService
             _logger.LogError(ex, "HU-05 CRITERIO 2: Falló el envío de correo para Cita #{IdCita}. La cita permanece registrada como 'Pendiente'. Error: {Error}", 
                 cita.IdCita, ex.Message);
 
-            await RegistrarLogAsync(cita.IdCita, destinatario, false, result.Mensaje, ex.ToString());
+            await RegistrarLogAsync(cita.IdCita, destinatario, "EmailConfirmacion", false, result.Mensaje, ex.ToString());
         }
 
         return result;
@@ -117,7 +117,7 @@ public class NotificacionService : INotificacionService
             result.Mensaje = $"Notificación de cancelación enviada correctamente a {destinatario}.";
             _logger.LogInformation("HU-06: Notificación de cancelación enviada con éxito para Cita #{IdCita}.", cita.IdCita);
 
-            await RegistrarLogAsync(cita.IdCita, destinatario, true, result.Mensaje, null);
+            await RegistrarLogAsync(cita.IdCita, destinatario, "EmailCancelacion", true, result.Mensaje, null);
         }
         catch (Exception ex)
         {
@@ -128,13 +128,73 @@ public class NotificacionService : INotificacionService
             _logger.LogError(ex, "HU-06: Falló el envío de correo de cancelación para Cita #{IdCita}. Error: {Error}", 
                 cita.IdCita, ex.Message);
 
-            await RegistrarLogAsync(cita.IdCita, destinatario, false, result.Mensaje, ex.ToString());
+            await RegistrarLogAsync(cita.IdCita, destinatario, "EmailCancelacion", false, result.Mensaje, ex.ToString());
         }
 
         return result;
     }
 
-    private async Task RegistrarLogAsync(int idCita, string destinatario, bool exitoso, string mensaje, string? errorDetalle)
+    public async Task<NotificacionResultDto> EnviarRecordatorioCitaAsync(CitaResponseDto cita, CancellationToken cancellationToken = default)
+    {
+        var destinatario = !string.IsNullOrWhiteSpace(cita.ClienteCorreo) ? cita.ClienteCorreo : "cliente@peluchitos.com";
+        var asunto = $"⏰ Recordatorio de Cita Próxima #{cita.IdCita} - Barbería Los Peluchitos";
+        
+        var cuerpo = $"""
+            ¡Hola {cita.ClienteNombre}!
+            
+            Te recordamos que tienes una cita programada próximamente en Barbería Los Peluchitos.
+            
+            📌 Detalles de tu Cita:
+            ---------------------------------------
+            • Código de Cita: #{cita.IdCita}
+            • Servicio: {cita.ServicioNombre} ({cita.Duracion} min)
+            • Barbero Asignado: {cita.BarberoNombre}
+            • Fecha: {cita.Fecha}
+            • Horario: {cita.HoraInicio} a {cita.HoraFin}
+            • Monto a Cancelar en Caja: {cita.Precio:F2} Bs
+            ---------------------------------------
+            
+            Te pedimos estar presente 5 minutos antes de la hora acordada.
+            Si necesitas cancelar, por favor hazlo a tiempo desde la plataforma.
+            
+            ¡Te esperamos!
+            Barbería Los Peluchitos
+            """;
+
+        var result = new NotificacionResultDto
+        {
+            Destinatario = destinatario,
+            FechaHora = DateTime.UtcNow
+        };
+
+        try
+        {
+            _logger.LogInformation("HU-10 Criterio 1: Enviando recordatorio de cita próxima para Cita #{IdCita} a '{Destinatario}'...", cita.IdCita, destinatario);
+
+            var exito = await _emailSender.SendEmailAsync(destinatario, asunto, cuerpo, cancellationToken);
+
+            result.Exitoso = exito;
+            result.Mensaje = $"Recordatorio de cita enviado correctamente a {destinatario}.";
+            _logger.LogInformation("HU-10: Recordatorio de cita enviado con éxito para Cita #{IdCita}.", cita.IdCita);
+
+            await RegistrarLogAsync(cita.IdCita, destinatario, "EmailRecordatorio", true, result.Mensaje, null);
+        }
+        catch (Exception ex)
+        {
+            result.Exitoso = false;
+            result.Mensaje = "Ocurrió un error al enviar el correo de recordatorio de cita.";
+            result.ErrorDetalle = ex.Message;
+
+            _logger.LogError(ex, "HU-10: Falló el envío de correo de recordatorio para Cita #{IdCita}. Error: {Error}", 
+                cita.IdCita, ex.Message);
+
+            await RegistrarLogAsync(cita.IdCita, destinatario, "EmailRecordatorio", false, result.Mensaje, ex.ToString());
+        }
+
+        return result;
+    }
+
+    private async Task RegistrarLogAsync(int idCita, string destinatario, string tipoNotificacion, bool exitoso, string mensaje, string? errorDetalle)
     {
         try
         {
@@ -145,7 +205,7 @@ public class NotificacionService : INotificacionService
             {
                 IdCita = idCita,
                 Destinatario = destinatario,
-                Tipo = "EmailConfirmacion",
+                Tipo = tipoNotificacion,
                 Exitoso = exitoso,
                 Mensaje = mensaje,
                 ErrorDetalle = errorDetalle,

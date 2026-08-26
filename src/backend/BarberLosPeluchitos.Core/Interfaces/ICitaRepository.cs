@@ -44,4 +44,14 @@ public interface ICitaRepository
     /// Preserva los valores snapshot (precio y duración al momento de la cita).
     /// </summary>
     Task<IEnumerable<Cita>> ObtenerHistorialClienteAsync(int idCliente, int pagina = 1, int tamanoPagina = 10, CancellationToken ct = default);
+
+    /// <summary>
+    /// HU-10 Criterio 1: Obtiene las citas pendientes que están dentro del umbral de X horas de anticipación y aún no tienen recordatorio enviado.
+    /// </summary>
+    Task<IEnumerable<Cita>> ObtenerCitasPendientesParaRecordatorioAsync(int horasAnticipacion, CancellationToken ct = default);
+
+    /// <summary>
+    /// HU-10 Criterio 1: Marca la cita como 'RecordatorioEnviado = true' para evitar duplicidad.
+    /// </summary>
+    Task MarcarRecordatorioEnviadoAsync(int idCita, CancellationToken ct = default);
 }

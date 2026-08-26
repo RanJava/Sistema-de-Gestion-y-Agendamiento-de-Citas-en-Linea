@@ -108,6 +108,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Estado).HasColumnName("estado").HasMaxLength(15).HasDefaultValue("Pendiente").IsRequired();
             entity.Property(e => e.Duracion).HasColumnName("duracion").IsRequired();
             entity.Property(e => e.Precio).HasColumnName("precio").HasPrecision(8, 2).IsRequired();
+            entity.Property(e => e.RecordatorioEnviado).HasColumnName("recordatorio_enviado").HasDefaultValue(false).IsRequired();
 
             entity.HasOne(e => e.Cliente)
                 .WithMany(c => c.Citas)

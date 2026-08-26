@@ -31,6 +31,11 @@ builder.Services.AddScoped<ICitaRepository, CitaRepository>();
 builder.Services.AddScoped<IEmailSender, MockEmailSender>();
 builder.Services.AddScoped<INotificacionService, NotificacionService>();
 
+// HU-10: Configuración de Opciones y Registro del HostedService de Recordatorio de Citas Próximas
+builder.Services.Configure<BarberLosPeluchitos.Core.Options.RecordatorioOptions>(
+    builder.Configuration.GetSection("Recordatorios"));
+builder.Services.AddHostedService<RecordatorioCitasBackgroundService>();
+
 // 3. Configuración de Autenticación con JWT
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "BarberLosPeluchitosKeySeguraSuperSecreta2026!#$JWT";
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "BarberLosPeluchitos";
@@ -135,6 +140,8 @@ using (var scope = app.Services.CreateScope())
             error_detalle text NULL,
             fecha_registro timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
+
+        ALTER TABLE cita ADD COLUMN IF NOT EXISTS recordatorio_enviado boolean NOT NULL DEFAULT false;
     ");
 
     // Seed de Servicios

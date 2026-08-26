@@ -1,0 +1,52 @@
+@startuml HU10_clases
+skinparam classAttributeIconSize 0
+
+class Cita {
+  + int IdCita
+  + int IdCliente
+  + int IdTurno
+  + int IdServicio
+  + DateTime FechaHora
+  + string Estado
+  + int Duracion
+  + decimal Precio
+  + bool RecordatorioEnviado
+  + bool Confirmar()
+  + bool PuedeCancelar()
+  + void Cancelar(turno: Turno)
+  + void MarcarRecordatorioEnviado()
+}
+
+class RecordatorioOptions {
+  + int HorasAnticipacion
+  + int IntervaloChequeoMinutos
+}
+
+interface ICitaRepository {
+  + ObtenerCitasPendientesParaRecordatorioAsync(horasAnticipacion: int): Task<IEnumerable<Cita>>
+  + MarcarRecordatorioEnviadoAsync(idCita: int): Task
+}
+
+interface INotificacionService {
+  + EnviarRecordatorioCitaAsync(cita: CitaResponseDto): Task<NotificacionResultDto>
+}
+
+class RecordatorioCitasBackgroundService {
+  - _serviceProvider: IServiceProvider
+  - _options: RecordatorioOptions
+  - _logger: ILogger
+  # ExecuteAsync(stoppingToken: CancellationToken): Task
+  - ProcesarRecordatoriosAsync(stoppingToken: CancellationToken): Task
+}
+
+class NotificacionService {
+  - _emailSender: IEmailSender
+  + EnviarRecordatorioCitaAsync(cita: CitaResponseDto): Task<NotificacionResultDto>
+}
+
+RecordatorioCitasBackgroundService ..> ICitaRepository : usa scope
+RecordatorioCitasBackgroundService ..> INotificacionService : usa scope
+RecordatorioCitasBackgroundService ..> RecordatorioOptions : lee configuracion
+NotificacionService ..|> INotificacionService
+Cita "1" -- "1" RecordatorioOptions : evalúa según
+@enduml

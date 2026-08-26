@@ -10,6 +10,7 @@ public class Cita
     public string Estado { get; set; } = "Pendiente"; // 'Pendiente', 'Atendida', 'Cancelada'
     public int Duracion { get; set; }
     public decimal Precio { get; set; }
+    public bool RecordatorioEnviado { get; set; } = false;
 
     // Relaciones de navegación
     public Cliente Cliente { get; set; } = null!;
@@ -64,5 +65,13 @@ public class Cita
         {
             turno.Estado = "Disponible";
         }
+    }
+
+    /// <summary>
+    /// HU-10 Criterio 1: Registra que la cita ya recibió el recordatorio de asistencia previa.
+    /// </summary>
+    public void MarcarRecordatorioEnviado()
+    {
+        RecordatorioEnviado = true;
     }
 }
