@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Proyectos de godo\\estructuras_de_datos\\Tarea_por_Grupos\\Barberia\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Infrastructure\\BarberLosPeluchitos.Infrastructure.csproj": {}
+    "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Infrastructure\\BarberLosPeluchitos.Infrastructure.csproj": {}
   },
   "projects": {
-    "D:\\Proyectos de godo\\estructuras_de_datos\\Tarea_por_Grupos\\Barberia\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Core\\BarberLosPeluchitos.Core.csproj": {
+    "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Core\\BarberLosPeluchitos.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Proyectos de godo\\estructuras_de_datos\\Tarea_por_Grupos\\Barberia\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Core\\BarberLosPeluchitos.Core.csproj",
+        "projectUniqueName": "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Core\\BarberLosPeluchitos.Core.csproj",
         "projectName": "BarberLosPeluchitos.Core",
-        "projectPath": "D:\\Proyectos de godo\\estructuras_de_datos\\Tarea_por_Grupos\\Barberia\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Core\\BarberLosPeluchitos.Core.csproj",
-        "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
-        "outputPath": "D:\\Proyectos de godo\\estructuras_de_datos\\Tarea_por_Grupos\\Barberia\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Core\\obj\\",
+        "projectPath": "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Core\\BarberLosPeluchitos.Core.csproj",
+        "packagesPath": "C:\\Users\\aguay\\.nuget\\packages\\",
+        "outputPath": "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Core\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\aguay\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -22,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -41,7 +46,7 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.400"
+        "SdkAnalysisLevel": "10.0.300"
       },
       "frameworks": {
         "net10.0": {
@@ -63,7 +68,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.400/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -341,17 +346,21 @@
         }
       }
     },
-    "D:\\Proyectos de godo\\estructuras_de_datos\\Tarea_por_Grupos\\Barberia\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Infrastructure\\BarberLosPeluchitos.Infrastructure.csproj": {
+    "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Infrastructure\\BarberLosPeluchitos.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Proyectos de godo\\estructuras_de_datos\\Tarea_por_Grupos\\Barberia\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Infrastructure\\BarberLosPeluchitos.Infrastructure.csproj",
+        "projectUniqueName": "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Infrastructure\\BarberLosPeluchitos.Infrastructure.csproj",
         "projectName": "BarberLosPeluchitos.Infrastructure",
-        "projectPath": "D:\\Proyectos de godo\\estructuras_de_datos\\Tarea_por_Grupos\\Barberia\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Infrastructure\\BarberLosPeluchitos.Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
-        "outputPath": "D:\\Proyectos de godo\\estructuras_de_datos\\Tarea_por_Grupos\\Barberia\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Infrastructure\\obj\\",
+        "projectPath": "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Infrastructure\\BarberLosPeluchitos.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\aguay\\.nuget\\packages\\",
+        "outputPath": "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\aguay\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -359,6 +368,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -366,8 +376,8 @@
             "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "D:\\Proyectos de godo\\estructuras_de_datos\\Tarea_por_Grupos\\Barberia\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Core\\BarberLosPeluchitos.Core.csproj": {
-                "projectPath": "D:\\Proyectos de godo\\estructuras_de_datos\\Tarea_por_Grupos\\Barberia\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Core\\BarberLosPeluchitos.Core.csproj"
+              "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Core\\BarberLosPeluchitos.Core.csproj": {
+                "projectPath": "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Core\\BarberLosPeluchitos.Core.csproj"
               }
             }
           }
@@ -382,7 +392,7 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.400"
+        "SdkAnalysisLevel": "10.0.300"
       },
       "frameworks": {
         "net10.0": {
@@ -432,7 +442,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.400/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
