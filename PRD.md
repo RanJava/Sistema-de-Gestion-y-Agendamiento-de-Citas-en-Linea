@@ -448,26 +448,19 @@ Prioridad: Media | Sprint: Fuera del alcance del MVP (Release 2)
 ## 9. Marco Legal y Ética de Datos
 
 ### 9.1 Habeas Data (Art. 130 CPE)
-Actualmente el sistema **no implementa** autoservicio de Habeas Data: el cliente puede consultar
-sus propios datos vía `GET /api/cuentas/{id}`, pero no existe endpoint para que solicite la
-rectificación o eliminación de su información (`nombre`, `telefono`, `correo`). Se identifica
-como brecha a corregir en la Fase C de esta auditoría: se añadirá `DELETE /api/cuentas/{id}`
-(baja lógica, preservando el histórico de citas por obligación mercantil del Código de Comercio
-Art. 36) y `PUT /api/cuentas/{id}` para rectificación de datos.
+
+Actualmente el sistema no implementa autoservicio de Habeas Data: el cliente puede consultar sus propios datos vía `GET /api/cuentas/{id}`, pero no existe endpoint para que solicite la rectificación o eliminación de su información (`nombre`, `telefono`, `correo`). Se identifica como brecha a corregir en la Fase C de esta auditoría: se añadirá `DELETE /api/cuentas/{id}` (baja lógica, preservando el histórico de citas por obligación mercantil del Código de Comercio Art. 36) y `PUT /api/cuentas/{id}` para rectificación de datos.
 
 ### 9.2 Ley 164 — Estándares y Firma Digital
-El sistema no maneja firma digital criptográfica per se; la validez probatoria de confirmaciones
-y cancelaciones se sustenta en el Art. 78 (mensajes de datos), respaldada por timestamps en el
-histórico de `cita` y `turno`. Como estándar abierto, la API expone contratos en JSON sobre HTTP
-(REST), documentados con OpenAPI/Swagger.
+
+El sistema no maneja firma digital criptográfica per se; la validez probatoria de confirmaciones y cancelaciones se sustenta en el Art. 78 (mensajes de datos), respaldada por timestamps en el histórico de `cita` y `turno`. Como estándar abierto, la API expone contratos en JSON sobre HTTP (REST), documentados con OpenAPI/Swagger.
 
 ### 9.3 Seguridad ASFI: Cifrado y Logs de Auditoría
-**Estado actual (hallazgo de auditoría):** `telefono` y `correo` se almacenan en texto plano en
-la tabla `cliente`; no existe una tabla de logs de auditoría que registre accesos a datos
-sensibles por parte de personal administrativo.
 
-**Medidas a implementar (Fase C):**
+Estado actual (hallazgo de auditoría): `telefono` y `correo` se almacenan en texto plano en la tabla `cliente`; no existe una tabla de logs de auditoría que registre accesos a datos sensibles por parte de personal administrativo.
+
+Medidas a implementar (Fase C):
+
 - Cifrado en reposo (AES) para el campo `telefono` (dato de contacto sensible).
-- Tabla `logs_auditoria` inalterable (solo INSERT, sin UPDATE/DELETE a nivel de permisos de BD)
-  que registre: quién (id_administrador), qué recurso, qué acción y cuándo, cada vez que se
-  consulta el historial o los datos de un cliente vía `AdminClientesController`.
+- Cifrado en reposo (AES) para el campo `correo`, dado que constituye un dato personal identificable y es también el medio usado para autenticación/recuperación de cuenta; se mantiene un índice hash determinístico (HMAC) sobre el correo para permitir búsquedas de login sin exponer el valor en claro en la base de datos.
+- Tabla `logs_auditoria` inalterable (solo INSERT, sin UPDATE/DELETE a nivel de permisos de BD) que registre: quién (id_administrador), qué recurso, qué acción y cuándo, cada vez que se consulta el historial o los datos de un cliente vía `AdminClientesController`.
