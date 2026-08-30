@@ -4,6 +4,10 @@ public class Barbero
 {
     public int IdBarbero { get; set; }
     public string Nombre { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Almacenado cifrado en reposo con AES-256 (Ley 164 / D.S. 1793).
+    /// </summary>
     public string Telefono { get; set; } = string.Empty;
 
     // Relaciones de navegación

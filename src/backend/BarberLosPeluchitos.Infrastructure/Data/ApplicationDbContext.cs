@@ -1,12 +1,21 @@
 using BarberLosPeluchitos.Core.Entities;
+using BarberLosPeluchitos.Core.Interfaces;
+using BarberLosPeluchitos.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+
 
 namespace BarberLosPeluchitos.Infrastructure.Data;
 
 public class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    private readonly IEncryptionService _encryptionService;
+
+    public ApplicationDbContext(
+        DbContextOptions<ApplicationDbContext> options,
+        IEncryptionService? encryptionService = null) : base(options)
     {
+        _encryptionService = encryptionService ?? new AesEncryptionService(new ConfigurationBuilder().Build());
     }
 
     public DbSet<Cliente> Clientes => Set<Cliente>();
@@ -17,33 +26,70 @@ public class ApplicationDbContext : DbContext
     public DbSet<Cita> Citas => Set<Cita>();
     public DbSet<Administrador> Administradores => Set<Administrador>();
     public DbSet<NotificacionLog> NotificacionesLog => Set<NotificacionLog>();
+    public DbSet<LogAuditoria> LogsAuditoria => Set<LogAuditoria>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // CLIENTE
+        var aesConverter = new AesValueConverter(_encryptionService);
+        var aesNullableConverter = new AesNullableValueConverter(_encryptionService);
+
+        // CLIENTE (Cifrado AES-256 + Blind Index CorreoHash + Habeas Data)
         modelBuilder.Entity<Cliente>(entity =>
         {
             entity.ToTable("cliente");
             entity.HasKey(e => e.IdCliente);
             entity.Property(e => e.IdCliente).HasColumnName("id_cliente");
             entity.Property(e => e.Nombre).HasColumnName("nombre").HasMaxLength(50).IsRequired();
-            entity.Property(e => e.Telefono).HasColumnName("telefono").HasMaxLength(20).IsRequired();
-            entity.Property(e => e.Correo).HasColumnName("correo").HasMaxLength(100).IsRequired();
-            entity.HasIndex(e => e.Correo).IsUnique();
+            
+            // Cifrado en reposo para campos sensibles (Ley 164)
+            entity.Property(e => e.Telefono)
+                .HasColumnName("telefono")
+                .HasMaxLength(255)
+                .HasConversion(aesConverter)
+                .IsRequired();
+
+            entity.Property(e => e.Correo)
+                .HasColumnName("correo")
+                .HasMaxLength(255)
+                .HasConversion(aesConverter)
+                .IsRequired();
+
+            // Blind index determinístico para login y unicidad
+            entity.Property(e => e.CorreoHash)
+                .HasColumnName("correo_hash")
+                .HasMaxLength(128);
+
+            entity.HasIndex(e => e.CorreoHash).IsUnique();
+
             entity.Property(e => e.ContrasenaHash).HasColumnName("contrasena_hash").HasMaxLength(255).IsRequired();
+
+            entity.Property(e => e.CodigoVerificacion)
+                .HasColumnName("codigo_verificacion")
+                .HasMaxLength(255)
+                .HasConversion(aesNullableConverter);
+
             entity.Property(e => e.FechaRegistro).HasColumnName("fecha_registro").HasDefaultValueSql("CURRENT_DATE");
+
+            // Habeas Data (Baja Lógica / Preservación Histórica)
+            entity.Property(e => e.Activo).HasColumnName("activo").HasDefaultValue(true).IsRequired();
+            entity.Property(e => e.FechaEliminacion).HasColumnName("fecha_eliminacion");
         });
 
-        // BARBERO
+        // BARBERO (Cifrado AES-256 en Telefono)
         modelBuilder.Entity<Barbero>(entity =>
         {
             entity.ToTable("barbero");
             entity.HasKey(e => e.IdBarbero);
             entity.Property(e => e.IdBarbero).HasColumnName("id_barbero");
             entity.Property(e => e.Nombre).HasColumnName("nombre").HasMaxLength(50).IsRequired();
-            entity.Property(e => e.Telefono).HasColumnName("telefono").HasMaxLength(20).IsRequired();
+            
+            entity.Property(e => e.Telefono)
+                .HasColumnName("telefono")
+                .HasMaxLength(255)
+                .HasConversion(aesConverter)
+                .IsRequired();
         });
 
         // HORARIO_DISPONIBILIDAD
@@ -129,15 +175,31 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => new { e.FechaHora, e.Estado });
         });
 
-        // ADMINISTRADOR
+        // ADMINISTRADOR (Cifrado AES-256 + Blind Index CorreoHash)
         modelBuilder.Entity<Administrador>(entity =>
         {
             entity.ToTable("administrador");
             entity.HasKey(e => e.IdAdministrador);
             entity.Property(e => e.IdAdministrador).HasColumnName("id_administrador");
             entity.Property(e => e.Nombre).HasColumnName("nombre").HasMaxLength(50).IsRequired();
-            entity.Property(e => e.Correo).HasColumnName("correo").HasMaxLength(100).IsRequired();
-            entity.HasIndex(e => e.Correo).IsUnique();
+            
+            entity.Property(e => e.Correo)
+                .HasColumnName("correo")
+                .HasMaxLength(255)
+                .HasConversion(aesConverter)
+                .IsRequired();
+
+            entity.Property(e => e.CorreoHash)
+                .HasColumnName("correo_hash")
+                .HasMaxLength(128);
+
+            entity.HasIndex(e => e.CorreoHash).IsUnique();
+
+            entity.Property(e => e.Telefono)
+                .HasColumnName("telefono")
+                .HasMaxLength(255)
+                .HasConversion(aesNullableConverter);
+
             entity.Property(e => e.ContrasenaHash).HasColumnName("contrasena_hash").HasMaxLength(255).IsRequired();
             entity.Property(e => e.FechaCreacion).HasColumnName("fecha_creacion").HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
@@ -156,6 +218,28 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.ErrorDetalle).HasColumnName("error_detalle");
             entity.Property(e => e.FechaRegistro).HasColumnName("fecha_registro").HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
+
+        // LOGS_AUDITORIA (Inalterable - Ley 164 / Código Penal Art. 363 ter)
+        modelBuilder.Entity<LogAuditoria>(entity =>
+        {
+            entity.ToTable("logs_auditoria");
+            entity.HasKey(e => e.IdLog);
+            entity.Property(e => e.IdLog).HasColumnName("id_log");
+            entity.Property(e => e.IdAdministrador).HasColumnName("id_administrador");
+            entity.Property(e => e.RecursoAfectado).HasColumnName("recurso_afectado").HasMaxLength(50).IsRequired();
+            entity.Property(e => e.IdRecurso).HasColumnName("id_recurso").HasMaxLength(50);
+            entity.Property(e => e.Accion).HasColumnName("accion").HasMaxLength(20).IsRequired();
+            entity.Property(e => e.FechaHora).HasColumnName("fecha_hora").HasDefaultValueSql("CURRENT_TIMESTAMP").IsRequired();
+            entity.Property(e => e.IpOrigen).HasColumnName("ip_origen").HasMaxLength(45).IsRequired();
+            entity.Property(e => e.Detalles).HasColumnName("detalles").HasMaxLength(500);
+
+            entity.HasOne(e => e.Administrador)
+                .WithMany(a => a.LogsAuditoria)
+                .HasForeignKey(e => e.IdAdministrador)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => new { e.RecursoAfectado, e.FechaHora });
+            entity.HasIndex(e => e.IdAdministrador);
+        });
     }
 }
-// HU-10: Recordatorio de cita próxima - Mapeo de columna recordatorio_enviado

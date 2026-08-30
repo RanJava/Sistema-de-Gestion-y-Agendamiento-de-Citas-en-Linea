@@ -1,3 +1,4 @@
+using BarberLosPeluchitos.API.Filters;
 using BarberLosPeluchitos.Core.DTOs;
 using BarberLosPeluchitos.Core.Entities;
 using BarberLosPeluchitos.Core.Interfaces;
@@ -9,6 +10,7 @@ namespace BarberLosPeluchitos.API.Controllers;
 [ApiController]
 [Route("api/admin/clientes")]
 [Authorize(Roles = "Administrador")]
+[ServiceFilter(typeof(AuditAdminAccessFilter))]
 public class AdminClientesController : ControllerBase
 {
     private readonly IClienteRepository _clienteRepository;
@@ -27,6 +29,7 @@ public class AdminClientesController : ControllerBase
 
     /// <summary>
     /// HU-09 Criterio 1: Búsqueda paginada de clientes por nombre, teléfono o correo.
+    /// Registra auditoría automática de consulta (SELECT) sobre datos personales.
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<ClienteDto>), StatusCodes.Status200OK)]

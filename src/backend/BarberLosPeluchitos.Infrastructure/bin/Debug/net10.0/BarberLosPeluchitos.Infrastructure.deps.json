@@ -11,6 +11,7 @@
           "BCrypt.Net-Next": "4.2.0",
           "BarberLosPeluchitos.Core": "1.0.0",
           "Microsoft.EntityFrameworkCore.Design": "10.0.11",
+          "Microsoft.Extensions.Configuration": "10.0.11",
           "Microsoft.Extensions.Configuration.Abstractions": "10.0.11",
           "Microsoft.Extensions.Hosting.Abstractions": "10.0.0",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "10.0.3",
@@ -399,6 +400,18 @@
         },
         "runtime": {
           "lib/net10.0/Microsoft.Extensions.Caching.Memory.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.1126.37416"
+          }
+        }
+      },
+      "Microsoft.Extensions.Configuration/10.0.11": {
+        "dependencies": {
+          "Microsoft.Extensions.Configuration.Abstractions": "10.0.11",
+          "Microsoft.Extensions.Primitives": "10.0.11"
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.Extensions.Configuration.dll": {
             "assemblyVersion": "10.0.0.0",
             "fileVersion": "10.0.1126.37416"
           }
@@ -810,6 +823,13 @@
       "sha512": "sha512-el1g0mBEbDBGY2bT9mcSfrTWO8QlPdq2nOCnvQugioOFwHV+bVBMeiakoI0dNOdj8d6Hi9K6HY2xzRUWJiDR3w==",
       "path": "microsoft.extensions.caching.memory/10.0.11",
       "hashPath": "microsoft.extensions.caching.memory.10.0.11.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Configuration/10.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-wlhRqZW8LcJPa+vk2oLAc/REXDItHtkFQdf/QcXYGZbZOO13izcsKY1pCvuFQYwUiZD+hwSZwsKASjqT+BNaVg==",
+      "path": "microsoft.extensions.configuration/10.0.11",
+      "hashPath": "microsoft.extensions.configuration.10.0.11.nupkg.sha512"
     },
     "Microsoft.Extensions.Configuration.Abstractions/10.0.11": {
       "type": "package",

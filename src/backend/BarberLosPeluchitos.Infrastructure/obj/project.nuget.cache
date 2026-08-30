@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "XUHUBIFs+qs=",
+  "dgSpecHash": "I+DamyuMk0A=",
   "success": true,
   "projectFilePath": "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Infrastructure\\BarberLosPeluchitos.Infrastructure.csproj",
   "expectedPackageFiles": [
@@ -20,6 +20,7 @@
     "C:\\Users\\aguay\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\10.0.11\\microsoft.entityframeworkcore.relational.10.0.11.nupkg.sha512",
     "C:\\Users\\aguay\\.nuget\\packages\\microsoft.extensions.caching.abstractions\\10.0.11\\microsoft.extensions.caching.abstractions.10.0.11.nupkg.sha512",
     "C:\\Users\\aguay\\.nuget\\packages\\microsoft.extensions.caching.memory\\10.0.11\\microsoft.extensions.caching.memory.10.0.11.nupkg.sha512",
+    "C:\\Users\\aguay\\.nuget\\packages\\microsoft.extensions.configuration\\10.0.11\\microsoft.extensions.configuration.10.0.11.nupkg.sha512",
     "C:\\Users\\aguay\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\10.0.11\\microsoft.extensions.configuration.abstractions.10.0.11.nupkg.sha512",
     "C:\\Users\\aguay\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\10.0.11\\microsoft.extensions.dependencyinjection.10.0.11.nupkg.sha512",
     "C:\\Users\\aguay\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\10.0.11\\microsoft.extensions.dependencyinjection.abstractions.10.0.11.nupkg.sha512",
