@@ -7,12 +7,12 @@ import {
   CheckCircle2,
   AlertTriangle,
   ArrowRight,
-  Sparkles,
   ShieldCheck,
   Zap,
 } from 'lucide-react';
 import { barberoService } from '../services/barberoService';
 import { disponibilidadService } from '../services/disponibilidadService';
+import { BarberScissorsIcon } from './LandingHome';
 import type { BarberoResponseDto } from '../types/barbero';
 import type { DisponibilidadResponseDto, TurnoResponseDto } from '../types/turno';
 
@@ -103,14 +103,12 @@ export const AgendaDisponibilidad: React.FC = () => {
       const check = await disponibilidadService.verificarDisponibilidad(turno.idTurno);
 
       if (!check.estaDisponible) {
-        // Criterio 3: Concurrencia detectada, turno tomado
         setConcurrencyAlert(`⚠️ Concurrencia detectada: ${check.mensaje}`);
         setSelectedTurno(null);
-        // Refrescar disponibilidad automáticamente
         consultarTurnos();
       } else {
         setSelectedTurno(turno);
-        setSuccessMsg(`✅ Turno ${turno.horaInicio} – ${turno.horaFin} confirmado y disponible.`);
+        setSuccessMsg(`✅ Turno ${turno.horaInicio} – ${turno.horaFin} verificado y disponible.`);
         setTimeout(() => setSuccessMsg(null), 4000);
       }
     } catch {
@@ -135,42 +133,42 @@ export const AgendaDisponibilidad: React.FC = () => {
   const barberoActual = barberos.find(b => b.idBarbero === selectedBarberoId);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 backdrop-blur-xl shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-2">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Módulo de Agendamiento • HU-03</span>
+    <div className="max-w-6xl mx-auto space-y-8 font-sans">
+      {/* Header Clásico */}
+      <div className="bg-[#121212] border border-[#24211c] border-t-4 border-t-[#d97706] p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
+        <div className="text-left space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 border border-[#d97706]/50 bg-[#1a1713] text-[#d97706] text-xs font-heading font-bold uppercase tracking-wider">
+            <BarberScissorsIcon className="w-4 h-4 text-[#d97706]" />
+            <span>Módulo de Agenda • Disponibilidad en Tiempo Real</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Ver Disponibilidad en Tiempo Real
+          <h2 className="text-2xl sm:text-4xl font-bold uppercase tracking-tight text-[#f5f1e8] font-heading">
+            CONSULTA DE HORARIOS & DISPONIBILIDAD
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
-            Consulta turnos libres por profesional, control de concurrencia y filtrado dinámico de horas pasadas.
+          <p className="text-xs sm:text-sm text-[#a39b8d] font-light max-w-2xl">
+            Verifica en tiempo real los turnos libres de cada maestro barbero con control instantáneo de concurrencia.
           </p>
         </div>
 
         <button
           onClick={consultarTurnos}
           disabled={loadingTurnos || !selectedBarberoId}
-          className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-2 border border-slate-700/60 transition-all cursor-pointer disabled:opacity-50"
+          className="px-5 py-3 bg-[#121212] hover:bg-[#1a1713] text-[#f5f1e8] hover:text-[#d97706] text-xs font-heading font-bold uppercase tracking-wider flex items-center gap-2 border border-[#38332b] transition-colors cursor-pointer disabled:opacity-50 shrink-0"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${loadingTurnos ? 'animate-spin text-amber-400' : ''}`} />
-          <span>Refrescar Agenda</span>
+          <RefreshCw className={`w-4 h-4 ${loadingTurnos ? 'animate-spin text-[#d97706]' : ''}`} />
+          <span>Actualizar Turnos</span>
         </button>
       </div>
 
       {/* Alertas y Notificaciones */}
       {concurrencyAlert && (
-        <div className="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs flex items-center justify-between animate-in fade-in">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
-            <span>{concurrencyAlert}</span>
+        <div className="p-4 bg-[#1f160a] border border-[#854d0e] text-[#fef3c7] text-xs flex items-center justify-between animate-in fade-in">
+          <div className="flex items-center gap-2.5">
+            <AlertTriangle className="w-5 h-5 text-[#d97706] shrink-0" />
+            <span className="font-medium">{concurrencyAlert}</span>
           </div>
           <button
             onClick={() => setConcurrencyAlert(null)}
-            className="text-amber-400 hover:text-white text-xs font-bold px-2 py-1"
+            className="text-[#d97706] hover:text-white text-xs font-bold px-2 py-1 cursor-pointer"
           >
             ✕
           </button>
@@ -178,58 +176,60 @@ export const AgendaDisponibilidad: React.FC = () => {
       )}
 
       {successMsg && (
-        <div className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-200 text-xs flex items-center gap-2 animate-in fade-in">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-          <span>{successMsg}</span>
+        <div className="p-4 bg-[#061e14] border border-[#065f46] text-[#6ee7b7] text-xs flex items-center gap-2.5 animate-in fade-in">
+          <CheckCircle2 className="w-5 h-5 text-[#10b981] shrink-0" />
+          <span className="font-medium">{successMsg}</span>
         </div>
       )}
 
       {error && (
-        <div className="p-4 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-200 text-xs flex items-center gap-2 animate-in fade-in">
-          <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />
+        <div className="p-4 bg-[#1f080c] border border-[#881337] text-rose-300 text-xs flex items-center gap-2.5 animate-in fade-in">
+          <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Columna Izquierda: Selección de Barbero y Fecha */}
-        <div className="space-y-6 lg:col-span-1">
+        <div className="space-y-6 lg:col-span-1 text-left">
           {/* 1. Selector de Barbero */}
-          <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-5 backdrop-blur-xl">
-            <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-3 flex items-center gap-2">
-              <span>1. Barbero / Estilista</span>
-              <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-normal">
-                {barberos.length} disponible(s)
+          <div className="bg-[#121212] border border-[#24211c] p-6 space-y-4 shadow-lg">
+            <div className="flex justify-between items-center border-b border-[#24211c] pb-3">
+              <label className="font-heading font-bold text-xs uppercase tracking-wider text-[#d4ccbd] flex items-center gap-2">
+                <span>1. Maestro Barbero</span>
+              </label>
+              <span className="font-heading text-[11px] bg-[#1a1713] text-[#d97706] px-2 py-0.5 border border-[#38332b]">
+                {barberos.length} EN STAFF
               </span>
-            </label>
+            </div>
 
             {loadingBarberos ? (
-              <div className="py-6 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
-                <span>Cargando staff…</span>
+              <div className="py-8 text-center text-xs text-[#a39b8d] flex items-center justify-center gap-2">
+                <div className="w-4 h-4 border-2 border-[#d97706] border-t-transparent rounded-full animate-spin" />
+                <span>Cargando equipo...</span>
               </div>
             ) : barberos.length === 0 ? (
-              <p className="text-xs text-amber-400 bg-amber-500/10 p-3 rounded-xl border border-amber-500/20">
-                No hay barberos con horarios configurados en el sistema.
+              <p className="text-xs text-[#d97706] bg-[#1a1713] p-3 border border-[#854d0e]/40">
+                No hay barberos con horarios habilitados en este momento.
               </p>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {barberos.map(b => (
                   <button
                     key={b.idBarbero}
                     onClick={() => setSelectedBarberoId(b.idBarbero)}
-                    className={`w-full text-left p-3.5 rounded-2xl border transition-all flex items-center gap-3 cursor-pointer ${
+                    className={`w-full text-left p-3.5 border transition-all flex items-center gap-3.5 cursor-pointer ${
                       selectedBarberoId === b.idBarbero
-                        ? 'bg-amber-500/15 border-amber-500 text-amber-200 shadow-md shadow-amber-500/10'
-                        : 'bg-slate-950/60 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-900/60'
+                        ? 'bg-[#1a1713] border-[#d97706] text-[#f5f1e8] shadow-md'
+                        : 'bg-[#0a0a0a] border-[#24211c] text-[#a39b8d] hover:border-[#38332b] hover:text-[#f5f1e8]'
                     }`}
                   >
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-400 text-slate-950 font-bold flex items-center justify-center shrink-0">
-                      {b.nombre.charAt(0).toUpperCase()}
+                    <div className="w-10 h-10 border-2 border-[#d97706] bg-[#121212] text-[#d97706] font-heading font-bold flex items-center justify-center shrink-0">
+                      {b.nombre.substring(0, 2).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold truncate text-white">{b.nombre}</p>
-                      <p className="text-xs text-slate-400 truncate">📞 {b.telefono}</p>
+                      <p className="font-heading font-bold text-sm uppercase truncate text-[#f5f1e8]">{b.nombre}</p>
+                      <p className="text-xs text-[#8c8273] font-mono truncate">Tel: {b.telefono}</p>
                     </div>
                   </button>
                 ))}
@@ -238,10 +238,12 @@ export const AgendaDisponibilidad: React.FC = () => {
           </div>
 
           {/* 2. Selector de Fecha */}
-          <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-5 backdrop-blur-xl">
-            <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-3">
-              2. Seleccionar Fecha
-            </label>
+          <div className="bg-[#121212] border border-[#24211c] p-6 space-y-4 shadow-lg">
+            <div className="border-b border-[#24211c] pb-3">
+              <label className="font-heading font-bold text-xs uppercase tracking-wider text-[#d4ccbd] block">
+                2. Fecha del Servicio
+              </label>
+            </div>
 
             <div className="space-y-3">
               <input
@@ -249,18 +251,18 @@ export const AgendaDisponibilidad: React.FC = () => {
                 value={fechaSeleccionada}
                 min={getTodayString()}
                 onChange={e => setFechaSeleccionada(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:border-amber-500 outline-none transition-all"
+                className="w-full px-4 py-2.5 bg-[#0a0a0a] border border-[#38332b] text-[#f5f1e8] text-sm focus:border-[#d97706] outline-none transition-all"
               />
 
               {/* Botones de acceso rápido */}
-              <div className="flex gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setFechaSeleccionada(getTodayString())}
-                  className={`flex-1 py-1.5 rounded-lg text-xs font-medium border transition-all cursor-pointer ${
+                  className={`py-2 text-xs font-heading uppercase tracking-wider font-bold border transition-colors cursor-pointer ${
                     isToday
-                      ? 'bg-amber-500 text-slate-950 border-amber-400 font-bold'
-                      : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                      ? 'bg-[#d97706] text-[#0a0a0a] border-[#d97706]'
+                      : 'bg-[#0a0a0a] border-[#38332b] text-[#a39b8d] hover:text-[#f5f1e8]'
                   }`}
                 >
                   Hoy
@@ -268,20 +270,20 @@ export const AgendaDisponibilidad: React.FC = () => {
                 <button
                   type="button"
                   onClick={pasarAlSiguienteDia}
-                  className="flex-1 py-1.5 rounded-lg text-xs font-medium bg-slate-950 border border-slate-800 text-slate-400 hover:text-slate-200 transition-all cursor-pointer flex items-center justify-center gap-1"
+                  className="py-2 text-xs font-heading uppercase tracking-wider font-bold bg-[#0a0a0a] border border-[#38332b] text-[#a39b8d] hover:text-[#f5f1e8] hover:border-[#d97706] transition-colors cursor-pointer flex items-center justify-center gap-1"
                 >
                   <span>Mañana</span>
                   <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
 
-              {/* Banner de Filtrado Temporal (Criterio 4) */}
+              {/* Banner de Regla de Negocio */}
               {isToday && (
-                <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[11px] flex items-start gap-2">
-                  <Clock className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                <div className="p-3 bg-[#1a1713] border border-[#38332b] text-[#d4ccbd] text-[11px] flex items-start gap-2">
+                  <Clock className="w-4 h-4 text-[#d97706] shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-semibold text-white">Criterio 4 (RN-03):</span>{' '}
-                    Para la fecha de hoy, los turnos pasados respecto a la hora actual se filtran automáticamente.
+                    <span className="font-heading uppercase font-bold text-[#d97706]">Turnos en Vivo:</span>{' '}
+                    Para hoy, los horarios previos a la hora actual se ocultan automáticamente para garantizar puntualidad.
                   </div>
                 </div>
               )}
@@ -290,68 +292,69 @@ export const AgendaDisponibilidad: React.FC = () => {
         </div>
 
         {/* Columna Derecha: Parrilla de Horarios Disponibles */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 backdrop-blur-xl min-h-[400px] flex flex-col justify-between">
+        <div className="lg:col-span-2 space-y-6 text-left">
+          <div className="bg-[#121212] border border-[#24211c] p-6 sm:p-8 min-h-[460px] flex flex-col justify-between shadow-xl">
             <div>
               {/* Encabezado de la Agenda */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-800 mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#24211c] mb-6">
                 <div>
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-amber-400" />
+                  <h3 className="text-xl font-bold uppercase tracking-tight text-[#f5f1e8] font-heading flex items-center gap-2.5">
+                    <Calendar className="w-5 h-5 text-[#d97706]" />
                     <span>
-                      {disponibilidad?.diaSemana ?? 'Día'} {fechaSeleccionada}
+                      {disponibilidad?.diaSemana ?? 'Jornada'} — {fechaSeleccionada}
                     </span>
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-[#a39b8d] mt-1 font-light">
                     {barberoActual ? `Agenda disponible de ${barberoActual.nombre}` : 'Selecciona un profesional'}
                   </p>
                 </div>
 
                 {disponibilidad && (
-                  <span className={`text-xs px-3 py-1 rounded-full font-semibold border ${
+                  <span className={`text-xs px-3 py-1.5 font-heading uppercase tracking-wider font-bold border ${
                     disponibilidad.totalTurnosLibres > 0
-                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                      : 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                      ? 'bg-[#061e14] text-[#6ee7b7] border-[#065f46]'
+                      : 'bg-[#1f080c] text-rose-300 border-[#881337]'
                   }`}>
-                    {disponibilidad.totalTurnosLibres} turno(s) libre(s)
+                    {disponibilidad.totalTurnosLibres} turno(s) disponible(s)
                   </span>
                 )}
               </div>
 
               {/* Contenido de Horarios */}
               {loadingTurnos ? (
-                <div className="py-20 text-center text-slate-400 text-sm flex flex-col items-center justify-center gap-3">
-                  <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-                  <span>Consultando disponibilidad en tiempo real…</span>
+                <div className="py-24 text-center text-[#a39b8d] text-sm flex flex-col items-center justify-center gap-3">
+                  <div className="w-8 h-8 border-2 border-[#d97706] border-t-transparent rounded-full animate-spin" />
+                  <span className="font-heading uppercase tracking-wider text-xs">Consultando disponibilidad en tiempo real...</span>
                 </div>
               ) : !disponibilidad || disponibilidad.turnos.length === 0 ? (
-                /* HU-03 Criterio 2: Fecha sin turnos libres */
-                <div className="py-12 text-center p-8 rounded-2xl bg-slate-950/60 border border-dashed border-slate-800 space-y-4">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto border border-amber-500/20">
-                    <Clock className="w-6 h-6" />
+                /* Fecha sin turnos libres */
+                <div className="py-14 text-center p-8 bg-[#0a0a0a] border border-dashed border-[#38332b] space-y-4">
+                  <div className="w-14 h-14 border-2 border-[#854d0e] bg-[#1a1713] text-[#d97706] flex items-center justify-center mx-auto">
+                    <Clock className="w-7 h-7" />
                   </div>
                   <div>
-                    <h4 className="text-base font-bold text-white">Sin turnos disponibles para esta fecha</h4>
-                    <p className="text-xs text-slate-400 max-w-md mx-auto mt-1">
+                    <h4 className="text-lg font-bold uppercase tracking-tight text-[#f5f1e8] font-heading">
+                      Sin turnos libres en esta fecha
+                    </h4>
+                    <p className="text-xs text-[#a39b8d] max-w-md mx-auto mt-1 font-light leading-relaxed">
                       {disponibilidad?.tieneJornadaLaboral === false
-                        ? `El profesional no tiene franjas laborales configuradas para los días ${disponibilidad?.diaSemana}.`
-                        : 'Todos los turnos para este día ya han transcurrido o han sido reservados por otros clientes.'}
+                        ? `El profesional no tiene franjas laborales programadas para los días ${disponibilidad?.diaSemana}.`
+                        : 'Todos los cupos para este día han sido reservados o ya transcurrieron.'}
                     </p>
                   </div>
 
-                  {/* Botón para saltar al siguiente día (Criterio 2) */}
                   <button
                     onClick={pasarAlSiguienteDia}
-                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs inline-flex items-center gap-2 shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+                    className="px-6 py-3 bg-[#d97706] hover:bg-[#b45309] text-[#0a0a0a] font-heading font-bold text-xs uppercase tracking-wider inline-flex items-center gap-2 border border-[#d97706] transition-colors cursor-pointer"
                   >
-                    <span>Ver disponibilidad del día siguiente</span>
+                    <span>Ver disponibilidad de mañana</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               ) : (
-                /* HU-03 Criterio 1: Parrilla de turnos disponibles */
+                /* Parrilla de turnos disponibles tipo catálogo */
                 <div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5">
                     {disponibilidad.turnos.map(t => {
                       const isSelected = selectedTurno?.idTurno === t.idTurno;
                       const isVerifying = verificandoTurno === t.idTurno;
@@ -361,24 +364,24 @@ export const AgendaDisponibilidad: React.FC = () => {
                           key={t.idTurno}
                           onClick={() => handleSelectTurno(t)}
                           disabled={isVerifying}
-                          className={`p-3.5 rounded-2xl border text-center transition-all flex flex-col items-center justify-center gap-1 cursor-pointer relative group ${
+                          className={`p-4 border text-center transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer relative group ${
                             isSelected
-                              ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 shadow-lg shadow-emerald-500/10 ring-2 ring-emerald-500/30'
-                              : 'bg-slate-950/80 border-slate-800 text-slate-200 hover:border-amber-500/60 hover:bg-slate-900 hover:text-white'
+                              ? 'bg-[#d97706] border-[#d97706] text-[#0a0a0a] shadow-lg'
+                              : 'bg-[#0a0a0a] border-[#24211c] text-[#f5f1e8] hover:border-[#d97706] hover:bg-[#1a1713]'
                           }`}
                         >
-                          <div className="flex items-center gap-1 text-xs font-bold">
-                            <Clock className={`w-3.5 h-3.5 ${isSelected ? 'text-emerald-400' : 'text-amber-400'}`} />
+                          <div className="flex items-center gap-1 font-heading text-sm font-bold tracking-wider">
+                            <Clock className={`w-3.5 h-3.5 ${isSelected ? 'text-[#0a0a0a]' : 'text-[#d97706]'}`} />
                             <span>{t.horaInicio}</span>
                           </div>
-                          <span className="text-[10px] text-slate-400">
+                          <span className={`text-[11px] font-mono ${isSelected ? 'text-black/80 font-semibold' : 'text-[#8c8273]'}`}>
                             hasta {t.horaFin}
                           </span>
 
                           {isVerifying && (
-                            <span className="absolute inset-0 bg-slate-950/90 rounded-2xl flex items-center justify-center text-[11px] text-amber-300 font-semibold gap-1">
-                              <span className="w-3 h-3 border border-amber-400 border-t-transparent rounded-full animate-spin" />
-                              Verificando…
+                            <span className="absolute inset-0 bg-[#0a0a0a]/95 flex items-center justify-center text-[11px] text-[#d97706] font-heading uppercase font-bold gap-1">
+                              <span className="w-3 h-3 border border-[#d97706] border-t-transparent rounded-full animate-spin" />
+                              Verificando...
                             </span>
                           )}
                         </button>
@@ -389,31 +392,31 @@ export const AgendaDisponibilidad: React.FC = () => {
               )}
             </div>
 
-            {/* Resumen del Turno Seleccionado / Prueba de Concurrencia */}
+            {/* Resumen del Turno Seleccionado */}
             {selectedTurno && (
-              <div className="mt-6 pt-5 border-t border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-950/80 p-4 rounded-2xl border border-slate-800">
+              <div className="mt-8 pt-5 border-t border-[#24211c] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[#0a0a0a] p-4 border border-[#38332b]">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                  <div className="w-10 h-10 border border-[#10b981] bg-[#061e14] text-[#10b981] flex items-center justify-center shrink-0">
                     <ShieldCheck className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-white">
-                      Turno seleccionado: {selectedTurno.horaInicio} – {selectedTurno.horaFin}
+                    <p className="text-xs font-heading font-bold uppercase tracking-wider text-[#f5f1e8]">
+                      Turno verificado: {selectedTurno.horaInicio} – {selectedTurno.horaFin}
                     </p>
-                    <p className="text-[11px] text-slate-400">
-                      Profesional: {selectedTurno.barberoNombre} • Fecha: {selectedTurno.fecha}
+                    <p className="text-[11px] text-[#8c8273]">
+                      Barbero: {selectedTurno.barberoNombre} • Fecha: {selectedTurno.fecha}
                     </p>
                   </div>
                 </div>
 
-                {/* Botón de Simulación de Concurrencia (Criterio 3) */}
+                {/* Botón de Simulación de Concurrencia */}
                 <button
                   onClick={() => handleSimularConcurrencia(selectedTurno.idTurno)}
                   title="Simular que otro usuario toma este turno en este instante"
-                  className="px-3.5 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 text-xs font-semibold border border-amber-500/30 flex items-center gap-1.5 transition-all cursor-pointer"
+                  className="px-4 py-2.5 bg-[#1a1713] hover:bg-[#261a07] text-[#d97706] text-xs font-heading font-bold uppercase tracking-wider border border-[#854d0e] flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
-                  <Zap className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Simular Concurrencia (Ocupar)</span>
+                  <Zap className="w-3.5 h-3.5 text-[#d97706]" />
+                  <span>Simular Concurrencia</span>
                 </button>
               </div>
             )}

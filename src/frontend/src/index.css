@@ -2,8 +2,184 @@
 @import "./admin.css";
 
 @layer base {
-  body {
-    @apply bg-slate-950 text-slate-100 min-h-screen antialiased;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  :root {
+    --font-heading: 'Oswald', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-sans: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    
+    /* Barbershop Color Palette */
+    --color-charcoal-dark: #0a0a0a;
+    --color-charcoal-card: #121212;
+    --color-charcoal-border: #24211c;
+    --color-cream-bg: #f5f1e8;
+    --color-cream-card: #ece6da;
+    --color-cream-border: #d4ccbd;
+    --color-cream-text: #1a1816;
+    --color-gold-solid: #d97706;
+    --color-gold-hover: #b45309;
+    --color-gold-light: #fef3c7;
   }
+
+  body {
+    background-color: #0a0a0a;
+    color: #e8e4dc;
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: var(--font-heading);
+    letter-spacing: 0.05em;
+  }
+}
+
+/* Vintage Barbershop Utilities */
+.bg-cream-paper {
+  background-color: #f5f1e8;
+  color: #1a1816;
+}
+
+.bg-cream-card {
+  background-color: #ede8dc;
+  border: 1px solid #d6cdc0;
+}
+
+.bg-charcoal-card {
+  background-color: #121212;
+  border: 1px solid #24211c;
+}
+
+.vintage-badge {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.85rem;
+  border: 1px solid #d97706;
+  color: #d97706;
+  background-color: rgba(217, 119, 6, 0.08);
+}
+
+.vintage-badge-cream {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.85rem;
+  border: 1px solid #854d0e;
+  color: #78350f;
+  background-color: #fef3c7;
+}
+
+.vintage-pinstripes {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(217, 119, 6, 0.03),
+    rgba(217, 119, 6, 0.03) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+}
+
+.gold-divider {
+  height: 2px;
+  background: #d97706;
+  width: 60px;
+}
+
+.gold-divider-center {
+  height: 2px;
+  background: #d97706;
+  width: 60px;
+  margin: 0 auto;
+}
+
+/* Rotated Artisan Quality Seal */
+.artisan-seal {
+  width: 110px;
+  height: 110px;
+  border: 2px dashed #d97706;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transform: rotate(-12deg);
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.artisan-seal:hover {
+  transform: rotate(0deg) scale(1.05);
+}
+
+/* Classic Form Controls */
+.classic-input {
+  background-color: #121212;
+  border: 1px solid #38332b;
+  color: #f5f1e8;
+  padding: 0.65rem 0.95rem;
+  font-size: 0.875rem;
+  transition: border-color 0.15s ease;
+  outline: none;
+}
+
+.classic-input:focus {
+  border-color: #d97706;
+}
+
+.classic-input::placeholder {
+  color: #736a5c;
+}
+
+.classic-btn-solid {
+  background-color: #d97706;
+  color: #0a0a0a;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #d97706;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.classic-btn-solid:hover:not(:disabled) {
+  background-color: #b45309;
+  border-color: #b45309;
+}
+
+.classic-btn-solid:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.classic-btn-outline {
+  background-color: #121212;
+  color: #f5f1e8;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #38332b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.classic-btn-outline:hover:not(:disabled) {
+  background-color: #1a1713;
+  color: #d97706;
+  border-color: #d97706;
 }

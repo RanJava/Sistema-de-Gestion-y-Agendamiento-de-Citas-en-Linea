@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BarberLosPeluchitos.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4a0ee0ae1bd8bff874714d9de375ff9d3603723d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0b0bcb7458d3a7048589504d2597aa7472cf1b79")]
 [assembly: System.Reflection.AssemblyProductAttribute("BarberLosPeluchitos.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BarberLosPeluchitos.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

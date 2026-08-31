@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { User, Mail, Phone, Lock, Sparkles, X, AlertCircle } from 'lucide-react';
+import { User, Mail, Phone, Lock, X, AlertCircle } from 'lucide-react';
 import { registrarCliente } from '../services/clienteService';
+import { BarberScissorsIcon } from './LandingHome';
 import type { Cliente } from '../types';
 
 interface AuthModalProps {
@@ -48,110 +49,118 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-in fade-in font-sans">
+      <div className="bg-[#121212] border border-[#24211c] border-t-4 border-t-[#d97706] p-6 sm:p-8 max-w-md w-full shadow-2xl relative text-[#f5f1e8]">
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-xl hover:bg-slate-800 transition-all cursor-pointer"
+          className="absolute top-5 right-5 text-[#a39b8d] hover:text-[#f5f1e8] p-1.5 hover:bg-[#1a1713] transition-colors cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="mb-6">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-3">
+        <div className="mb-6 text-left">
+          <div className="inline-flex items-center gap-2 px-3 py-1 border border-[#d97706]/50 bg-[#1a1713] text-[#d97706] text-xs font-heading font-bold uppercase tracking-wider mb-3">
             <Lock className="w-3.5 h-3.5" />
-            <span>Identificación Requerida • HU-04 Criterio 2</span>
+            <span>Identificación Requerida • Cita Segura</span>
           </div>
-          <h3 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-            Iniciar Sesión / Registro
+          <h3 className="text-2xl font-bold uppercase tracking-tight text-[#f5f1e8] font-heading">
+            Registro Rápido de Cliente
           </h3>
-          <p className="text-xs text-slate-400 mt-1">
-            {initialMessage || 'Para confirmar y asegurar tu cita en BarberLosPeluchitos, por favor regístrate o identifícate.'}
+          <p className="text-xs text-[#a39b8d] mt-1 font-light">
+            {initialMessage || 'Para confirmar y asegurar tu turno exclusivo en BarberLosPeluchitos, completa tus datos.'}
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
+          <div className="mb-4 p-3 bg-[#1f080c] border border-[#881337] text-rose-300 text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 text-left">
           <div>
-            <label className="text-xs font-semibold text-slate-300 block mb-1.5 flex items-center gap-1.5">
-              <User className="w-3.5 h-3.5 text-amber-400" />
-              <span>Nombre Completo *</span>
+            <label className="block text-xs font-heading uppercase tracking-wider font-bold text-[#d4ccbd] mb-1.5">
+              Nombre Completo *
             </label>
-            <input
-              type="text"
-              required
-              value={nombre}
-              onChange={e => setNombre(e.target.value)}
-              placeholder="Ej: Dennis Morales"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:border-amber-500 outline-none transition-all"
-            />
+            <div className="relative">
+              <User className="w-4 h-4 text-[#736a5c] absolute left-3.5 top-3" />
+              <input
+                type="text"
+                required
+                value={nombre}
+                onChange={e => setNombre(e.target.value)}
+                placeholder="Ej: Dennis Morales"
+                className="w-full pl-10 pr-4 py-2.5 bg-[#0a0a0a] border border-[#38332b] text-[#f5f1e8] text-sm focus:border-[#d97706] outline-none transition-all"
+              />
+            </div>
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-slate-300 block mb-1.5 flex items-center gap-1.5">
-              <Mail className="w-3.5 h-3.5 text-amber-400" />
-              <span>Correo Electrónico *</span>
+            <label className="block text-xs font-heading uppercase tracking-wider font-bold text-[#d4ccbd] mb-1.5">
+              Correo Electrónico *
             </label>
-            <input
-              type="email"
-              required
-              value={correo}
-              onChange={e => setCorreo(e.target.value)}
-              placeholder="cliente@peluchitos.com"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:border-amber-500 outline-none transition-all"
-            />
+            <div className="relative">
+              <Mail className="w-4 h-4 text-[#736a5c] absolute left-3.5 top-3" />
+              <input
+                type="email"
+                required
+                value={correo}
+                onChange={e => setCorreo(e.target.value)}
+                placeholder="cliente@ejemplo.com"
+                className="w-full pl-10 pr-4 py-2.5 bg-[#0a0a0a] border border-[#38332b] text-[#f5f1e8] text-sm focus:border-[#d97706] outline-none transition-all"
+              />
+            </div>
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-slate-300 block mb-1.5 flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5 text-amber-400" />
-              <span>Teléfono Celular *</span>
+            <label className="block text-xs font-heading uppercase tracking-wider font-bold text-[#d4ccbd] mb-1.5">
+              Teléfono Celular *
             </label>
-            <input
-              type="tel"
-              required
-              value={telefono}
-              onChange={e => setTelefono(e.target.value)}
-              placeholder="Ej: 71234567"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:border-amber-500 outline-none transition-all"
-            />
+            <div className="relative">
+              <Phone className="w-4 h-4 text-[#736a5c] absolute left-3.5 top-3" />
+              <input
+                type="tel"
+                required
+                value={telefono}
+                onChange={e => setTelefono(e.target.value)}
+                placeholder="Ej: 71234567"
+                className="w-full pl-10 pr-4 py-2.5 bg-[#0a0a0a] border border-[#38332b] text-[#f5f1e8] text-sm focus:border-[#d97706] outline-none transition-all"
+              />
+            </div>
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-slate-300 block mb-1.5 flex items-center gap-1.5">
-              <Lock className="w-3.5 h-3.5 text-amber-400" />
-              <span>Contraseña Segura (mín. 6 caracteres) *</span>
+            <label className="block text-xs font-heading uppercase tracking-wider font-bold text-[#d4ccbd] mb-1.5">
+              Contraseña Segura (mín. 6 caracteres) *
             </label>
-            <input
-              type="password"
-              required
-              minLength={6}
-              value={contrasena}
-              onChange={e => setContrasena(e.target.value)}
-              placeholder="••••••••"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:border-amber-500 outline-none transition-all"
-            />
+            <div className="relative">
+              <Lock className="w-4 h-4 text-[#736a5c] absolute left-3.5 top-3" />
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={contrasena}
+                onChange={e => setContrasena(e.target.value)}
+                placeholder="••••••••"
+                className="w-full pl-10 pr-4 py-2.5 bg-[#0a0a0a] border border-[#38332b] text-[#f5f1e8] text-sm focus:border-[#d97706] outline-none transition-all"
+              />
+            </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition-all cursor-pointer disabled:opacity-50"
+            className="w-full mt-2 py-3 bg-[#d97706] hover:bg-[#b45309] text-[#0a0a0a] font-heading font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 border border-[#d97706] transition-colors cursor-pointer disabled:opacity-50"
           >
             {loading ? (
               <>
-                <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                <span>Registrando y Autenticando…</span>
+                <div className="w-4 h-4 border-2 border-[#0a0a0a] border-t-transparent rounded-full animate-spin" />
+                <span>Registrando...</span>
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4" />
+                <BarberScissorsIcon className="w-4 h-4" />
                 <span>Continuar con la Reserva</span>
               </>
             )}

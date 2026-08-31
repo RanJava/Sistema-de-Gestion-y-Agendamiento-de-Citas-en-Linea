@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, User, Phone, Mail, Lock, CheckCircle, AlertTriangle, Shield, ArrowRight, Loader2 } from 'lucide-react';
 import { registrarCliente } from '../services/clienteService';
+import { BarberScissorsIcon } from './LandingHome';
 import type { Cliente } from '../types';
 
 interface RegisterModalProps {
@@ -75,7 +76,6 @@ export function RegisterModal({ isOpen, onClose, onSuccess }: RegisterModalProps
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Limpiar error del campo modificado
     if (errors[name]) {
       setErrors((prev) => {
         const copy = { ...prev };
@@ -114,7 +114,6 @@ export function RegisterModal({ isOpen, onClose, onSuccess }: RegisterModalProps
         setApiError(err.response.data?.mensaje || 'El correo electrónico ya se encuentra registrado en el sistema.');
         setErrors((prev) => ({ ...prev, correo: 'Este correo ya está en uso.' }));
       } else if (err.response?.data?.errors) {
-        // Errores de validación de ModelState de ASP.NET Core
         const backendErrors = err.response.data.errors;
         const mappedErrors: { [key: string]: string } = {};
         for (const key in backendErrors) {
@@ -147,22 +146,26 @@ export function RegisterModal({ isOpen, onClose, onSuccess }: RegisterModalProps
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl shadow-amber-950/20 text-slate-100">
-        {/* Header con gradiente */}
-        <div className="relative px-6 py-5 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
-              <User className="w-4 h-4" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-in fade-in duration-150 font-sans">
+      <div className="relative w-full max-w-lg overflow-hidden bg-[#121212] border border-[#24211c] border-t-4 border-t-[#d97706] shadow-2xl text-[#f5f1e8]">
+        {/* Header Tradicional */}
+        <div className="px-6 py-5 bg-[#0a0a0a] border-b border-[#24211c] flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 border border-[#d97706] bg-[#1a1713] flex items-center justify-center text-[#d97706]">
+              <BarberScissorsIcon className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white tracking-tight">Registro de Cuenta de Cliente</h2>
-              <p className="text-xs text-slate-400">HU-01 • BarberLosPeluchitos</p>
+              <h2 className="text-xl font-bold uppercase tracking-tight text-[#f5f1e8] font-heading">
+                Registro de Nuevo Cliente
+              </h2>
+              <p className="text-xs text-[#a39b8d] font-heading uppercase tracking-wider">
+                BarberLosPeluchitos • Registro Oficial
+              </p>
             </div>
           </div>
           <button
             onClick={handleResetAndClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1.5 text-[#a39b8d] hover:text-[#f5f1e8] hover:bg-[#1a1713] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -171,32 +174,34 @@ export function RegisterModal({ isOpen, onClose, onSuccess }: RegisterModalProps
         {/* Contenido del Modal */}
         <div className="p-6 max-h-[85vh] overflow-y-auto">
           {registrado ? (
-            /* Vista de Éxito */
+            /* Vista de Éxito Editorial */
             <div className="text-center py-6 space-y-4">
-              <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-2 animate-bounce">
+              <div className="w-16 h-16 border-2 border-[#10b981] bg-[#061e14] text-[#10b981] flex items-center justify-center mx-auto mb-2">
                 <CheckCircle className="w-8 h-8" />
               </div>
-              <h3 className="text-2xl font-bold text-white">¡Cuenta Creada Exitosamente!</h3>
-              <p className="text-sm text-slate-300 max-w-sm mx-auto">
-                Bienvenido <span className="text-amber-400 font-semibold">{registrado.nombre}</span>. Tu cuenta ha sido registrada en el sistema conforme a la Ley 164 y D.S. 1793.
+              <h3 className="text-2xl font-bold uppercase tracking-tight text-[#f5f1e8] font-heading">
+                ¡Cuenta Registrada con Éxito!
+              </h3>
+              <p className="text-sm text-[#d4ccbd] max-w-sm mx-auto font-light">
+                Bienvenido <span className="text-[#d97706] font-bold font-heading">{registrado.nombre}</span>. Tu membresía ha sido creada en el sistema.
               </p>
 
-              <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 text-left text-xs space-y-2 mt-4">
-                <div className="flex justify-between text-slate-400">
-                  <span>ID de Cliente:</span>
-                  <span className="font-mono text-slate-200">#{registrado.idCliente}</span>
+              <div className="p-4 bg-[#0a0a0a] border border-[#24211c] text-left text-xs space-y-2.5 mt-4">
+                <div className="flex justify-between text-[#a39b8d]">
+                  <span className="font-heading uppercase">Código de Cliente:</span>
+                  <span className="font-mono text-[#f5f1e8] font-bold">#{registrado.idCliente}</span>
                 </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>Correo:</span>
-                  <span className="text-slate-200 font-medium">{registrado.correo}</span>
+                <div className="flex justify-between text-[#a39b8d]">
+                  <span className="font-heading uppercase">Correo Registrado:</span>
+                  <span className="text-[#f5f1e8] font-medium">{registrado.correo}</span>
                 </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>Teléfono:</span>
-                  <span className="text-slate-200">{registrado.telefono}</span>
+                <div className="flex justify-between text-[#a39b8d]">
+                  <span className="font-heading uppercase">Teléfono / WhatsApp:</span>
+                  <span className="text-[#f5f1e8]">{registrado.telefono}</span>
                 </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>Fecha de Registro:</span>
-                  <span className="text-slate-200">{registrado.fechaRegistro}</span>
+                <div className="flex justify-between text-[#a39b8d]">
+                  <span className="font-heading uppercase">Fecha:</span>
+                  <span className="text-[#f5f1e8]">{registrado.fechaRegistro}</span>
                 </div>
               </div>
 
@@ -204,19 +209,19 @@ export function RegisterModal({ isOpen, onClose, onSuccess }: RegisterModalProps
                 <button
                   type="button"
                   onClick={handleResetAndClose}
-                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-semibold flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+                  className="w-full py-3.5 px-4 bg-[#d97706] hover:bg-[#b45309] text-[#0a0a0a] font-heading font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 border border-[#d97706] transition-colors cursor-pointer"
                 >
-                  <span>Continuar</span>
+                  <span>Continuar al Salón</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
           ) : (
             /* Formulario de Registro */
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4 text-left">
               {/* Alerta de Error de API */}
               {apiError && (
-                <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2.5">
+                <div className="p-3 bg-[#1f080c] border border-[#881337] text-rose-300 text-xs flex items-start gap-2.5">
                   <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                   <span>{apiError}</span>
                 </div>
@@ -224,20 +229,20 @@ export function RegisterModal({ isOpen, onClose, onSuccess }: RegisterModalProps
 
               {/* Campo Nombre */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                  Nombre Completo <span className="text-amber-400">*</span>
+                <label className="block text-xs font-heading uppercase tracking-wider font-bold text-[#d4ccbd] mb-1.5">
+                  Nombre Completo <span className="text-[#d97706]">*</span>
                 </label>
                 <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <User className="w-4 h-4 text-[#736a5c] absolute left-3.5 top-3" />
                   <input
                     type="text"
                     name="nombre"
                     value={formData.nombre}
                     onChange={handleChange}
-                    placeholder="Ej. Juan Pérez"
-                    className={`w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950/60 border ${
-                      errors.nombre ? 'border-rose-500 focus:border-rose-500' : 'border-slate-800 focus:border-amber-500'
-                    } text-sm text-white placeholder-slate-500 outline-none transition-all`}
+                    placeholder="Ej. Carlos Mendoza"
+                    className={`w-full pl-10 pr-4 py-2.5 bg-[#0a0a0a] border ${
+                      errors.nombre ? 'border-rose-600' : 'border-[#38332b] focus:border-[#d97706]'
+                    } text-sm text-[#f5f1e8] placeholder-[#736a5c] outline-none transition-all`}
                   />
                 </div>
                 {errors.nombre && <p className="text-xs text-rose-400 mt-1">{errors.nombre}</p>}
@@ -245,20 +250,20 @@ export function RegisterModal({ isOpen, onClose, onSuccess }: RegisterModalProps
 
               {/* Campo Teléfono */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                  Teléfono / WhatsApp <span className="text-amber-400">*</span>
+                <label className="block text-xs font-heading uppercase tracking-wider font-bold text-[#d4ccbd] mb-1.5">
+                  Teléfono / WhatsApp <span className="text-[#d97706]">*</span>
                 </label>
                 <div className="relative">
-                  <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <Phone className="w-4 h-4 text-[#736a5c] absolute left-3.5 top-3" />
                   <input
                     type="tel"
                     name="telefono"
                     value={formData.telefono}
                     onChange={handleChange}
-                    placeholder="Ej. +591 71234567"
-                    className={`w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950/60 border ${
-                      errors.telefono ? 'border-rose-500 focus:border-rose-500' : 'border-slate-800 focus:border-amber-500'
-                    } text-sm text-white placeholder-slate-500 outline-none transition-all`}
+                    placeholder="Ej. +591 70012345"
+                    className={`w-full pl-10 pr-4 py-2.5 bg-[#0a0a0a] border ${
+                      errors.telefono ? 'border-rose-600' : 'border-[#38332b] focus:border-[#d97706]'
+                    } text-sm text-[#f5f1e8] placeholder-[#736a5c] outline-none transition-all`}
                   />
                 </div>
                 {errors.telefono && <p className="text-xs text-rose-400 mt-1">{errors.telefono}</p>}
@@ -266,20 +271,20 @@ export function RegisterModal({ isOpen, onClose, onSuccess }: RegisterModalProps
 
               {/* Campo Correo */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                  Correo Electrónico <span className="text-amber-400">*</span>
+                <label className="block text-xs font-heading uppercase tracking-wider font-bold text-[#d4ccbd] mb-1.5">
+                  Correo Electrónico <span className="text-[#d97706]">*</span>
                 </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <Mail className="w-4 h-4 text-[#736a5c] absolute left-3.5 top-3" />
                   <input
                     type="email"
                     name="correo"
                     value={formData.correo}
                     onChange={handleChange}
-                    placeholder="ejemplo@correo.com"
-                    className={`w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950/60 border ${
-                      errors.correo ? 'border-rose-500 focus:border-rose-500' : 'border-slate-800 focus:border-amber-500'
-                    } text-sm text-white placeholder-slate-500 outline-none transition-all`}
+                    placeholder="cliente@ejemplo.com"
+                    className={`w-full pl-10 pr-4 py-2.5 bg-[#0a0a0a] border ${
+                      errors.correo ? 'border-rose-600' : 'border-[#38332b] focus:border-[#d97706]'
+                    } text-sm text-[#f5f1e8] placeholder-[#736a5c] outline-none transition-all`}
                   />
                 </div>
                 {errors.correo && <p className="text-xs text-rose-400 mt-1">{errors.correo}</p>}
@@ -288,40 +293,40 @@ export function RegisterModal({ isOpen, onClose, onSuccess }: RegisterModalProps
               {/* Campo Contraseña */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    Contraseña <span className="text-amber-400">*</span>
+                  <label className="block text-xs font-heading uppercase tracking-wider font-bold text-[#d4ccbd] mb-1.5">
+                    Contraseña <span className="text-[#d97706]">*</span>
                   </label>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                    <Lock className="w-4 h-4 text-[#736a5c] absolute left-3.5 top-3" />
                     <input
                       type="password"
                       name="contrasena"
                       value={formData.contrasena}
                       onChange={handleChange}
                       placeholder="Mín. 6 caracteres"
-                      className={`w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950/60 border ${
-                        errors.contrasena ? 'border-rose-500 focus:border-rose-500' : 'border-slate-800 focus:border-amber-500'
-                      } text-sm text-white placeholder-slate-500 outline-none transition-all`}
+                      className={`w-full pl-10 pr-4 py-2.5 bg-[#0a0a0a] border ${
+                        errors.contrasena ? 'border-rose-600' : 'border-[#38332b] focus:border-[#d97706]'
+                      } text-sm text-[#f5f1e8] placeholder-[#736a5c] outline-none transition-all`}
                     />
                   </div>
                   {errors.contrasena && <p className="text-xs text-rose-400 mt-1">{errors.contrasena}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    Confirmar Contraseña <span className="text-amber-400">*</span>
+                  <label className="block text-xs font-heading uppercase tracking-wider font-bold text-[#d4ccbd] mb-1.5">
+                    Confirmar Contraseña <span className="text-[#d97706]">*</span>
                   </label>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                    <Lock className="w-4 h-4 text-[#736a5c] absolute left-3.5 top-3" />
                     <input
                       type="password"
                       name="confirmarContrasena"
                       value={formData.confirmarContrasena}
                       onChange={handleChange}
-                      placeholder="Repite la contraseña"
-                      className={`w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950/60 border ${
-                        errors.confirmarContrasena ? 'border-rose-500 focus:border-rose-500' : 'border-slate-800 focus:border-amber-500'
-                      } text-sm text-white placeholder-slate-500 outline-none transition-all`}
+                      placeholder="Repite la clave"
+                      className={`w-full pl-10 pr-4 py-2.5 bg-[#0a0a0a] border ${
+                        errors.confirmarContrasena ? 'border-rose-600' : 'border-[#38332b] focus:border-[#d97706]'
+                      } text-sm text-[#f5f1e8] placeholder-[#736a5c] outline-none transition-all`}
                     />
                   </div>
                   {errors.confirmarContrasena && (
@@ -331,10 +336,10 @@ export function RegisterModal({ isOpen, onClose, onSuccess }: RegisterModalProps
               </div>
 
               {/* Nota de Seguridad Normativa */}
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-950/40 border border-slate-800/80 text-[11px] text-slate-400">
-                <Shield className="w-4 h-4 text-emerald-400 shrink-0" />
+              <div className="flex items-center gap-2 p-3 bg-[#0a0a0a] border border-[#24211c] text-[11px] text-[#a39b8d]">
+                <Shield className="w-4 h-4 text-[#d97706] shrink-0" />
                 <span>
-                  Protección de datos conforme a la <strong>Ley N° 164</strong> y <strong>D.S. N° 1793</strong> (cifrado con salting).
+                  Protección de datos conforme a la <strong>Ley N° 164</strong> y <strong>D.S. N° 1793</strong> (cifrado con salting criptográfico).
                 </span>
               </div>
 
@@ -343,16 +348,16 @@ export function RegisterModal({ isOpen, onClose, onSuccess }: RegisterModalProps
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3.5 px-4 bg-[#d97706] hover:bg-[#b45309] text-[#0a0a0a] font-heading font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 border border-[#d97706] transition-colors cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Registrando cuenta...</span>
+                      <span>Registrando cliente...</span>
                     </>
                   ) : (
                     <>
-                      <span>Crear Cuenta de Cliente</span>
+                      <span>Completar Registro</span>
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
