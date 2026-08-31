@@ -6,7 +6,7 @@ import type { Cliente } from '../types';
 interface RegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: (cliente: Cliente) => void;
+  onSuccess?: (cliente: Cliente, token?: string) => void;
 }
 
 export function RegisterModal({ isOpen, onClose, onSuccess }: RegisterModalProps) {
@@ -106,7 +106,7 @@ export function RegisterModal({ isOpen, onClose, onSuccess }: RegisterModalProps
 
       setRegistrado(response.cliente);
       if (onSuccess) {
-        onSuccess(response.cliente);
+        onSuccess(response.cliente, response.token);
       }
     } catch (err: any) {
       console.error('Error en registro:', err);

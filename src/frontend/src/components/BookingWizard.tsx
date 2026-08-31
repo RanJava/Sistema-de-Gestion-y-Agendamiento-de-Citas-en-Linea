@@ -28,7 +28,7 @@ import type { Cliente } from '../types';
 
 interface BookingWizardProps {
   currentUser: Cliente | null;
-  onUserLogin: (cliente: Cliente) => void;
+  onUserLogin: (cliente: Cliente, token?: string) => void;
 }
 
 export const BookingWizard: React.FC<BookingWizardProps> = ({
@@ -180,8 +180,8 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
     }
   };
 
-  const handleAuthSuccess = (cliente: Cliente) => {
-    onUserLogin(cliente);
+  const handleAuthSuccess = (cliente: Cliente, token?: string) => {
+    onUserLogin(cliente, token);
     // Procesar reserva inmediatamente después de autenticarse
     procesarReserva(cliente.idCliente);
   };

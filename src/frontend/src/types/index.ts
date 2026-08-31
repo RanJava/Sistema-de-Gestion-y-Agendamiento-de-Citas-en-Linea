@@ -16,6 +16,11 @@ export interface RegistroClienteDto {
 export interface RegistroClienteResponse {
   mensaje: string;
   cliente: Cliente;
+  token: string;
+  rol?: 'Cliente' | 'Administrador';
+  idUsuario?: number;
+  nombre?: string;
+  correo?: string;
 }
 
 export interface Barbero {

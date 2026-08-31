@@ -6,7 +6,7 @@ import type { Cliente } from '../types';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: (cliente: Cliente) => void;
+  onSuccess: (cliente: Cliente, token?: string) => void;
   initialMessage?: string;
 }
 
@@ -38,7 +38,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         contrasena,
       });
 
-      onSuccess(res.cliente);
+      onSuccess(res.cliente, res.token);
       onClose();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al registrar el cliente.');

@@ -69,26 +69,27 @@ export function App() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleRegisterSuccess = (cliente: Cliente) => {
-    // Auto-login tras registro: usamos AuthContext
-    // Nota: RegisterModal ya hace el POST y devuelve token en la respuesta
-    // Aquí hacemos login con los datos del cliente
-    login('', {
-      idUsuario: cliente.idCliente,
-      nombre: cliente.nombre,
-      correo: cliente.correo,
-      rol: 'Cliente',
-    });
+  const handleRegisterSuccess = (cliente: Cliente, token?: string) => {
+    // Auto-login tras registro: persistir token JWT y estado de usuario
+    if (token) {
+      login(token, {
+        idUsuario: cliente.idCliente,
+        nombre: cliente.nombre,
+        correo: cliente.correo,
+        rol: 'Cliente',
+      });
+    }
   };
 
-  const handleUserLogin = (cliente: Cliente) => {
-    // BookingWizard legacy callback
-    login('', {
-      idUsuario: cliente.idCliente,
-      nombre: cliente.nombre,
-      correo: cliente.correo,
-      rol: 'Cliente',
-    });
+  const handleUserLogin = (cliente: Cliente, token?: string) => {
+    if (token) {
+      login(token, {
+        idUsuario: cliente.idCliente,
+        nombre: cliente.nombre,
+        correo: cliente.correo,
+        rol: 'Cliente',
+      });
+    }
   };
 
   // ─── Definir tabs según rol ─────────────────────────────────────────────────
