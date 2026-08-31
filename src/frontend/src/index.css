@@ -11,13 +11,19 @@
     --color-charcoal-dark: #0a0a0a;
     --color-charcoal-card: #121212;
     --color-charcoal-border: #24211c;
-    --color-cream-bg: #f5f1e8;
-    --color-cream-card: #ece6da;
-    --color-cream-border: #d4ccbd;
-    --color-cream-text: #1a1816;
+    --color-cream-bg: #efe8d8;
+    --color-cream-card: #f6f1e7;
+    --color-cream-border: #dcd4c5;
+    --color-cream-text: #2b2620;
+    --color-cream-muted: #5e5549;
     --color-gold-solid: #d97706;
     --color-gold-hover: #b45309;
     --color-gold-light: #fef3c7;
+  }
+
+  html, body {
+    overflow-x: hidden;
+    max-width: 100%;
   }
 
   body {
@@ -36,13 +42,13 @@
 
 /* Vintage Barbershop Utilities */
 .bg-cream-paper {
-  background-color: #f5f1e8;
-  color: #1a1816;
+  background-color: #efe8d8;
+  color: #2b2620;
 }
 
 .bg-cream-card {
-  background-color: #ede8dc;
-  border: 1px solid #d6cdc0;
+  background-color: #f7f3eb;
+  border: 1px solid #dcd4c5;
 }
 
 .bg-charcoal-card {
@@ -75,9 +81,9 @@
   align-items: center;
   gap: 0.35rem;
   padding: 0.35rem 0.85rem;
-  border: 1px solid #854d0e;
+  border: 1px solid #b45309;
   color: #78350f;
-  background-color: #fef3c7;
+  background-color: #fceddb;
 }
 
 .vintage-pinstripes {

@@ -87,11 +87,11 @@ export const LandingHome: React.FC<LandingHomeProps> = ({
   ];
 
   return (
-    <div className="w-full flex flex-col font-sans">
+    <div className="w-full max-w-full overflow-x-hidden flex flex-col font-sans">
       {/* ────────────────────────────────────────────────────────────────────────
           SECCIÓN 1: HERO (FONDO CARBÓN PROFUNDO #0a0a0a CON IMAGEN DE BARBERÍA)
       ──────────────────────────────────────────────────────────────────────── */}
-      <section className="relative min-h-[600px] lg:min-h-[660px] bg-[#0a0a0a] border-b border-[#24211c] overflow-hidden flex items-center justify-center">
+      <section className="relative min-h-[540px] sm:min-h-[600px] lg:min-h-[660px] bg-[#0a0a0a] border-b border-[#24211c] overflow-hidden flex items-center justify-center w-full">
         {/* Imagen de Fondo con Overlay Oscuro Gradual */}
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 mix-blend-luminosity scale-105 transform transition-transform duration-1000"
@@ -100,21 +100,21 @@ export const LandingHome: React.FC<LandingHomeProps> = ({
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/85 to-[#0a0a0a]/90" />
         <div className="absolute inset-0 vintage-pinstripes opacity-40 pointer-events-none" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 z-10 w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24 z-10 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             {/* Columna Texto & CTA */}
-            <div className="lg:col-span-8 text-left space-y-6">
+            <div className="lg:col-span-8 text-left space-y-5 sm:space-y-6 max-w-full">
               {/* Badge de Tradición */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 border border-[#d97706]/60 bg-[#121212]/90 text-[#d97706] text-xs uppercase tracking-[0.2em] font-semibold">
-                <BarberScissorsIcon className="w-4 h-4 text-[#d97706]" />
+              <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 border border-[#d97706]/60 bg-[#121212]/90 text-[#d97706] text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-[0.2em] font-semibold max-w-full flex-wrap">
+                <BarberScissorsIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#d97706] shrink-0" />
                 <span>Barbería Tradicional • Est. 2024 • Tarija</span>
               </div>
 
-              {/* Titular Principal en Mayúsculas Condensadas */}
-              <div className="space-y-2">
-                <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-[#f5f1e8] uppercase font-heading leading-[0.95]">
+              {/* Titular Principal en Mayúsculas Condensadas Responsive */}
+              <div className="space-y-2 max-w-full">
+                <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-[#f5f1e8] uppercase font-heading leading-tight sm:leading-[0.95] break-words">
                   EL ARTE DEL <span className="text-[#d97706]">CORTE CLÁSICO</span>
-                  <span className="block text-2xl sm:text-4xl lg:text-5xl text-[#d4ccbd] font-normal mt-1 tracking-wider">
+                  <span className="block text-xl sm:text-3xl md:text-4xl lg:text-5xl text-[#d4ccbd] font-normal mt-1.5 sm:mt-2 tracking-normal sm:tracking-wider break-words">
                     Y EL CUIDADO MASCULINO
                   </span>
                 </h1>
@@ -122,24 +122,24 @@ export const LandingHome: React.FC<LandingHomeProps> = ({
               </div>
 
               {/* Párrafo Descriptivo */}
-              <p className="text-base sm:text-lg text-[#b8b0a2] max-w-2xl font-light leading-relaxed">
+              <p className="text-sm sm:text-base md:text-lg text-[#b8b0a2] max-w-2xl font-light leading-relaxed break-words">
                 Combinamos la maestría de la barbería tradicional con la precisión y puntualidad de nuestro sistema de agendamiento digital en tiempo real. Sin filas, con el barbero de tu elección.
               </p>
 
               {/* Botones de Acción Sólidos (Corte Recto) */}
-              <div className="pt-3 flex flex-wrap items-center gap-4">
+              <div className="pt-2 sm:pt-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
                 <button
                   onClick={() => onStartBooking()}
-                  className="px-7 py-4 bg-[#d97706] hover:bg-[#b45309] text-[#0a0a0a] font-bold text-sm sm:text-base tracking-wider uppercase transition-all duration-150 flex items-center gap-3 border border-[#d97706] cursor-pointer shadow-lg shadow-black/60 active:translate-y-0.5"
+                  className="w-full sm:w-auto px-6 sm:px-7 py-3.5 sm:py-4 bg-[#d97706] hover:bg-[#b45309] text-[#0a0a0a] font-bold text-xs sm:text-base tracking-wider uppercase transition-all duration-150 flex items-center justify-center gap-2.5 sm:gap-3 border border-[#d97706] cursor-pointer shadow-lg shadow-black/60 active:translate-y-0.5"
                 >
-                  <Calendar className="w-5 h-5" />
+                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>Reservar Turno en Línea</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
 
                 <button
                   onClick={onExploreSchedule}
-                  className="px-6 py-4 bg-[#121212] hover:bg-[#1c1915] text-[#f5f1e8] hover:text-[#d97706] font-semibold text-sm sm:text-base tracking-wider uppercase transition-all duration-150 flex items-center gap-2.5 border border-[#38332b] cursor-pointer"
+                  className="w-full sm:w-auto px-5 sm:px-6 py-3.5 sm:py-4 bg-[#121212] hover:bg-[#1c1915] text-[#f5f1e8] hover:text-[#d97706] font-semibold text-xs sm:text-base tracking-wider uppercase transition-all duration-150 flex items-center justify-center gap-2 sm:gap-2.5 border border-[#38332b] cursor-pointer"
                 >
                   <Clock className="w-4 h-4 text-[#d97706]" />
                   <span>Ver Disponibilidad</span>
@@ -147,7 +147,7 @@ export const LandingHome: React.FC<LandingHomeProps> = ({
               </div>
 
               {/* Tira de Garantías Rápidas */}
-              <div className="pt-6 grid grid-cols-2 sm:grid-cols-3 gap-4 border-t border-[#24211c] text-xs text-[#a39b8d]">
+              <div className="pt-5 sm:pt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 border-t border-[#24211c] text-xs text-[#a39b8d]">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-[#d97706] shrink-0" />
                   <span>Corte y Afeitado a Navaja</span>
@@ -164,7 +164,7 @@ export const LandingHome: React.FC<LandingHomeProps> = ({
             </div>
 
             {/* Columna Sello Artesanal & Card Insignia */}
-            <div className="lg:col-span-4 flex flex-col items-center justify-center relative">
+            <div className="lg:col-span-4 flex flex-col items-center justify-center relative w-full">
               {/* Sello de Calidad Rotado */}
               <div className="artisan-seal bg-[#121212]/90 border-2 border-[#d97706] text-[#d97706] p-4 absolute -top-8 -right-2 lg:-right-4 hidden sm:flex z-20">
                 <span className="text-[9px] uppercase tracking-widest font-bold">100% Calidad</span>
@@ -173,10 +173,10 @@ export const LandingHome: React.FC<LandingHomeProps> = ({
               </div>
 
               {/* Tarjeta Visual Destacada (Estilo Cartel Vintage) */}
-              <div className="w-full max-w-sm bg-[#121212] border-2 border-[#2c2720] p-6 text-left relative shadow-2xl">
-                <div className="border border-[#3d362c] p-5 space-y-4">
+              <div className="w-full max-w-sm bg-[#121212] border-2 border-[#2c2720] p-5 sm:p-6 text-left relative shadow-2xl">
+                <div className="border border-[#3d362c] p-4 sm:p-5 space-y-4">
                   <div className="flex justify-between items-center border-b border-[#2c2720] pb-3">
-                    <span className="font-heading text-xs tracking-[0.2em] text-[#d97706] uppercase">Horarios de Salón</span>
+                    <span className="font-heading text-xs tracking-[0.15em] sm:tracking-[0.2em] text-[#d97706] uppercase">Horarios de Salón</span>
                     <span className="text-[11px] text-[#8c8273] font-mono">TARIJA - BO</span>
                   </div>
 
@@ -211,20 +211,20 @@ export const LandingHome: React.FC<LandingHomeProps> = ({
       </section>
 
       {/* ────────────────────────────────────────────────────────────────────────
-          SECCIÓN 2: CARTA DE SERVICIOS (FONDO CREMA CÁLIDO #f5f1e8)
+          SECCIÓN 2: CARTA DE SERVICIOS (FONDO CREMA CÁLIDO #efe8d8)
       ──────────────────────────────────────────────────────────────────────── */}
-      <section className="bg-cream-paper py-20 border-b border-[#d6cdc0] text-[#1a1816]">
+      <section className="bg-cream-paper py-14 sm:py-20 border-b border-[#dcd4c5] text-[#2b2620] w-full overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Cabecera de Sección */}
-          <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14 space-y-3">
             <span className="vintage-badge-cream">
               Catálogo de Especialidades
             </span>
-            <h2 className="text-3xl sm:text-5xl font-bold uppercase tracking-tight text-[#1a1816] font-heading">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold uppercase tracking-tight text-[#2b2620] font-heading break-words">
               CARTA DE SERVICIOS & TRATAMIENTOS
             </h2>
             <div className="gold-divider-center" />
-            <p className="text-[#595247] text-sm sm:text-base font-normal pt-2">
+            <p className="text-[#5e5549] text-xs sm:text-base font-normal pt-2 max-w-2xl mx-auto leading-relaxed">
               Cada servicio incluye diagnóstico capilar, asesoramiento de imagen y el ritual tradicional con productos premium seleccionados.
             </p>
           </div>
@@ -234,25 +234,25 @@ export const LandingHome: React.FC<LandingHomeProps> = ({
             {serviciosDestacados.map((servicio, idx) => (
               <div 
                 key={servicio.idServicio}
-                className="bg-cream-card p-6 flex flex-col justify-between border-2 border-[#d4ccbd] hover:border-[#854d0e] transition-colors duration-200 shadow-sm relative group"
+                className="bg-cream-card p-6 flex flex-col justify-between border-2 border-[#d3c9b8] hover:border-[#b45309] transition-colors duration-200 shadow-sm relative group"
               >
                 {/* Número de Catálogo */}
                 <div className="flex justify-between items-start mb-4">
-                  <span className="font-mono text-xs font-bold text-[#78350f] bg-[#fef3c7] px-2 py-0.5 border border-[#854d0e]/30">
+                  <span className="font-mono text-xs font-bold text-[#78350f] bg-[#faebd7] px-2 py-0.5 border border-[#b45309]/30">
                     Nº 0{idx + 1}
                   </span>
-                  <div className="flex items-center gap-1 text-xs text-[#595247] font-medium">
-                    <Clock className="w-3.5 h-3.5 text-[#854d0e]" />
+                  <div className="flex items-center gap-1 text-xs text-[#6b6154] font-medium">
+                    <Clock className="w-3.5 h-3.5 text-[#92400e]" />
                     <span>{servicio.duracionBase} min</span>
                   </div>
                 </div>
 
                 {/* Título y Descripción */}
                 <div className="space-y-3 mb-6">
-                  <h3 className="text-xl font-bold font-heading uppercase text-[#1a1816] leading-snug group-hover:text-[#854d0e] transition-colors">
+                  <h3 className="text-xl font-bold font-heading uppercase text-[#2b2620] leading-snug group-hover:text-[#92400e] transition-colors">
                     {servicio.nombre}
                   </h3>
-                  <p className="text-xs text-[#5c5447] leading-relaxed">
+                  <p className="text-xs text-[#5e5549] leading-relaxed">
                     {servicio.nombre.toLowerCase().includes('barba')
                       ? 'Perfilado milimétrico, tratamiento de vapor con toalla caliente y aceites hidratantes.'
                       : servicio.nombre.toLowerCase().includes('completo')
@@ -262,16 +262,16 @@ export const LandingHome: React.FC<LandingHomeProps> = ({
                 </div>
 
                 {/* Precio y Botón */}
-                <div className="pt-4 border-t border-[#d6cdc0] flex items-center justify-between mt-auto">
+                <div className="pt-4 border-t border-[#dcd4c5] flex items-center justify-between mt-auto">
                   <div>
-                    <span className="block text-[10px] text-[#736a5c] uppercase font-semibold">Inversión</span>
-                    <span className="text-2xl font-bold font-heading text-[#78350f]">
+                    <span className="block text-[10px] text-[#786e60] uppercase font-semibold">Inversión</span>
+                    <span className="text-2xl font-bold font-heading text-[#92400e]">
                       Bs {servicio.precioBase}
                     </span>
                   </div>
                   <button
                     onClick={() => onStartBooking(servicio.idServicio)}
-                    className="px-3.5 py-2 bg-[#1a1816] hover:bg-[#854d0e] text-[#f5f1e8] text-xs font-bold uppercase tracking-wider transition-colors duration-150 flex items-center gap-1.5 cursor-pointer"
+                    className="px-3.5 py-2 bg-[#2b2620] hover:bg-[#92400e] text-[#efe8d8] text-xs font-bold uppercase tracking-wider transition-colors duration-150 flex items-center gap-1.5 cursor-pointer shadow-sm"
                   >
                     <span>Elegir</span>
                     <ArrowUpRight className="w-3.5 h-3.5" />
@@ -282,14 +282,14 @@ export const LandingHome: React.FC<LandingHomeProps> = ({
           </div>
 
           {/* Banner de Consulta Rápida */}
-          <div className="mt-12 bg-[#ede8dc] border border-[#d6cdc0] p-6 text-center max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-left">
-              <h4 className="font-heading font-bold text-base uppercase text-[#1a1816]">¿Buscas un servicio a medida o combo personalizado?</h4>
-              <p className="text-xs text-[#595247]">Nuestros barberos adaptan la sesión a la morfología de tu rostro y tipo de cabello.</p>
+          <div className="mt-10 sm:mt-12 bg-[#e6dfd1] border border-[#d3c9b8] p-5 sm:p-6 text-center sm:text-left max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="space-y-1">
+              <h4 className="font-heading font-bold text-sm sm:text-base uppercase text-[#2b2620]">¿Buscas un servicio a medida o combo personalizado?</h4>
+              <p className="text-xs text-[#5e5549]">Nuestros barberos adaptan la sesión a la morfología de tu rostro y tipo de cabello.</p>
             </div>
             <button
               onClick={() => onStartBooking()}
-              className="px-5 py-2.5 bg-[#854d0e] hover:bg-[#78350f] text-[#fef3c7] font-bold text-xs uppercase tracking-wider transition-colors shrink-0 cursor-pointer"
+              className="w-full sm:w-auto px-5 py-2.5 bg-[#92400e] hover:bg-[#78350f] text-[#fef3c7] font-bold text-xs uppercase tracking-wider transition-colors shrink-0 cursor-pointer text-center"
             >
               Reservar Todo
             </button>
@@ -300,24 +300,24 @@ export const LandingHome: React.FC<LandingHomeProps> = ({
       {/* ────────────────────────────────────────────────────────────────────────
           SECCIÓN 3: TRADICIÓN & VALORES (FONDO CARBÓN PROFUNDO #0a0a0a)
       ──────────────────────────────────────────────────────────────────────── */}
-      <section className="bg-[#0a0a0a] py-20 border-b border-[#24211c] text-[#e8e4dc]">
+      <section className="bg-[#0a0a0a] py-14 sm:py-20 border-b border-[#24211c] text-[#e8e4dc] w-full overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Encabezado */}
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16 space-y-3">
             <span className="vintage-badge">
               Filosofía BarberLosPeluchitos
             </span>
-            <h2 className="text-3xl sm:text-5xl font-bold uppercase tracking-tight text-[#f5f1e8] font-heading">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold uppercase tracking-tight text-[#f5f1e8] font-heading break-words">
               LA DISTINCIÓN DE LO BIEN HECHO
             </h2>
             <div className="gold-divider-center" />
-            <p className="text-[#9e9484] text-sm sm:text-base font-light pt-2">
+            <p className="text-[#9e9484] text-xs sm:text-base font-light pt-2 max-w-2xl mx-auto leading-relaxed">
               No somos un salón de paso. Creamos un espacio de desconexión donde cada detalle, navaja y producto responde a los más altos estándares.
             </p>
           </div>
 
           {/* Cuadrícula de 4 Pilares con Iconos Artesanales */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {/* Pilar 1 */}
             <div className="bg-charcoal-card p-6 border border-[#24211c] hover:border-[#d97706]/50 transition-all duration-200 flex flex-col space-y-4">
               <div className="w-12 h-12 border border-[#d97706] bg-[#1a1713] text-[#d97706] flex items-center justify-center">
@@ -374,51 +374,51 @@ export const LandingHome: React.FC<LandingHomeProps> = ({
       </section>
 
       {/* ────────────────────────────────────────────────────────────────────────
-          SECCIÓN 4: MAESTROS BARBEROS (FONDO CREMA CÁLIDO #f5f1e8)
+          SECCIÓN 4: MAESTROS BARBEROS (FONDO CREMA CÁLIDO #efe8d8)
       ──────────────────────────────────────────────────────────────────────── */}
-      <section className="bg-cream-paper py-20 border-b border-[#d6cdc0] text-[#1a1816]">
+      <section className="bg-cream-paper py-14 sm:py-20 border-b border-[#dcd4c5] text-[#2b2620] w-full overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14 space-y-3">
             <span className="vintage-badge-cream">
               Equipo de Especialistas
             </span>
-            <h2 className="text-3xl sm:text-5xl font-bold uppercase tracking-tight text-[#1a1816] font-heading">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold uppercase tracking-tight text-[#2b2620] font-heading break-words">
               CONOCE A NUESTROS MAESTROS BARBEROS
             </h2>
             <div className="gold-divider-center" />
-            <p className="text-[#595247] text-sm sm:text-base font-normal pt-2">
+            <p className="text-[#5e5549] text-xs sm:text-base font-normal pt-2 max-w-2xl mx-auto leading-relaxed">
               Profesionales titulados con trayectoria en el cuidado de imagen masculina y técnicas tradicionales de barbería.
             </p>
           </div>
 
           {/* Grilla de Barberos */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {barberos.length > 0 ? (
               barberos.map((barbero) => (
                 <div 
                   key={barbero.idBarbero}
-                  className="bg-cream-card border-2 border-[#d4ccbd] p-6 text-center flex flex-col items-center justify-between relative hover:border-[#854d0e] transition-colors"
+                  className="bg-cream-card border-2 border-[#d3c9b8] p-6 text-center flex flex-col items-center justify-between relative hover:border-[#b45309] transition-colors"
                 >
-                  <div className="w-20 h-20 bg-[#1a1816] text-[#f5f1e8] border-2 border-[#854d0e] flex items-center justify-center text-2xl font-heading font-bold mb-4">
+                  <div className="w-20 h-20 bg-[#2b2620] text-[#efe8d8] border-2 border-[#b45309] flex items-center justify-center text-2xl font-heading font-bold mb-4">
                     {barbero.nombre.substring(0, 2).toUpperCase()}
                   </div>
 
                   <div className="space-y-1 mb-4">
-                    <h3 className="text-xl font-bold font-heading uppercase text-[#1a1816]">
+                    <h3 className="text-xl font-bold font-heading uppercase text-[#2b2620]">
                       {barbero.nombre}
                     </h3>
-                    <p className="text-xs text-[#78350f] font-semibold tracking-wider uppercase">
+                    <p className="text-xs text-[#92400e] font-semibold tracking-wider uppercase">
                       Maestro Barbero Titulado
                     </p>
                   </div>
 
-                  <div className="w-full bg-[#fef3c7] border border-[#854d0e]/20 py-2 px-3 mb-5 text-[11px] text-[#78350f]">
+                  <div className="w-full bg-[#faebd7] border border-[#b45309]/20 py-2 px-3 mb-5 text-[11px] text-[#78350f]">
                     <span>Atención: {barbero.horarios?.length ? `${barbero.horarios.length} jornadas semanales` : 'Horarios continuos'}</span>
                   </div>
 
                   <button
                     onClick={() => onStartBooking(undefined, barbero.idBarbero)}
-                    className="w-full py-2.5 bg-[#854d0e] hover:bg-[#78350f] text-[#fef3c7] text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-2.5 bg-[#92400e] hover:bg-[#78350f] text-[#fef3c7] text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
                   >
                     <Calendar className="w-3.5 h-3.5" />
                     <span>Reservar con {barbero.nombre.split(' ')[0]}</span>
@@ -434,22 +434,22 @@ export const LandingHome: React.FC<LandingHomeProps> = ({
               ].map((staff, idx) => (
                 <div 
                   key={idx}
-                  className="bg-cream-card border-2 border-[#d4ccbd] p-6 text-center flex flex-col items-center justify-between"
+                  className="bg-cream-card border-2 border-[#d3c9b8] p-6 text-center flex flex-col items-center justify-between"
                 >
-                  <div className="w-20 h-20 bg-[#1a1816] text-[#f5f1e8] border-2 border-[#854d0e] flex items-center justify-center text-2xl font-heading font-bold mb-4">
+                  <div className="w-20 h-20 bg-[#2b2620] text-[#efe8d8] border-2 border-[#b45309] flex items-center justify-center text-2xl font-heading font-bold mb-4">
                     {staff.nombre.substring(0, 2).toUpperCase()}
                   </div>
                   <div className="space-y-1 mb-4">
-                    <h3 className="text-xl font-bold font-heading uppercase text-[#1a1816]">
+                    <h3 className="text-xl font-bold font-heading uppercase text-[#2b2620]">
                       {staff.nombre}
                     </h3>
-                    <p className="text-xs text-[#78350f] font-semibold tracking-wider uppercase">
+                    <p className="text-xs text-[#92400e] font-semibold tracking-wider uppercase">
                       {staff.exp}
                     </p>
                   </div>
                   <button
                     onClick={() => onStartBooking()}
-                    className="w-full py-2.5 bg-[#854d0e] hover:bg-[#78350f] text-[#fef3c7] text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-2.5 bg-[#92400e] hover:bg-[#78350f] text-[#fef3c7] text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
                   >
                     <Calendar className="w-3.5 h-3.5" />
                     <span>Agendar Cita</span>
@@ -464,22 +464,22 @@ export const LandingHome: React.FC<LandingHomeProps> = ({
       {/* ────────────────────────────────────────────────────────────────────────
           SECCIÓN 5: BANNER CTA FINAL (FONDO CARBÓN #0a0a0a)
       ──────────────────────────────────────────────────────────────────────── */}
-      <section className="bg-[#0a0a0a] py-20 border-b border-[#24211c] relative overflow-hidden">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 relative z-10">
+      <section className="bg-[#0a0a0a] py-14 sm:py-20 border-b border-[#24211c] relative overflow-hidden w-full">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-5 sm:space-y-6 relative z-10">
           <span className="vintage-badge">
             Tu Asiento te Espera
           </span>
-          <h2 className="text-4xl sm:text-6xl font-bold uppercase tracking-tight text-[#f5f1e8] font-heading leading-tight">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold uppercase tracking-tight text-[#f5f1e8] font-heading leading-tight break-words">
             VIVE LA EXPERIENCIA COMPLETA DE <span className="text-[#d97706]">BARBER LOS PELUCHITOS</span>
           </h2>
-          <p className="text-[#b8b0a2] max-w-xl mx-auto text-sm sm:text-base font-light">
+          <p className="text-[#b8b0a2] max-w-xl mx-auto text-xs sm:text-base font-light leading-relaxed">
             Selecciona tu servicio, tu barbero preferido y la hora exacta en segundos a través de nuestro sistema de reservas garantizadas.
           </p>
 
-          <div className="pt-4 flex justify-center">
+          <div className="pt-3 sm:pt-4 flex justify-center">
             <button
               onClick={() => onStartBooking()}
-              className="px-9 py-4 bg-[#d97706] hover:bg-[#b45309] text-[#0a0a0a] font-bold text-base tracking-wider uppercase transition-all duration-150 flex items-center gap-3 border border-[#d97706] cursor-pointer shadow-xl shadow-black/80 active:translate-y-0.5"
+              className="w-full sm:w-auto justify-center px-7 sm:px-9 py-3.5 sm:py-4 bg-[#d97706] hover:bg-[#b45309] text-[#0a0a0a] font-bold text-sm sm:text-base tracking-wider uppercase transition-all duration-150 flex items-center gap-3 border border-[#d97706] cursor-pointer shadow-xl shadow-black/80 active:translate-y-0.5"
             >
               <Calendar className="w-5 h-5" />
               <span>Agendar mi Cita Ahora</span>
