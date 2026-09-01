@@ -7,7 +7,6 @@ import {
   RotateCcw,
   Receipt,
   Lock,
-  Mail,
   XCircle,
   User,
   ArrowRight,
@@ -229,12 +228,12 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
             </p>
           </div>
 
-          {/* Banner de Notificación Automática */}
+          {/* Banner de Confirmación en Sistema (Honesto, sin promesas de envío de correo) */}
           <div className="mt-5 bg-[#061e14] border border-[#065f46] p-4 flex items-center gap-3 text-xs text-[#6ee7b7]">
-            <Mail className="w-5 h-5 text-[#10b981] shrink-0" />
+            <CheckCircle2 className="w-5 h-5 text-[#10b981] shrink-0" />
             <div>
-              <span className="font-heading uppercase font-bold text-white block">Notificación de Confirmación</span>
-              <span>Enviada a <strong className="text-[#a7f3d0]">{confirmedCita.clienteCorreo || 'tu correo registrado'}</strong> con los detalles y link de atención.</span>
+              <span className="font-heading uppercase font-bold text-white block">Reserva Registrada en el Sistema</span>
+              <span>Tu turno ha sido asegurado exitosamente. Puedes revisar los detalles aquí o consultar tus reservas desde tu panel de cliente.</span>
             </div>
           </div>
 

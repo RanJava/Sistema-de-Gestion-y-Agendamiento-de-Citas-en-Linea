@@ -70,7 +70,7 @@ public class CitasController : ControllerBase
 
             return CreatedAtAction(nameof(ObtenerPorId), new { id = cita.IdCita }, new
             {
-                mensaje = "Cita agendada exitosamente. Se ha enviado una confirmación a tu correo registrado.",
+                mensaje = "Cita agendada exitosamente en el sistema.",
                 cita = responseDto
             });
         }

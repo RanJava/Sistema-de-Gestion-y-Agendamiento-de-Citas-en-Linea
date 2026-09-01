@@ -144,32 +144,32 @@ export function App() {
 
       {/* Header / Navbar Clásico Premium */}
       <header className="border-b border-[#24211c] bg-[#0a0a0a]/95 backdrop-blur-sm sticky top-0 z-40 w-full">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
           {/* Brand Logo Insignia */}
           <div 
             onClick={() => setActiveTab(isAdmin ? 'staff' : 'home')}
-            className="flex items-center gap-2 sm:gap-3.5 cursor-pointer group shrink min-w-0"
+            className="flex items-center gap-3 sm:gap-3.5 cursor-pointer group shrink-0"
           >
-            <div className="w-8 h-8 sm:w-11 sm:h-11 border-2 border-[#d97706] bg-[#121212] flex items-center justify-center text-[#d97706] group-hover:bg-[#d97706] group-hover:text-black transition-colors duration-200 shrink-0">
-              <BarberScissorsIcon className="w-4 h-4 sm:w-6 sm:h-6" />
+            <div className="w-10 h-10 sm:w-11 sm:h-11 border-2 border-[#d97706] bg-[#121212] flex items-center justify-center text-[#d97706] group-hover:bg-[#d97706] group-hover:text-black transition-colors duration-200 shrink-0">
+              <BarberScissorsIcon className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <div className="min-w-0">
-              <span className="font-heading font-bold text-sm sm:text-2xl tracking-[0.06em] sm:tracking-[0.12em] text-[#f5f1e8] uppercase block leading-none truncate">
-                BARBER<span className="text-[#d97706]">LOS PELUCHITOS</span>
+            <div className="shrink-0">
+              <span className="font-heading font-bold text-lg sm:text-2xl tracking-[0.1em] text-[#f5f1e8] uppercase block leading-none whitespace-nowrap">
+                BARBER <span className="text-[#d97706]">LOS PELUCHITOS</span>
               </span>
-              <span className="block text-[8px] sm:text-[10px] text-[#a39b8d] uppercase tracking-[0.12em] sm:tracking-[0.2em] font-medium mt-0.5 sm:mt-1 truncate">
+              <span className="block text-[9px] sm:text-[10px] text-[#a39b8d] uppercase tracking-[0.18em] font-medium mt-1 whitespace-nowrap">
                 Salón Tradicional & Agendamiento
               </span>
             </div>
           </div>
 
           {/* Navegación Desktop */}
-          <nav className="hidden md:flex items-center gap-1 border border-[#24211c] bg-[#121212] p-1">
+          <nav className="hidden md:flex items-center gap-1 border border-[#24211c] bg-[#121212] p-1 shrink-0">
             {navItems.map(item => (
               <button
                 key={item.key}
                 onClick={() => setActiveTab(item.key)}
-                className={`px-4 py-2 text-xs uppercase tracking-wider font-heading font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+                className={`px-3.5 lg:px-4 py-2 text-xs uppercase tracking-wider font-heading font-semibold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
                   activeTab === item.key
                     ? 'bg-[#d97706] text-[#0a0a0a] font-bold shadow-sm'
                     : 'text-[#a39b8d] hover:text-[#f5f1e8] hover:bg-[#1a1713]'
