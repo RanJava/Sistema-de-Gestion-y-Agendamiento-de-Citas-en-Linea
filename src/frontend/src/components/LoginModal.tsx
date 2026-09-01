@@ -91,22 +91,20 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onOpenR
         <div className="grid grid-cols-2 gap-1 bg-[#0a0a0a] p-1 border border-[#24211c] mb-5">
           <button
             onClick={() => switchTab('cliente')}
-            className={`py-2 px-3 text-xs font-heading uppercase tracking-wider font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-              activeTab === 'cliente'
-                ? 'bg-[#d97706] text-[#0a0a0a]'
-                : 'text-[#a39b8d] hover:text-[#f5f1e8] hover:bg-[#121212]'
-            }`}
+            className={`py-2 px-3 text-xs font-heading uppercase tracking-wider font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${activeTab === 'cliente'
+              ? 'bg-[#d97706] text-[#0a0a0a]'
+              : 'text-[#a39b8d] hover:text-[#f5f1e8] hover:bg-[#121212]'
+              }`}
           >
             <User className="w-3.5 h-3.5" />
             <span>Cliente</span>
           </button>
           <button
             onClick={() => switchTab('admin')}
-            className={`py-2 px-3 text-xs font-heading uppercase tracking-wider font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-              activeTab === 'admin'
-                ? 'bg-[#d97706] text-[#0a0a0a]'
-                : 'text-[#a39b8d] hover:text-[#f5f1e8] hover:bg-[#121212]'
-            }`}
+            className={`py-2 px-3 text-xs font-heading uppercase tracking-wider font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${activeTab === 'admin'
+              ? 'bg-[#d97706] text-[#0a0a0a]'
+              : 'text-[#a39b8d] hover:text-[#f5f1e8] hover:bg-[#121212]'
+              }`}
           >
             <Shield className="w-3.5 h-3.5" />
             <span>Administrador</span>
@@ -121,21 +119,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onOpenR
           </div>
         )}
 
-        {/* Credenciales sugeridas para Admin */}
-        {activeTab === 'admin' && (
-          <div className="mb-4 p-3 bg-[#141b24] border border-[#1e3a5f] text-blue-300 text-xs flex items-start gap-2.5">
-            <Info className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-            <div>
-              <p className="font-heading uppercase tracking-wider font-bold text-blue-200 mb-1">Credenciales de Administración</p>
-              <p className="font-mono text-[11px]">
-                Correo: <span className="text-blue-100 select-all font-semibold">admin@peluchitos.com</span>
-              </p>
-              <p className="font-mono text-[11px]">
-                Contraseña: <span className="text-blue-100 select-all font-semibold">AdminPeluchitos2026!</span>
-              </p>
-            </div>
-          </div>
-        )}
 
         {/* Formulario */}
         <form onSubmit={handleSubmit} className="space-y-4 text-left">
