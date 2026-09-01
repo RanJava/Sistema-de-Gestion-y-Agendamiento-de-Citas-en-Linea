@@ -11,7 +11,10 @@ import {
   CalendarCheck, 
   CalendarDays, 
   History as HistoryIcon,
-  Home as HomeIcon
+  Home as HomeIcon,
+  Menu,
+  X,
+  User as UserIcon
 } from 'lucide-react';
 import { checkApiHealth } from './services/api';
 import { useAuth } from './contexts/AuthContext';
@@ -41,6 +44,7 @@ export function App() {
   const [isRetrying, setIsRetrying] = useState<boolean>(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState<boolean>(false);
   const [isLoginOpen, setIsLoginOpen] = useState<boolean>(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   // Al cambiar de rol, asegurarse de que la pestaña actual sea válida
   useEffect(() => {
@@ -54,6 +58,12 @@ export function App() {
       setActiveTab('home');
     }
   }, [isAdmin, isCliente, isAuthenticated, activeTab]);
+
+  // Cerrar menú móvil al cambiar de pestaña
+  const handleSelectTab = (tab: Tab) => {
+    setActiveTab(tab);
+    setIsMobileMenuOpen(false);
+  };
 
   // Derivar currentUser compatible con BookingWizard
   const currentUser: Cliente | null = isCliente && user ? {
@@ -136,28 +146,29 @@ export function App() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-[#e8e4dc] flex flex-col justify-between selection:bg-[#d97706] selection:text-black font-sans w-full max-w-full overflow-x-hidden">
       {/* Top Banner de Barbería Tradicional */}
-      <div className="bg-[#121212] border-b border-[#24211c] py-1 px-3 sm:px-4 text-center text-[10px] sm:text-[11px] text-[#a39b8d] tracking-wider sm:tracking-widest uppercase font-heading flex items-center justify-between max-w-7xl mx-auto w-full">
+      <div className="bg-[#121212] border-b border-[#24211c] py-1 px-3 sm:px-4 text-center text-[9px] xs:text-[10px] sm:text-[11px] text-[#a39b8d] tracking-wider uppercase font-heading flex items-center justify-between max-w-7xl mx-auto w-full">
         <span className="hidden sm:inline">TARIJA • BOLIVIA</span>
-        <span className="text-[#d97706] font-medium mx-auto sm:mx-0 truncate">ATENCIÓN PERSONALIZADA • TURNOS EN TIEMPO REAL</span>
+        <span className="text-[#d97706] font-medium mx-auto sm:mx-0 truncate px-2">ATENCIÓN PERSONALIZADA • TURNOS EN TIEMPO REAL</span>
         <span className="hidden sm:inline">LUN - SÁB: 08:00 - 20:00</span>
       </div>
 
       {/* Header / Navbar Clásico Premium */}
       <header className="border-b border-[#24211c] bg-[#0a0a0a]/95 backdrop-blur-sm sticky top-0 z-40 w-full">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-2.5 xs:px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
+          
           {/* Brand Logo Insignia */}
           <div 
-            onClick={() => setActiveTab(isAdmin ? 'staff' : 'home')}
-            className="flex items-center gap-3 sm:gap-3.5 cursor-pointer group shrink-0"
+            onClick={() => handleSelectTab(isAdmin ? 'staff' : 'home')}
+            className="flex items-center gap-2 xs:gap-3 sm:gap-3.5 cursor-pointer group shrink min-w-0"
           >
-            <div className="w-10 h-10 sm:w-11 sm:h-11 border-2 border-[#d97706] bg-[#121212] flex items-center justify-center text-[#d97706] group-hover:bg-[#d97706] group-hover:text-black transition-colors duration-200 shrink-0">
-              <BarberScissorsIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+            <div className="w-8 h-8 xs:w-9 xs:h-9 sm:w-11 sm:h-11 border-2 border-[#d97706] bg-[#121212] flex items-center justify-center text-[#d97706] group-hover:bg-[#d97706] group-hover:text-black transition-colors duration-200 shrink-0">
+              <BarberScissorsIcon className="w-4 h-4 sm:w-6 sm:h-6" />
             </div>
-            <div className="shrink-0">
-              <span className="font-heading font-bold text-lg sm:text-2xl tracking-[0.1em] text-[#f5f1e8] uppercase block leading-none whitespace-nowrap">
+            <div className="min-w-0">
+              <span className="font-heading font-bold text-xs xs:text-sm sm:text-2xl tracking-[0.04em] sm:tracking-[0.1em] text-[#f5f1e8] uppercase block leading-tight truncate">
                 BARBER <span className="text-[#d97706]">LOS PELUCHITOS</span>
               </span>
-              <span className="block text-[9px] sm:text-[10px] text-[#a39b8d] uppercase tracking-[0.18em] font-medium mt-1 whitespace-nowrap">
+              <span className="hidden sm:block text-[9px] sm:text-[10px] text-[#a39b8d] uppercase tracking-[0.18em] font-medium mt-0.5 whitespace-nowrap">
                 Salón Tradicional & Agendamiento
               </span>
             </div>
@@ -168,7 +179,7 @@ export function App() {
             {navItems.map(item => (
               <button
                 key={item.key}
-                onClick={() => setActiveTab(item.key)}
+                onClick={() => handleSelectTab(item.key)}
                 className={`px-3.5 lg:px-4 py-2 text-xs uppercase tracking-wider font-heading font-semibold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
                   activeTab === item.key
                     ? 'bg-[#d97706] text-[#0a0a0a] font-bold shadow-sm'
@@ -182,38 +193,43 @@ export function App() {
           </nav>
 
           {/* Acciones de usuario & Estado de Sistema */}
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 shrink-0">
             {isAuthenticated && user ? (
-              <div className="flex items-center gap-1.5 sm:gap-2 bg-[#121212] px-2.5 sm:px-3.5 py-1.5 sm:py-2 border border-[#24211c]">
-                {isAdmin && (
-                  <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#d97706]" />
+              <div className="flex items-center gap-1.5 xs:gap-2 bg-[#121212] px-2 xs:px-2.5 sm:px-3.5 py-1.5 sm:py-2 border border-[#24211c]">
+                {isAdmin ? (
+                  <Shield className="w-3.5 h-3.5 text-[#d97706] shrink-0" />
+                ) : (
+                  <UserIcon className="w-3.5 h-3.5 text-[#d97706] shrink-0" />
                 )}
-                <span className="text-xs font-bold font-heading uppercase text-[#f5f1e8] tracking-wider truncate max-w-[90px] sm:max-w-[130px]">
+                <span 
+                  title={user.nombre}
+                  className="text-xs font-bold font-heading uppercase text-[#f5f1e8] tracking-wider truncate max-w-[70px] xs:max-w-[95px] sm:max-w-[140px]"
+                >
                   {user.nombre}
                 </span>
-                <span className="text-[10px] text-[#8c8273] font-mono uppercase hidden sm:inline">
+                <span className="text-[10px] text-[#8c8273] font-mono uppercase hidden lg:inline">
                   [{user.rol}]
                 </span>
                 <button
                   onClick={logout}
                   title="Cerrar sesión"
-                  className="text-[#a39b8d] hover:text-rose-400 p-1 transition-colors cursor-pointer ml-0.5 sm:ml-1"
+                  className="text-[#a39b8d] hover:text-rose-400 p-0.5 sm:p-1 transition-colors cursor-pointer ml-0.5 shrink-0"
                 >
                   <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="flex items-center gap-1.5 xs:gap-2">
                 <button
                   onClick={() => setIsLoginOpen(true)}
-                  className="py-1.5 sm:py-2.5 px-2.5 sm:px-4 bg-[#d97706] hover:bg-[#b45309] text-[#0a0a0a] text-xs font-heading font-bold uppercase tracking-wider flex items-center gap-1 sm:gap-1.5 transition-colors cursor-pointer border border-[#d97706]"
+                  className="py-1.5 sm:py-2.5 px-2.5 xs:px-3 sm:px-4 bg-[#d97706] hover:bg-[#b45309] text-[#0a0a0a] text-xs font-heading font-bold uppercase tracking-wider flex items-center gap-1 sm:gap-1.5 transition-colors cursor-pointer border border-[#d97706] shrink-0 whitespace-nowrap"
                 >
                   <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span>Ingresar</span>
                 </button>
                 <button
                   onClick={() => setIsRegisterOpen(true)}
-                  className="hidden sm:flex py-2.5 px-4 bg-[#121212] hover:bg-[#1c1915] text-[#f5f1e8] text-xs font-heading font-semibold uppercase tracking-wider items-center gap-1.5 border border-[#38332b] hover:border-[#d97706] transition-colors cursor-pointer"
+                  className="hidden lg:flex py-2.5 px-4 bg-[#121212] hover:bg-[#1c1915] text-[#f5f1e8] text-xs font-heading font-semibold uppercase tracking-wider items-center gap-1.5 border border-[#38332b] hover:border-[#d97706] transition-colors cursor-pointer shrink-0"
                 >
                   <UserPlus className="w-4 h-4 text-[#d97706]" />
                   <span>Registro</span>
@@ -221,54 +237,148 @@ export function App() {
               </div>
             )}
 
+            {/* API Status Badge (Desktop) */}
+            <div className="hidden sm:flex items-center gap-1.5">
+              <button
+                onClick={testConnection}
+                disabled={isRetrying}
+                title="Reintentar verificación de conexión"
+                className="p-1.5 sm:p-2 bg-[#121212] hover:bg-[#1c1915] text-[#a39b8d] hover:text-[#f5f1e8] border border-[#24211c] transition-all cursor-pointer disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${isRetrying ? 'animate-spin text-[#d97706]' : ''}`} />
+              </button>
+
+              <span className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-mono border ${
+                backendStatus === 'connected' 
+                  ? 'bg-emerald-950/40 text-emerald-400 border-emerald-800/60' 
+                  : backendStatus === 'checking' 
+                  ? 'bg-amber-950/40 text-amber-400 border-amber-800/60' 
+                  : 'bg-rose-950/40 text-rose-400 border-rose-800/60'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  backendStatus === 'connected' 
+                    ? 'bg-emerald-400' 
+                    : backendStatus === 'checking' 
+                    ? 'bg-amber-400 animate-pulse' 
+                    : 'bg-rose-400'
+                }`} />
+                <span>API:</span> {
+                  backendStatus === 'connected' 
+                    ? 'ONLINE' 
+                    : backendStatus === 'checking' 
+                    ? '...' 
+                    : 'OFFLINE'
+                }
+              </span>
+            </div>
+
+            {/* Mobile Menu Toggle Button */}
             <button
-              onClick={testConnection}
-              disabled={isRetrying}
-              title="Reintentar verificación de conexión"
-              className="p-1.5 sm:p-2 bg-[#121212] hover:bg-[#1c1915] text-[#a39b8d] hover:text-[#f5f1e8] border border-[#24211c] transition-all cursor-pointer disabled:opacity-50"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              title={isMobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
+              className="flex md:hidden p-1.5 xs:p-2 bg-[#121212] hover:bg-[#1c1915] text-[#f5f1e8] border border-[#24211c] transition-colors cursor-pointer shrink-0"
             >
-              <RefreshCw className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${isRetrying ? 'animate-spin text-[#d97706]' : ''}`} />
+              {isMobileMenuOpen ? (
+                <X className="w-4 h-4 text-[#d97706]" />
+              ) : (
+                <Menu className="w-4 h-4 text-[#f5f1e8]" />
+              )}
             </button>
 
-            <span className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-mono border ${
-              backendStatus === 'connected' 
-                ? 'bg-emerald-950/40 text-emerald-400 border-emerald-800/60' 
-                : backendStatus === 'checking' 
-                ? 'bg-amber-950/40 text-amber-400 border-amber-800/60' 
-                : 'bg-rose-950/40 text-rose-400 border-rose-800/60'
-            }`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${
-                backendStatus === 'connected' 
-                  ? 'bg-emerald-400' 
-                  : backendStatus === 'checking' 
-                  ? 'bg-amber-400 animate-pulse' 
-                  : 'bg-rose-400'
-              }`} />
-              <span className="hidden sm:inline">API:</span> {
-                backendStatus === 'connected' 
-                  ? 'ONLINE' 
-                  : backendStatus === 'checking' 
-                  ? '...' 
-                  : 'OFFLINE'
-              }
-            </span>
           </div>
         </div>
 
-        {/* Mobile Navigation */}
-        <div className="flex md:hidden border-t border-[#24211c] bg-[#121212] px-3 py-2 gap-1.5 overflow-x-auto">
+        {/* Mobile Horizontal Quick Tabs (Barra compacta bajo el header en móvil) */}
+        <div className="flex md:hidden border-t border-[#24211c] bg-[#121212] px-2 py-1.5 gap-1 overflow-x-auto scrollbar-none">
           {navItems.map(item => (
             <button
               key={item.key}
-              onClick={() => setActiveTab(item.key)}
-              className={`px-3 py-1.5 text-xs font-heading uppercase tracking-wider whitespace-nowrap cursor-pointer ${
-                activeTab === item.key ? 'bg-[#d97706] text-[#0a0a0a] font-bold' : 'text-[#a39b8d] bg-[#0a0a0a]'
+              onClick={() => handleSelectTab(item.key)}
+              className={`px-2.5 py-1 text-[11px] font-heading uppercase tracking-wider whitespace-nowrap cursor-pointer transition-colors shrink-0 flex items-center gap-1.5 ${
+                activeTab === item.key 
+                  ? 'bg-[#d97706] text-[#0a0a0a] font-bold shadow-sm' 
+                  : 'text-[#a39b8d] bg-[#0a0a0a] hover:text-[#f5f1e8]'
               }`}
             >
-              {item.mobileLabel}
+              {item.icon}
+              <span>{item.mobileLabel}</span>
             </button>
           ))}
         </div>
+
+        {/* Mobile Slide-down Full Menu Drawer */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-[#24211c] bg-[#0d0d0d] px-4 py-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-150 shadow-2xl">
+            <div className="space-y-1">
+              <span className="text-[10px] font-heading font-bold uppercase tracking-wider text-[#8c8273] px-2 block">
+                Navegación
+              </span>
+              {navItems.map(item => (
+                <button
+                  key={item.key}
+                  onClick={() => handleSelectTab(item.key)}
+                  className={`w-full text-left px-3 py-2.5 text-xs font-heading font-bold uppercase tracking-wider flex items-center gap-3 transition-colors ${
+                    activeTab === item.key
+                      ? 'bg-[#d97706] text-[#0a0a0a]'
+                      : 'text-[#d4ccbd] hover:bg-[#1a1713] hover:text-[#d97706]'
+                  }`}
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {!isAuthenticated && (
+              <div className="pt-2 border-t border-[#24211c] flex flex-col gap-2">
+                <button
+                  onClick={() => { setIsMobileMenuOpen(false); setIsLoginOpen(true); }}
+                  className="w-full py-2.5 bg-[#d97706] text-[#0a0a0a] text-xs font-heading font-bold uppercase tracking-wider flex items-center justify-center gap-2"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>Iniciar Sesión</span>
+                </button>
+                <button
+                  onClick={() => { setIsMobileMenuOpen(false); setIsRegisterOpen(true); }}
+                  className="w-full py-2.5 bg-[#121212] text-[#f5f1e8] text-xs font-heading font-semibold uppercase tracking-wider flex items-center justify-center gap-2 border border-[#38332b]"
+                >
+                  <UserPlus className="w-4 h-4 text-[#d97706]" />
+                  <span>Registrar Cuenta Nueva</span>
+                </button>
+              </div>
+            )}
+
+            {/* Mobile API Status row inside menu */}
+            <div className="pt-2 border-t border-[#24211c] flex items-center justify-between text-xs text-[#8c8273]">
+              <span className="font-heading uppercase text-[10px]">Estado Servidor:</span>
+              <div className="flex items-center gap-2">
+                <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-mono border ${
+                  backendStatus === 'connected' 
+                    ? 'bg-emerald-950/40 text-emerald-400 border-emerald-800/60' 
+                    : backendStatus === 'checking' 
+                    ? 'bg-amber-950/40 text-amber-400 border-amber-800/60' 
+                    : 'bg-rose-950/40 text-rose-400 border-rose-800/60'
+                }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${
+                    backendStatus === 'connected' 
+                      ? 'bg-emerald-400' 
+                      : backendStatus === 'checking' 
+                      ? 'bg-amber-400 animate-pulse' 
+                      : 'bg-rose-400'
+                  }`} />
+                  {backendStatus === 'connected' ? 'ONLINE' : backendStatus === 'checking' ? 'CONECTANDO...' : 'OFFLINE'}
+                </span>
+                <button
+                  onClick={testConnection}
+                  disabled={isRetrying}
+                  className="p-1 bg-[#121212] text-[#a39b8d] border border-[#24211c]"
+                >
+                  <RefreshCw className={`w-3 h-3 ${isRetrying ? 'animate-spin text-[#d97706]' : ''}`} />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Main Content Area */}

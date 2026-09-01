@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Mail, Lock, LogIn, Shield, User, AlertCircle, Info } from 'lucide-react';
+import { X, Mail, Lock, LogIn, Shield, User, AlertCircle } from 'lucide-react';
 import { loginCliente, loginAdmin } from '../services/authService';
 import { useAuth } from '../contexts/AuthContext';
 import { BarberScissorsIcon } from './LandingHome';

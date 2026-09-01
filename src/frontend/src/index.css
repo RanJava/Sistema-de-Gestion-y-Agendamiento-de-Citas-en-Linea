@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "./admin.css";
 
+@theme {
+  --breakpoint-xs: 380px;
+}
+
 @layer base {
   :root {
     --font-heading: 'Oswald', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
