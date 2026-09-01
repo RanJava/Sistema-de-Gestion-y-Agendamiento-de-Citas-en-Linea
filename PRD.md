@@ -12,7 +12,7 @@
   - Carlos Alvaro Flores
 - **Docente Revisor:** Ing. Nelson Huanca
 - **Ubicación y Fecha:** Tarija, Bolivia – Agosto 2026
-- **Versión del PRD:** 1.2 (MVP) — actualizado: stack de backend (ASP.NET Core) y citas legales verificadas contra fuentes oficiales
+- **Versión del PRD:** 1.3 (MVP) — actualizado: modelo de datos sincronizado con el esquema real implementado (cifrado AES-256, tabla `administrador`, `logs_auditoria`, `notificacion_log`) y sección 9.3 actualizada de "hallazgo pendiente" a "medidas implementadas"
 - **Repositorio Oficial:** https://github.com/RanJava/Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea
 
 ---
@@ -52,12 +52,14 @@ Proveer una plataforma web responsiva (WebApp) intuitiva, confiable y accesible 
 ### 1.5 Límites del Sistema (Alcance)
 
 **Alcance Incluido en el MVP (Sprints 1 y 2):**
-- Registro y autenticación básica de clientes (con contraseña hasheada).
+- Registro y autenticación básica de clientes (con contraseña hasheada) y verificación de correo por código.
 - Módulo administrativo de gestión de barberos y sus horarios semanales de disponibilidad.
 - Consulta de disponibilidad de turnos en tiempo real con bloqueo automático de franjas pasadas y control de concurrencia.
 - Agendamiento de citas con snapshot de duración y precio del servicio seleccionado.
 - Confirmación inmediata de cita y opción de cancelación por parte del cliente.
 - Panel administrativo para visualización de agenda diaria y cambio de estados de cita.
+- Cifrado en reposo de datos de contacto sensibles y registro de auditoría inalterable (Fase C — ver sección 9.3).
+- Autoservicio de derechos Habeas Data: rectificación y baja lógica con anonimización (ver sección 9.1).
 
 **Alcance Excluido (Post-MVP / Release 2 / Fuera de Alcance):**
 - Pasarela de pagos electrónicos en línea (se cobra en caja física / local).
@@ -88,7 +90,7 @@ Arquitectura desacoplada basada en capas bajo el patrón MVC / Clean Architectur
 | Frontend | React 19, TypeScript, Tailwind CSS, Lucide React, Motion | Renderizado dinámico de agendas, tipado estricto, interfaces limpias y adaptadas a pantallas móviles y de escritorio. |
 | Backend / API | ASP.NET Core Web API (C#), Entity Framework Core, Npgsql | Framework robusto orientado a capas (Controllers/Services/Repositories) alineado con la arquitectura Clean Architecture definida; manejo nativo de concurrencia y transacciones para evitar dobles reservas. |
 | Base de Datos | PostgreSQL 15+ | Soporte nativo de transacciones ACID, tipos TIME, DATE, TIMESTAMP, índices únicos y claves foráneas con políticas de borrado (CASCADE/RESTRICT). |
-| Seguridad y Criptografía | ASP.NET Core Identity (hashing de contraseñas), JWT Bearer Authentication | Cumplimiento del principio de no almacenar credenciales en texto plano (Ley 164 / D.S. 1793), con mecanismos de autenticación integrados al framework. |
+| Seguridad y Criptografía | ASP.NET Core Identity (hashing de contraseñas), JWT Bearer Authentication, cifrado AES-256 en reposo + blind-index HMAC-SHA256 | Cumplimiento del principio de no almacenar credenciales ni datos de contacto en texto plano (Ley 164 / D.S. 1793), con mecanismos de autenticación integrados al framework y cifrado aplicativo para campos sensibles. |
 | Control de Versiones & CI/CD | Git, GitHub | Integración continua, trazabilidad del código y despliegue automatizado. |
 
 ### 2.3 Justificación del Backend (ASP.NET Core)
@@ -99,11 +101,11 @@ Para el desarrollo del backend de BarberLosPeluchitos se seleccionó **ASP.NET C
 
 **Alineación con la arquitectura definida:** el PRD establece una arquitectura por capas (MVC / Clean Architecture); ASP.NET Core provee convenciones y tooling nativo para este patrón (Controllers, Dependency Injection, separación de capas), reduciendo la necesidad de configuración manual.
 
-**Integración con el modelo de datos:** mediante Entity Framework Core y el proveedor Npgsql, las entidades definidas en la Sección 3 (CLIENTE, BARBERO, TURNO, SERVICIO, CITA) se mapean directamente contra PostgreSQL, incluyendo las restricciones CHECK ya definidas en el DDL.
+**Integración con el modelo de datos:** mediante Entity Framework Core y el proveedor Npgsql, las entidades definidas en la Sección 3 (CLIENTE, BARBERO, TURNO, SERVICIO, CITA, ADMINISTRADOR, LOGS_AUDITORIA, NOTIFICACION_LOG) se mapean directamente contra PostgreSQL, incluyendo las restricciones CHECK ya definidas en el DDL.
 
 **Seguridad integrada:** ASP.NET Core Identity y JWT Bearer Authentication cubren de forma nativa los requisitos de hashing de contraseñas y sesiones seguras exigidos por la Ley 164 y el D.S. 1793, sin necesidad de integrar librerías externas adicionales.
 
-> **Nota:** este backend se está construyendo con apoyo de una herramienta de desarrollo asistido por IA (Antigravity), utilizando como base el modelo de datos y las reglas de negocio definidas en este documento.
+> **Nota:** este backend se construyó con apoyo de una herramienta de desarrollo asistido por IA (Antigravity), utilizando como base el modelo de datos y las reglas de negocio definidas en este documento. Las tablas y columnas de seguridad (cifrado, auditoría) descritas en la sección 3 se incorporaron en una segunda pasada (Fase C) sobre el modelo inicial de HU-01 a HU-04.
 
 ---
 
@@ -121,11 +123,18 @@ Para el desarrollo del backend de BarberLosPeluchitos se seleccionó **ASP.NET C
 +------------------+       1:1 (Max) +--------------------------+       N:1       +------------------+
 |      TURNO       |----------------<|           CITA           |>----------------|     SERVICIO     |
 +------------------+                 +--------------------------+                 +------------------+
-                                                  | N:1
-                                                  v
-                                     +--------------------------+
-                                     |         CLIENTE          |
-                                     +--------------------------+
+                                                  | N:1                | 1:N
+                                                  v                    v
+                                     +--------------------------+  +--------------------------+
+                                     |         CLIENTE          |  |      NOTIFICACION_LOG    |
+                                     +--------------------------+  +--------------------------+
+
++--------------------------+       1:N       +--------------------------+
+|      ADMINISTRADOR       |----------------<|       LOGS_AUDITORIA     |
++--------------------------+  (id_administrador nullable,               |
+                               ON DELETE SET NULL — el log sobrevive    |
+                               aunque se borre el admin)                |
+                                                +--------------------------+
 ```
 
 ### 3.2 Diccionario de Datos Exhaustivo
@@ -136,10 +145,14 @@ Para el desarrollo del backend de BarberLosPeluchitos se seleccionó **ASP.NET C
 |---|---|---|---|---|---|
 | id_cliente | SERIAL | NO | PK | Autoincremental | Identificador único del cliente. |
 | nombre | VARCHAR(50) | NO | - | Formato texto no vacío | Nombre completo del cliente. |
-| telefono | VARCHAR(20) | NO | - | Formato numérico / internacional | Teléfono móvil o WhatsApp de contacto. |
-| correo | VARCHAR(100) | NO | UNIQUE | Formato de email válido | Correo electrónico utilizado para login (no admite duplicados). |
+| telefono | VARCHAR(255)* | NO | - | Cifrado en reposo AES-256 | Teléfono móvil o WhatsApp de contacto. *Ancho de columna ampliado para alojar el valor cifrado. |
+| correo | VARCHAR(255)* | NO | - | Cifrado en reposo AES-256 | Correo electrónico de contacto/registro. *Ya no es `UNIQUE` directo (ver `correo_hash`); ampliado por el mismo motivo. |
+| correo_hash | VARCHAR(128) | SÍ | UNIQUE | Blind-index determinístico HMAC-SHA256 sobre `correo` | Permite validar unicidad y hacer login sin exponer el correo en claro en la base de datos. |
 | contrasena_hash | VARCHAR(255) | NO | - | Criptografía irreversible | Hash de contraseña con salt (nunca texto plano). |
+| codigo_verificacion | VARCHAR(255) | SÍ | - | Cifrado en reposo AES-256 (nullable) | Código temporal de 6 dígitos para verificación de correo al registrarse; `NULL` tras confirmación. |
 | fecha_registro | DATE | NO | - | Default CURRENT_DATE | Fecha de creación de la cuenta en el sistema. |
+| activo | BOOLEAN | NO | - | Default `true` | Habeas Data: indicador de baja lógica de la cuenta. |
+| fecha_eliminacion | TIMESTAMP | SÍ | - | - | Habeas Data: fecha en que se ejerció el derecho de supresión/baja lógica. |
 
 **2. Tabla: BARBERO** — Almacena a los profesionales estilistas/barberos que prestan servicios en el local.
 
@@ -147,7 +160,7 @@ Para el desarrollo del backend de BarberLosPeluchitos se seleccionó **ASP.NET C
 |---|---|---|---|---|---|
 | id_barbero | SERIAL | NO | PK | Autoincremental | Identificador único del barbero. |
 | nombre | VARCHAR(50) | NO | - | Formato texto no vacío | Nombre y apellido del barbero. |
-| telefono | VARCHAR(20) | NO | - | Formato de contacto | Teléfono de contacto personal o laboral. |
+| telefono | VARCHAR(255)* | NO | - | Cifrado en reposo AES-256 | Teléfono de contacto personal o laboral. *Ancho ampliado para alojar el valor cifrado. |
 
 **3. Tabla: HORARIO_DISPONIBILIDAD** — Define la plantilla de horarios semanales recurrentes asignados a cada barbero.
 
@@ -170,6 +183,8 @@ Para el desarrollo del backend de BarberLosPeluchitos se seleccionó **ASP.NET C
 | hora_fin | TIME | NO | - | CHECK (hora_fin > hora_inicio) | Hora de finalización del slot. |
 | estado | VARCHAR(15) | NO | - | CHECK (estado IN ('Disponible', 'Reservado')) DEFAULT 'Disponible' | Estado de reserva del turno. |
 
+Índices: `UNIQUE (id_barbero, fecha, hora_inicio)` — evita turnos duplicados; `(id_barbero, fecha, estado)` — optimiza la búsqueda de disponibilidad.
+
 **5. Tabla: SERVICIO** — Catálogo de cortes y tratamientos ofrecidos en la barbería.
 
 | Atributo | Tipo de Dato | Nulo | Clave | Restricciones / Reglas | Descripción |
@@ -191,24 +206,74 @@ Para el desarrollo del backend de BarberLosPeluchitos se seleccionó **ASP.NET C
 | estado | VARCHAR(15) | NO | - | CHECK (estado IN ('Pendiente', 'Atendida', 'Cancelada')) DEFAULT 'Pendiente' | Ciclo de vida de la cita. |
 | duracion | INT | NO | - | CHECK (duracion > 0) | Snapshot de duracion_base al reservar. |
 | precio | DECIMAL(8,2) | NO | - | CHECK (precio > 0) | Snapshot de precio_base al reservar (protege contra variaciones futuras de tarifas). |
+| recordatorio_enviado | BOOLEAN | NO | - | Default `false` | Marca si ya se envió el recordatorio previo a la cita (soporte de HU-10). |
+
+Índices: `UNIQUE (id_turno)`; `(fecha_hora, estado)` — optimiza el listado de citas del día.
+
+**7. Tabla: ADMINISTRADOR** — Cuentas del personal administrativo con acceso al panel de gestión.
+
+| Atributo | Tipo de Dato | Nulo | Clave | Restricciones / Reglas | Descripción |
+|---|---|---|---|---|---|
+| id_administrador | SERIAL | NO | PK | Autoincremental | Identificador único del administrador. |
+| nombre | VARCHAR(50) | NO | - | Formato texto no vacío | Nombre del administrador. |
+| correo | VARCHAR(255) | NO | - | Cifrado en reposo AES-256 | Correo utilizado para login administrativo. |
+| correo_hash | VARCHAR(128) | SÍ | UNIQUE | Blind-index HMAC-SHA256 | Permite login y unicidad sin exponer el correo en claro. |
+| telefono | VARCHAR(255) | SÍ | - | Cifrado en reposo AES-256 (opcional) | Teléfono de contacto administrativo. |
+| contrasena_hash | VARCHAR(255) | NO | - | Criptografía irreversible | Hash de contraseña con salt. |
+| fecha_creacion | TIMESTAMP | NO | - | Default CURRENT_TIMESTAMP | Fecha de alta de la cuenta administrativa. |
+
+**8. Tabla: NOTIFICACION_LOG** — Bitácora de envíos de notificaciones (confirmación por correo, recordatorios).
+
+| Atributo | Tipo de Dato | Nulo | Clave | Restricciones / Reglas | Descripción |
+|---|---|---|---|---|---|
+| id_log | SERIAL | NO | PK | Autoincremental | Identificador único del registro de notificación. |
+| id_cita | INT | NO | - | Referencia lógica a CITA(id_cita) | Cita asociada a la notificación enviada. |
+| destinatario | VARCHAR(100) | NO | - | - | Correo/canal de destino de la notificación. |
+| tipo | VARCHAR(30) | NO | - | Default `'EmailConfirmacion'` | Tipo de notificación (confirmación, recordatorio, etc.). |
+| exitoso | BOOLEAN | NO | - | - | Indica si el envío se completó correctamente. |
+| mensaje | VARCHAR(255) | NO | - | - | Resumen del contenido/resultado del envío. |
+| error_detalle | TEXT | SÍ | - | - | Detalle del error si el envío falló. |
+| fecha_registro | TIMESTAMP | NO | - | Default CURRENT_TIMESTAMP | Momento del intento de envío. |
+
+**9. Tabla: LOGS_AUDITORIA** — Bitácora inalterable de accesos y mutaciones sobre datos personales (Ley 164 / Código Penal Art. 363 ter).
+
+| Atributo | Tipo de Dato | Nulo | Clave | Restricciones / Reglas | Descripción |
+|---|---|---|---|---|---|
+| id_log | BIGSERIAL | NO | PK | Autoincremental | Identificador único del registro de auditoría. |
+| id_administrador | INT | SÍ | FK | REFERENCES ADMINISTRADOR(id_administrador) ON DELETE SET NULL | Administrador que ejecutó la acción (se preserva el log aunque se borre la cuenta). |
+| recurso_afectado | VARCHAR(50) | NO | - | - | Entidad/controlador sobre el que se actuó (ej. `cliente`, `barbero`). |
+| id_recurso | VARCHAR(50) | SÍ | - | - | Identificador del registro afectado. |
+| accion | VARCHAR(20) | NO | - | SELECT / INSERT / UPDATE / DELETE | Tipo de operación realizada. |
+| fecha_hora | TIMESTAMPTZ | NO | - | Default CURRENT_TIMESTAMP | Momento exacto del acceso o mutación. |
+| ip_origen | VARCHAR(45) | NO | - | - | Dirección IP de origen de la solicitud. |
+| detalles | VARCHAR(500) | SÍ | - | - | Ruta, query string u otro contexto de la operación. |
+
+Índices: `(recurso_afectado, fecha_hora)`; `(id_administrador)`. **Inmutabilidad forzada a nivel de motor:** un trigger `BEFORE UPDATE OR DELETE` en PostgreSQL (`fn_prevent_logs_auditoria_tamper`) rechaza cualquier intento de modificar o borrar un registro ya insertado — la tabla es de solo `INSERT` incluso para el propio backend.
 
 ### 3.3 Script DDL SQL (PostgreSQL Compatible)
 
 ```sql
 -- Creación de Base de Datos para BarberLosPeluchitos
+
 CREATE TABLE CLIENTE (
     id_cliente SERIAL PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,
-    telefono VARCHAR(20) NOT NULL,
-    correo VARCHAR(100) NOT NULL UNIQUE,
+    telefono VARCHAR(255) NOT NULL,          -- cifrado en reposo (AES-256)
+    correo VARCHAR(255) NOT NULL,            -- cifrado en reposo (AES-256)
+    correo_hash VARCHAR(128),                -- blind-index HMAC-SHA256
     contrasena_hash VARCHAR(255) NOT NULL,
-    fecha_registro DATE NOT NULL DEFAULT CURRENT_DATE
+    codigo_verificacion VARCHAR(255),        -- cifrado en reposo (AES-256), nullable
+    fecha_registro DATE NOT NULL DEFAULT CURRENT_DATE,
+    activo BOOLEAN NOT NULL DEFAULT true,    -- Habeas Data: baja lógica
+    fecha_eliminacion TIMESTAMP              -- Habeas Data: fecha de supresión
 );
+
+CREATE UNIQUE INDEX ix_cliente_correo_hash ON CLIENTE (correo_hash);
 
 CREATE TABLE BARBERO (
     id_barbero SERIAL PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,
-    telefono VARCHAR(20) NOT NULL
+    telefono VARCHAR(255) NOT NULL           -- cifrado en reposo (AES-256)
 );
 
 CREATE TABLE HORARIO_DISPONIBILIDAD (
@@ -233,8 +298,11 @@ CREATE TABLE TURNO (
     CONSTRAINT fk_turno_barbero FOREIGN KEY (id_barbero)
         REFERENCES BARBERO(id_barbero) ON DELETE CASCADE,
     CONSTRAINT chk_turno_rango CHECK (hora_fin > hora_inicio),
-    CONSTRAINT chk_turno_estado CHECK (estado IN ('Disponible', 'Reservado'))
+    CONSTRAINT chk_turno_estado CHECK (estado IN ('Disponible', 'Reservado')),
+    CONSTRAINT uq_turno_barbero_fecha_hora UNIQUE (id_barbero, fecha, hora_inicio)
 );
+
+CREATE INDEX idx_turno_busqueda ON TURNO(id_barbero, fecha, estado);
 
 CREATE TABLE SERVICIO (
     id_servicio SERIAL PRIMARY KEY,
@@ -254,6 +322,7 @@ CREATE TABLE CITA (
     estado VARCHAR(15) NOT NULL DEFAULT 'Pendiente',
     duracion INT NOT NULL,
     precio DECIMAL(8,2) NOT NULL,
+    recordatorio_enviado BOOLEAN NOT NULL DEFAULT false,
     CONSTRAINT fk_cita_cliente FOREIGN KEY (id_cliente)
         REFERENCES CLIENTE(id_cliente) ON DELETE RESTRICT,
     CONSTRAINT fk_cita_turno FOREIGN KEY (id_turno)
@@ -265,9 +334,61 @@ CREATE TABLE CITA (
     CONSTRAINT chk_cita_precio CHECK (precio > 0)
 );
 
--- Índices de optimización para búsqueda en tiempo real
-CREATE INDEX idx_turno_busqueda ON TURNO(id_barbero, fecha, estado);
 CREATE INDEX idx_cita_fecha ON CITA(fecha_hora, estado);
+
+-- Tabla de personal administrativo
+CREATE TABLE ADMINISTRADOR (
+    id_administrador SERIAL PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    correo VARCHAR(255) NOT NULL,            -- cifrado en reposo (AES-256)
+    correo_hash VARCHAR(128),                -- blind-index HMAC-SHA256
+    telefono VARCHAR(255),                   -- cifrado en reposo (AES-256), opcional
+    contrasena_hash VARCHAR(255) NOT NULL,
+    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE UNIQUE INDEX ix_administrador_correo_hash ON ADMINISTRADOR (correo_hash);
+
+-- Bitácora de notificaciones (confirmaciones / recordatorios)
+CREATE TABLE NOTIFICACION_LOG (
+    id_log SERIAL PRIMARY KEY,
+    id_cita INT NOT NULL,
+    destinatario VARCHAR(100) NOT NULL,
+    tipo VARCHAR(30) NOT NULL DEFAULT 'EmailConfirmacion',
+    exitoso BOOLEAN NOT NULL,
+    mensaje VARCHAR(255) NOT NULL,
+    error_detalle TEXT,
+    fecha_registro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Bitácora inalterable de auditoría (Ley 164 / Código Penal Art. 363 ter)
+CREATE TABLE LOGS_AUDITORIA (
+    id_log BIGSERIAL PRIMARY KEY,
+    id_administrador INT,
+    recurso_afectado VARCHAR(50) NOT NULL,
+    id_recurso VARCHAR(50),
+    accion VARCHAR(20) NOT NULL,
+    fecha_hora TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    ip_origen VARCHAR(45) NOT NULL,
+    detalles VARCHAR(500),
+    CONSTRAINT fk_logs_auditoria_admin FOREIGN KEY (id_administrador)
+        REFERENCES ADMINISTRADOR(id_administrador) ON DELETE SET NULL
+);
+
+CREATE INDEX ix_logs_auditoria_recurso_fecha ON LOGS_AUDITORIA (recurso_afectado, fecha_hora);
+CREATE INDEX ix_logs_auditoria_admin ON LOGS_AUDITORIA (id_administrador);
+
+-- Inmutabilidad forense: bloquea UPDATE y DELETE sobre logs_auditoria a nivel de motor
+CREATE OR REPLACE FUNCTION fn_prevent_logs_auditoria_tamper()
+RETURNS TRIGGER AS $$
+BEGIN
+    RAISE EXCEPTION 'Operación denegada: Los registros en logs_auditoria son estrictamente inmutables conforme a la Ley 164 y Código Penal Art. 363 ter.';
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tg_logs_auditoria_prevent_tamper
+BEFORE UPDATE OR DELETE ON LOGS_AUDITORIA
+FOR EACH ROW EXECUTE FUNCTION fn_prevent_logs_auditoria_tamper();
 ```
 
 ---
@@ -303,12 +424,14 @@ Artículo 36 y ss. (Obligaciones de los Comerciantes): Mantenimiento ordenado y 
 
 | Código | Nombre de la Regla | Descripción y Comportamiento del Sistema |
 |---|---|---|
-| RN-01 | Unicidad de Identidad y Autenticación | Cada cuenta de cliente debe contar con un correo electrónico único (UNIQUE). La contraseña debe registrarse forzosamente como un hash irreversible de alta seguridad. Un usuario invitado no puede confirmar una reserva sin autenticarse previamente. |
+| RN-01 | Unicidad de Identidad y Autenticación | Cada cuenta de cliente debe contar con un correo electrónico único, garantizado mediante el blind-index `correo_hash` (`UNIQUE`) ya que el campo `correo` se almacena cifrado. La contraseña debe registrarse forzosamente como un hash irreversible de alta seguridad. Un usuario invitado no puede confirmar una reserva sin autenticarse previamente. |
 | RN-02 | Concurrencia Transaccional e Inmutabilidad de Turno | Un turno (TURNO) puede asociarse a una única cita (CITA.id_turno UNIQUE). Si dos clientes solicitan el mismo turno en el mismo milisegundo, la base de datos resolverá mediante bloqueo optimista/pesimista: la primera transacción adquiere el turno pasando a Reservado y la segunda es rechazada informando al usuario que el turno fue tomado. |
 | RN-03 | Coherencia y Validez Temporal | Toda franja horaria (hora_fin) debe ser estrictamente posterior a hora_inicio. Al consultar turnos para el día en curso, el sistema debe filtrar y ocultar automáticamente aquellos turnos cuya hora de inicio sea anterior a la hora actual (CURRENT_TIME). |
 | RN-04 | Snapshot Histórico de Tarifas y Tiempos | Al crearse la cita (CITA), los valores actuales de duracion_base y precio_base de la tabla SERVICIO se copian irrevocablemente a las columnas duracion y precio de la cita, protegiendo el acuerdo comercial contra modificaciones futuras del catálogo (Ley 453). |
 | RN-05 | Ciclo de Vida y Transición de Estados | Las citas inician forzosamente en estado Pendiente. La administración puede cambiar el estado a Atendida o Cancelada. Si un cliente o administrador cancela la cita, el estado del turno vinculado (TURNO.estado) se actualiza a Disponible, liberando el cupo inmediatamente. |
 | RN-06 | Filtro de Visibilidad por Disponibilidad Activa | Aquellos barberos que no cuenten con horarios de disponibilidad configurados o cuyos turnos futuros estén agotados no aparecerán como seleccionables para nuevas citas. |
+| RN-07 | Integridad Referencial ante Borrado | No se permite el borrado físico de un CLIENTE, TURNO o SERVICIO que tenga una CITA asociada (`ON DELETE RESTRICT`). El borrado de un BARBERO cascadea sobre sus HORARIO_DISPONIBILIDAD y TURNO sin citas asociadas (`ON DELETE CASCADE`), pero es rechazado por el motor si alguno de esos turnos tiene una cita vinculada. La supresión de datos personales del cliente se resuelve por Habeas Data (ver sección 9.1), nunca por `DELETE` físico. |
+| RN-08 | Auditoría Inalterable | Toda consulta o mutación de datos personales de clientes ejecutada por un administrador (a través de `AdminClientesController` y `CuentasController`) genera automáticamente un registro en `logs_auditoria`, el cual no puede modificarse ni eliminarse una vez insertado (bloqueo a nivel de trigger de base de datos). |
 
 ---
 
@@ -347,8 +470,8 @@ Descripción: Como cliente nuevo, quiero poder registrar mi cuenta con mi nombre
 Prioridad: Alta | Sprint: Semana 1
 
 Criterios de Aceptación:
-1. **(Registro exitoso):** Dado que el cliente se encuentra en la pantalla de registro, cuando completa su nombre, teléfono y correo con datos válidos y confirma, entonces el sistema encripta la contraseña, persiste la cuenta en CLIENTE y redirige al login o al inicio.
-2. **(Correo duplicado):** Dado que se intenta registrar una cuenta con un correo ya existente en la base de datos, cuando se envía el formulario, entonces el sistema bloquea el registro y muestra un error indicando que el correo ya está en uso.
+1. **(Registro exitoso):** Dado que el cliente se encuentra en la pantalla de registro, cuando completa su nombre, teléfono y correo con datos válidos y confirma, entonces el sistema encripta la contraseña, cifra en reposo el teléfono y el correo, persiste la cuenta en CLIENTE y envía un código de verificación al correo antes de habilitar el login.
+2. **(Correo duplicado):** Dado que se intenta registrar una cuenta con un correo cuyo blind-index (`correo_hash`) ya existe en la base de datos, cuando se envía el formulario, entonces el sistema bloquea el registro y muestra un error indicando que el correo ya está en uso.
 3. **(Campos obligatorios vacíos):** Dado que el usuario omite ingresar el nombre, teléfono o correo, cuando intenta confirmar el registro, entonces el sistema resalta los campos faltantes y no envía la petición.
 4. **(Validación de formato de correo):** Dado que se ingresa un correo con formato sintáctico inválido, cuando se valida el formulario, entonces el sistema muestra un mensaje de validación de formato.
 
@@ -357,7 +480,7 @@ Descripción: Como administrador del local, quiero poder registrar a los barbero
 Prioridad: Alta | Sprint: Semana 1
 
 Criterios de Aceptación:
-1. **(Alta de personal y horario):** Dado que el administrador ingresa el nombre, teléfono y franjas horarias semanales de un barbero, cuando confirma el formulario, entonces el sistema almacena el registro en BARBERO y HORARIO_DISPONIBILIDAD, listándolo en el catálogo del staff.
+1. **(Alta de personal y horario):** Dado que el administrador ingresa el nombre, teléfono y franjas horarias semanales de un barbero, cuando confirma el formulario, entonces el sistema almacena el registro en BARBERO (con el teléfono cifrado en reposo) y HORARIO_DISPONIBILIDAD, listándolo en el catálogo del staff.
 2. **(Actualización de disponibilidad en tiempo real):** Dado que un barbero ya cuenta con horarios registrados, cuando el administrador modifica su jornada, entonces el sistema actualiza de forma inmediata la disponibilidad en el módulo público de reservas.
 3. **(Validación de rango horario inconsistente):** Dado que se intenta registrar una franja donde la hora de fin es igual o anterior a la hora de inicio, cuando se envía el formulario, entonces el sistema rechaza la operación y notifica el error de rango inválido.
 4. **(Barbero sin disponibilidad):** Dado que un barbero no tiene horarios cargados en el sistema, cuando un cliente busca disponibilidad en la WebApp, entonces dicho barbero no figura como opción disponible para agendamiento.
@@ -391,7 +514,7 @@ Descripción: Como cliente, quiero recibir una confirmación automática apenas 
 Prioridad: Alta | Sprint: Semana 2
 
 Criterio de Aceptación (propuesto):
-Dado que la cita ha sido registrada satisfactoriamente en la base de datos, cuando finaliza la transacción, entonces la interfaz muestra una vista modal/pantalla de confirmación con el código de cita, nombre del barbero, servicio, fecha, hora y monto a cancelar en caja.
+Dado que la cita ha sido registrada satisfactoriamente en la base de datos, cuando finaliza la transacción, entonces la interfaz muestra una vista modal/pantalla de confirmación con el código de cita, nombre del barbero, servicio, fecha, hora y monto a cancelar en caja, y el sistema registra el intento de envío en `notificacion_log`.
 
 **HU-06 — Cancelar una cita agendada**
 Descripción: Como cliente, quiero poder cancelar una cita que ya agendé, para liberar el horario si ya no puedo asistir y evitar quedar mal con el local.
@@ -407,7 +530,7 @@ Descripción: Como administrador del local, quiero ver un listado de todas las c
 Prioridad: Alta | Sprint: Semana 2
 
 Criterio de Aceptación (propuesto):
-Dado que el administrador ingresa al panel de control, cuando selecciona la fecha de consulta (por defecto la fecha actual), entonces el sistema lista todas las citas del día ordenadas cronológicamente, indicando cliente, teléfono, barbero asignado, servicio, hora y estado actual.
+Dado que el administrador ingresa al panel de control, cuando selecciona la fecha de consulta (por defecto la fecha actual), entonces el sistema lista todas las citas del día ordenadas cronológicamente, indicando cliente, teléfono, barbero asignado, servicio, hora y estado actual, y registra la consulta en `logs_auditoria`.
 
 **HU-08 — Actualizar estado de una cita**
 Descripción: Como administrador del local, quiero poder actualizar el estado de una cita (Pendiente / Atendida / Cancelada), para llevar un control real de qué citas se cumplieron y cuáles no.
@@ -430,7 +553,9 @@ Prioridad: Media | Sprint: Fuera del alcance del MVP (Release 2)
 
 ## 7. Modelado y Especificación Técnica (PlantUML)
 
-> Los diagramas de casos de uso, secuencia, clases y estados para HU-01 a HU-04 se encuentran en el repositorio oficial: https://github.com/RanJava/Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea/tree/main/docs/uml
+Los diagramas de casos de uso, secuencia, clases y estados para HU-01 a HU-04 se encuentran en el repositorio oficial: https://github.com/RanJava/Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea/tree/main/docs/uml
+
+> **Nota de sincronización (pendiente de regenerar):** los diagramas de clases y el diagrama entidad-relación en `/docs/database` corresponden al modelo base definido para HU-01 a HU-04. Las tablas y campos de seguridad agregados en la Fase C (`administrador`, `logs_auditoria`, `notificacion_log`, `correo_hash`, `codigo_verificacion`, `activo`, `fecha_eliminacion`, `recordatorio_enviado`) están documentados en la sección 3 de este PRD y en el código (`ApplicationDbContext.cs`), pero **aún no están reflejados en los diagramas `.puml`/`.png`**. Regenerarlos antes de la defensa si el cronograma lo permite; en caso contrario, esta nota sirve como justificación explícita de la divergencia ante el docente.
 
 ---
 
@@ -441,7 +566,7 @@ Prioridad: Media | Sprint: Fuera del alcance del MVP (Release 2)
 - **Rendimiento y Latencia:** La respuesta a consultas de disponibilidad de turnos no debe exceder los 300 ms en condiciones normales de tráfico.
 - **Disponibilidad y Concurrencia:** La WebApp debe estar disponible 24/7 con soporte para múltiples peticiones concurrentes sin generar dobles reservas, apoyándose en el aislamiento transaccional de PostgreSQL y el manejo de concurrencia de Entity Framework Core.
 - **Diseño Adaptativo (Mobile-First):** La interfaz de usuario debe ofrecer una experiencia fluida e intuitiva en pantallas de smartphones (desde 360px de ancho) y navegadores de escritorio.
-- **Seguridad y Privacidad:** Cumplimiento estricto de la Ley 164 y D.S. 1793 mediante canales cifrados HTTPS/TLS y hashing robusto de contraseñas vía ASP.NET Core Identity.
+- **Seguridad y Privacidad:** Cumplimiento estricto de la Ley 164 y D.S. 1793 mediante canales cifrados HTTPS/TLS, hashing robusto de contraseñas vía ASP.NET Core Identity, y cifrado AES-256 en reposo para datos de contacto (ver sección 9.3).
 
 ---
 
@@ -460,16 +585,21 @@ El sistema implementa el autoservicio integral de los derechos de Habeas Data pa
   - La acción genera un registro inmutable en `logs_auditoria`.
 - **Preservación Histórica de Citas:** Las citas asociadas en la tabla `cita` mantienen intactos sus snapshots comerciales (servicio, duración, precio facturado, barbero y fecha/hora) para trazabilidad contable y auditoría del negocio, habiendo disociado por completo la identidad del cliente.
 
+**Estado de implementación:** ambos endpoints (rectificación y baja lógica) están implementados y cubiertos por pruebas unitarias dedicadas (`CuentasHabeasDataTests.cs`, `SeguridadAuditoriaHabeasDataTests.cs`).
+
 ### 9.2 Ley 164 — Estándares y Firma Digital
 
 El sistema no maneja firma digital criptográfica per se; la validez probatoria de confirmaciones y cancelaciones se sustenta en el Art. 78 (mensajes de datos), respaldada por timestamps en el histórico de `cita` y `turno`. Como estándar abierto, la API expone contratos en JSON sobre HTTP (REST), documentados con OpenAPI/Swagger.
 
 ### 9.3 Seguridad ASFI: Cifrado y Logs de Auditoría
 
-Estado actual (hallazgo de auditoría): `telefono` y `correo` se almacenan en texto plano en la tabla `cliente`; no existe una tabla de logs de auditoría que registre accesos a datos sensibles por parte de personal administrativo.
+**Hallazgo de auditoría inicial:** `telefono` y `correo` se almacenaban en texto plano en la tabla `cliente`; no existía una tabla de logs de auditoría que registrara accesos a datos sensibles por parte de personal administrativo.
 
-Medidas a implementar (Fase C):
+**Estado actual (Fase C completada):** ambos campos se cifran en reposo con AES-256 (`AesValueConverter` / `IEncryptionService`), con un índice ciego HMAC-SHA256 (`correo_hash`) que permite login y validación de unicidad sin exponer el valor en claro en la base de datos. La tabla `logs_auditoria` está implementada como registro inalterable (solo `INSERT`, con un trigger a nivel de base de datos que bloquea `UPDATE`/`DELETE` incluso para el propio backend), y registra automáticamente —vía el filtro `AuditAdminAccessFilter`— cada acceso o mutación a datos de clientes ejecutada a través de `AdminClientesController` y `CuentasController`.
 
-- Cifrado en reposo (AES) para el campo `telefono` (dato de contacto sensible).
-- Cifrado en reposo (AES) para el campo `correo`, dado que constituye un dato personal identificable y es también el medio usado para autenticación/recuperación de cuenta; se mantiene un índice hash determinístico (HMAC) sobre el correo para permitir búsquedas de login sin exponer el valor en claro en la base de datos.
-- Tabla `logs_auditoria` inalterable (solo INSERT, sin UPDATE/DELETE a nivel de permisos de BD) que registre: quién (id_administrador), qué recurso, qué acción y cuándo, cada vez que se consulta el historial o los datos de un cliente vía `AdminClientesController`.
+Medidas implementadas (Fase C):
+
+- Cifrado en reposo (AES-256) para el campo `telefono` en `cliente`, `barbero` y `administrador` (dato de contacto sensible).
+- Cifrado en reposo (AES-256) para el campo `correo` en `cliente` y `administrador`, dado que constituye un dato personal identificable y es también el medio usado para autenticación/recuperación de cuenta; se mantiene un índice hash determinístico (HMAC-SHA256) sobre el correo (`correo_hash`) para permitir búsquedas de login sin exponer el valor en claro en la base de datos.
+- Tabla `logs_auditoria` inalterable (solo INSERT, con trigger `fn_prevent_logs_auditoria_tamper` que rechaza cualquier `UPDATE`/`DELETE` a nivel de motor) que registra: quién (`id_administrador`), qué recurso, qué acción y cuándo, cada vez que se consulta el historial o los datos de un cliente vía `AdminClientesController`.
+- Migración automática de re-cifrado de datos preexistentes (`DataEncryptionMigrator`), ejecutada al arranque de la aplicación para garantizar que ningún registro histórico quede sin cifrar.
