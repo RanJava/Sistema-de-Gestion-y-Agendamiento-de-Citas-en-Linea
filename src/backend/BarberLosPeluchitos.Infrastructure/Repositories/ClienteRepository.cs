@@ -69,8 +69,31 @@ public class ClienteRepository : IClienteRepository
             return false;
         }
 
+        // ── Habeas Data: Derecho de Supresión / Anonimización (CPE Art. 130 / Ley 164) ──
+        // No borramos la fila para preservar integridad referencial con 'cita' (ON DELETE RESTRICT).
+        // Sobrescribimos todos los campos PII con valores no recuperables.
+
+        // Nombre a un literal no identificable
+        cliente.Nombre = "Usuario eliminado";
+
+        // Correo y teléfono: ciframos un UUID aleatorio no recuperable.
+        // El converter AES del DbContext re-cifrará el valor al persistir,
+        // pero queremos que el valor plano tampoco sea útil → UUID como placeholder.
+        var corroAnonimo = $"anon-{Guid.NewGuid():N}@deleted.invalid";
+        var telefonoAnonimo = Guid.NewGuid().ToString("N")[..15];
+        cliente.Correo = corroAnonimo;
+        cliente.Telefono = telefonoAnonimo;
+
+        // Romper el blind-index: sin HMAC el motor de login no puede encontrar este registro
+        cliente.CorreoHash = null;
+
+        // Invalidar la contraseña para que VerifyPassword siempre falle
+        cliente.ContrasenaHash = "INVALIDATED";
+
+        // Marcadores de baja lógica
         cliente.Activo = false;
         cliente.FechaEliminacion = DateTime.UtcNow;
+
         await _context.SaveChangesAsync(cancellationToken);
         return true;
     }

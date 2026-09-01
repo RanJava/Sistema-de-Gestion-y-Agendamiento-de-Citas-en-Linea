@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   ChevronRight,
   UserCheck,
+  ShieldOff,
 } from 'lucide-react';
 import { clienteService } from '../services/clienteService';
 import type { ClienteDto } from '../types/cliente';
@@ -166,14 +167,25 @@ export const AdminHistorialClientes: React.FC = () => {
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-8 h-8 bg-[#1a1713] text-[#d97706] border border-[#d97706]/40 font-heading font-bold text-xs flex items-center justify-center shrink-0">
-                        {c.nombre.charAt(0).toUpperCase()}
+                      <div className={`w-8 h-8 border font-heading font-bold text-xs flex items-center justify-center shrink-0 ${
+                        c.activo
+                          ? 'bg-[#1a1713] text-[#d97706] border-[#d97706]/40'
+                          : 'bg-[#1f080c] text-rose-400 border-[#881337]/50'
+                      }`}>
+                        {c.activo ? c.nombre.charAt(0).toUpperCase() : <ShieldOff className="w-4 h-4" />}
                       </div>
                       <div className="min-w-0">
-                        <span className="font-heading font-bold text-[#f5f1e8] text-xs uppercase block truncate">{c.nombre}</span>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-heading font-bold text-[#f5f1e8] text-xs uppercase block truncate">{c.nombre}</span>
+                          {!c.activo && (
+                            <span className="px-1.5 py-0.5 bg-[#1f080c] text-rose-300 border border-[#881337] text-[9px] font-heading font-bold uppercase tracking-wider shrink-0">
+                              ANONIMIZADO
+                            </span>
+                          )}
+                        </div>
                         <span className="text-[11px] text-[#a39b8d] flex items-center gap-1.5 mt-0.5 font-mono">
                           <Phone className="w-3 h-3 text-[#d97706]" />
-                          {c.telefono}
+                          {c.activo ? c.telefono : '—'}
                         </span>
                       </div>
                     </div>

@@ -15,6 +15,7 @@ public class CuentasController : ControllerBase
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IAuditoriaService _auditoriaService;
+    private readonly IEncryptionService _encryptionService;
     private readonly ILogger<CuentasController> _logger;
 
     public CuentasController(
@@ -22,12 +23,14 @@ public class CuentasController : ControllerBase
         IPasswordHasher passwordHasher,
         IJwtTokenService jwtTokenService,
         IAuditoriaService auditoriaService,
+        IEncryptionService encryptionService,
         ILogger<CuentasController> logger)
     {
         _clienteRepository = clienteRepository;
         _passwordHasher = passwordHasher;
         _jwtTokenService = jwtTokenService;
         _auditoriaService = auditoriaService;
+        _encryptionService = encryptionService;
         _logger = logger;
     }
 
@@ -124,8 +127,8 @@ public class CuentasController : ControllerBase
 
         if (!cliente.Activo)
         {
-            _logger.LogWarning("Intento de login para cuenta inactiva o dada de baja #{IdCliente}", cliente.IdCliente);
-            return Unauthorized(new { mensaje = "La cuenta ha sido dada de baja. Comuníquese con administración si desea reactivarla." });
+            _logger.LogWarning("Intento de login para cuenta anonimizada #{IdCliente}", cliente.IdCliente);
+            return Unauthorized(new { mensaje = "Esta cuenta ya no está activa. Los datos asociados han sido eliminados conforme al derecho de supresión (Habeas Data)." });
         }
 
         var token = _jwtTokenService.GenerarToken(cliente.IdCliente, cliente.Nombre, cliente.Correo, "Cliente");
@@ -217,8 +220,17 @@ public class CuentasController : ControllerBase
             return NotFound(new { mensaje = $"Cliente con ID {id} no encontrado." });
         }
 
+        // Bloquear rectificación sobre cuentas ya anonimizadas
+        if (!cliente.Activo)
+        {
+            return Conflict(new { mensaje = "Esta cuenta ya no está activa. No es posible rectificar datos de una cuenta dada de baja." });
+        }
+
         var nuevoCorreoNormalizado = dto.Correo.Trim().ToLowerInvariant();
-        if (!string.Equals(cliente.Correo, nuevoCorreoNormalizado, StringComparison.OrdinalIgnoreCase))
+
+        // Validar unicidad del correo comparando contra el blind-index HMAC (no contra texto plano)
+        var nuevoCorreoHmac = _encryptionService.ComputeHmacSha256(nuevoCorreoNormalizado);
+        if (!string.Equals(cliente.CorreoHash, nuevoCorreoHmac, StringComparison.Ordinal))
         {
             var correoExiste = await _clienteRepository.ExisteCorreoAsync(nuevoCorreoNormalizado, cancellationToken);
             if (correoExiste)
@@ -227,24 +239,28 @@ public class CuentasController : ControllerBase
             }
         }
 
+        // Cifrar datos PII antes de persistir (Ley 164 / D.S. 1793 Art. 56)
         cliente.Nombre = dto.Nombre.Trim();
-        cliente.Telefono = dto.Telefono.Trim();
-        cliente.Correo = nuevoCorreoNormalizado;
+        cliente.Telefono = dto.Telefono.Trim();  // ActualizarAsync aplica el AES ValueConverter
+        cliente.Correo = nuevoCorreoNormalizado;  // ActualizarAsync recalcula el CorreoHash HMAC
 
         await _clienteRepository.ActualizarAsync(cliente, cancellationToken);
 
-        if (esAdmin)
-        {
-            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
-            await _auditoriaService.RegistrarAccesoAsync(
-                idAdmin,
-                "cliente",
-                id.ToString(),
-                "UPDATE",
-                ip,
-                $"Rectificación de datos personales de cliente #{id} (Habeas Data)",
-                cancellationToken);
-        }
+        // Registrar auditoría siempre (propietario o admin) — Ley 164 / Código Penal Art. 363 ter
+        var ipOrigen = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
+        var ejecutorId = esAdmin ? idAdmin : id;
+        var detalle = esAdmin
+            ? $"Admin #{idAdmin} rectificó datos personales de cliente #{id} (Habeas Data)"
+            : $"Cliente #{id} rectificó sus propios datos personales (Habeas Data — autoservicio)";
+
+        await _auditoriaService.RegistrarAccesoAsync(
+            ejecutorId,
+            "cliente",
+            id.ToString(),
+            "UPDATE",
+            ipOrigen,
+            detalle,
+            cancellationToken);
 
         _logger.LogInformation("Habeas Data: Datos rectificados para el cliente #{IdCliente}.", id);
 
@@ -280,27 +296,36 @@ public class CuentasController : ControllerBase
             return NotFound(new { mensaje = $"Cliente con ID {id} no encontrado." });
         }
 
-        await _clienteRepository.BajaLogicaAsync(id, cancellationToken);
-
-        if (esAdmin)
+        if (!cliente.Activo)
         {
-            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
-            await _auditoriaService.RegistrarAccesoAsync(
-                idAdmin,
-                "cliente",
-                id.ToString(),
-                "DELETE",
-                ip,
-                $"Baja lógica / Derecho de supresión ejercido para cliente #{id} (Habeas Data)",
-                cancellationToken);
+            return Conflict(new { mensaje = "Esta cuenta ya fue dada de baja previamente." });
         }
 
-        _logger.LogInformation("Habeas Data: Baja lógica procesada para cliente #{IdCliente}.", id);
+        // Anonimización real de PII (BajaLogicaAsync sobrescribe nombre, correo, teléfono, hash y contraseña)
+        await _clienteRepository.BajaLogicaAsync(id, cancellationToken);
+
+        // Registrar auditoría siempre — Ley 164 / Código Penal Art. 363 ter
+        var ipOrigen = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
+        var ejecutorId = esAdmin ? idAdmin : id;
+        var detalle = esAdmin
+            ? $"Admin #{idAdmin} ejecutó baja lógica / derecho de supresión para cliente #{id} (Habeas Data)"
+            : $"Cliente #{id} ejerció su derecho de supresión / baja de cuenta (Habeas Data — autoservicio)";
+
+        await _auditoriaService.RegistrarAccesoAsync(
+            ejecutorId,
+            "cliente",
+            id.ToString(),
+            "DELETE",
+            ipOrigen,
+            detalle,
+            cancellationToken);
+
+        _logger.LogInformation("Habeas Data: Baja lógica y anonimización procesadas para cliente #{IdCliente}.", id);
 
         return Ok(new HabeasDataResponseDto
         {
             Exitoso = true,
-            Mensaje = "Cuenta dada de baja lógica exitosamente. Se preserva el histórico de citas según normativa de facturación y auditoría.",
+            Mensaje = "Cuenta dada de baja y datos personales anonimizados exitosamente. El historial de citas se conserva de forma anónima conforme al Código de Comercio Art. 36.",
             IdCliente = id,
             Activo = false,
             FechaOperacion = DateTime.UtcNow

@@ -447,9 +447,18 @@ Prioridad: Media | Sprint: Fuera del alcance del MVP (Release 2)
 
 ## 9. Marco Legal y Ética de Datos
 
-### 9.1 Habeas Data (Art. 130 CPE)
+### 9.1 Habeas Data (Art. 130 CPE / Ley 164 / D.S. 1793)
 
-Actualmente el sistema no implementa autoservicio de Habeas Data: el cliente puede consultar sus propios datos vía `GET /api/cuentas/{id}`, pero no existe endpoint para que solicite la rectificación o eliminación de su información (`nombre`, `telefono`, `correo`). Se identifica como brecha a corregir en la Fase C de esta auditoría: se añadirá `DELETE /api/cuentas/{id}` (baja lógica, preservando el histórico de citas por obligación mercantil del Código de Comercio Art. 36) y `PUT /api/cuentas/{id}` para rectificación de datos.
+El sistema implementa el autoservicio integral de los derechos de Habeas Data para clientes:
+- **Derecho de Rectificación (`PUT /api/cuentas/{id}`):** Permite al titular autenticado (o administrador) corregir sus datos personales (`nombre`, `telefono`, `correo`). Los campos de contacto sensibles se re-cifran en reposo con AES-256 (`IEncryptionService`) y se recalcula el blind-index determinístico HMAC-SHA256 (`CorreoHash`) para preservar unicidad y búsquedas sin exponer texto plano. Cada rectificación queda registrada de forma inalterable en `logs_auditoria`.
+- **Derecho de Supresión / Cancelación vía Baja Lógica con Anonimización (`DELETE /api/cuentas/{id}`):** En estricto cumplimiento del principio de minimización y del Código de Comercio (Art. 36, obligación de conservar libros y registros comerciales), el sistema **no realiza un borrado físico (`DELETE`)** de la fila `cliente`, preservando la integridad referencial y las claves foráneas con la tabla `cita` (`ON DELETE RESTRICT`). En su lugar, aplica una **anonimización irreversible**:
+  - `nombre` se sobrescribe con `"Usuario eliminado"`.
+  - `telefono` y `correo` se reemplazan por identificadores únicos anónimos cifrados no vinculables al titular.
+  - `correo_hash` (blind-index) se establece en `NULL`, impidiendo cualquier coincidencia en búsquedas o intentos de autenticación.
+  - `contrasena_hash` se invalida (`"INVALIDATED"`), bloqueando inicios de sesión futuros.
+  - `activo` se establece en `false` y se registra el timestamp `fecha_eliminacion`.
+  - La acción genera un registro inmutable en `logs_auditoria`.
+- **Preservación Histórica de Citas:** Las citas asociadas en la tabla `cita` mantienen intactos sus snapshots comerciales (servicio, duración, precio facturado, barbero y fecha/hora) para trazabilidad contable y auditoría del negocio, habiendo disociado por completo la identidad del cliente.
 
 ### 9.2 Ley 164 — Estándares y Firma Digital
 

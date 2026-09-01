@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "T0qKvXfwKmg=",
+  "dgSpecHash": "r+zuzGqdguI=",
   "success": true,
-  "projectFilePath": "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Tests\\BarberLosPeluchitos.Tests.csproj",
+  "projectFilePath": "d:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Tests\\BarberLosPeluchitos.Tests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\aguay\\.nuget\\packages\\bcrypt.net-next\\4.2.0\\bcrypt.net-next.4.2.0.nupkg.sha512",
     "C:\\Users\\aguay\\.nuget\\packages\\castle.core\\5.1.1\\castle.core.5.1.1.nupkg.sha512",

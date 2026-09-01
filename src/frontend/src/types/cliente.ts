@@ -5,4 +5,7 @@ export interface ClienteDto {
   correo: string;
   fechaRegistro?: string;
   totalCitas: number;
+  activo?: boolean;
+  fechaEliminacion?: string;
 }
+

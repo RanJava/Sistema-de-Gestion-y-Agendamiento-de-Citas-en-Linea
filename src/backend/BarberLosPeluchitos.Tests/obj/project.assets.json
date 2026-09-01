@@ -2775,11 +2775,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Tests\\BarberLosPeluchitos.Tests.csproj",
+      "projectUniqueName": "d:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Tests\\BarberLosPeluchitos.Tests.csproj",
       "projectName": "BarberLosPeluchitos.Tests",
-      "projectPath": "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Tests\\BarberLosPeluchitos.Tests.csproj",
+      "projectPath": "d:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Tests\\BarberLosPeluchitos.Tests.csproj",
       "packagesPath": "C:\\Users\\aguay\\.nuget\\packages\\",
-      "outputPath": "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Tests\\obj\\",
+      "outputPath": "d:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Tests\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -2802,14 +2802,14 @@
           "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {
-            "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.API\\BarberLosPeluchitos.API.csproj": {
-              "projectPath": "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.API\\BarberLosPeluchitos.API.csproj"
+            "d:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.API\\BarberLosPeluchitos.API.csproj": {
+              "projectPath": "d:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.API\\BarberLosPeluchitos.API.csproj"
             },
-            "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Core\\BarberLosPeluchitos.Core.csproj": {
-              "projectPath": "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Core\\BarberLosPeluchitos.Core.csproj"
+            "d:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Core\\BarberLosPeluchitos.Core.csproj": {
+              "projectPath": "d:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Core\\BarberLosPeluchitos.Core.csproj"
             },
-            "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Infrastructure\\BarberLosPeluchitos.Infrastructure.csproj": {
-              "projectPath": "D:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Infrastructure\\BarberLosPeluchitos.Infrastructure.csproj"
+            "d:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Infrastructure\\BarberLosPeluchitos.Infrastructure.csproj": {
+              "projectPath": "d:\\UPDS\\SEMESTRE VI\\SistemasDeInformacion1\\Proyecto3\\Sistema-de-Gestion-y-Agendamiento-de-Citas-en-Linea\\src\\backend\\BarberLosPeluchitos.Infrastructure\\BarberLosPeluchitos.Infrastructure.csproj"
             }
           }
         }

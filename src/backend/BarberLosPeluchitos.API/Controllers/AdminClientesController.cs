@@ -53,7 +53,9 @@ public class AdminClientesController : ControllerBase
                 Nombre = c.Nombre,
                 Telefono = c.Telefono,
                 Correo = c.Correo,
-                TotalCitas = citasCliente.Count()
+                TotalCitas = citasCliente.Count(),
+                Activo = c.Activo,
+                FechaEliminacion = c.FechaEliminacion
             });
         }
 

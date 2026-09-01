@@ -3,6 +3,24 @@ import type { ClienteDto } from '../types/cliente';
 import type { CitaResponseDto } from '../types/cita';
 import type { RegistroClienteDto, RegistroClienteResponse } from '../types';
 
+// ─── DTOs de Habeas Data ─────────────────────────────────────────────────────
+
+export interface RectificarCuentaDto {
+  nombre: string;
+  telefono: string;
+  correo: string;
+}
+
+export interface HabeasDataResponse {
+  exitoso: boolean;
+  mensaje: string;
+  idCliente: number;
+  activo: boolean;
+  fechaOperacion: string;
+}
+
+// ─── Métodos ─────────────────────────────────────────────────────────────────
+
 /**
  * HU-01: Registro de un nuevo cliente (POST /api/cuentas/registro).
  */
@@ -34,4 +52,23 @@ export const clienteService = {
     const response = await api.get<CitaResponseDto[]>(`/admin/clientes/${idCliente}/historial?pagina=${pagina}&tamanoPagina=${tamanoPagina}`);
     return response.data;
   },
+
+  /**
+   * Habeas Data — Rectificación de datos personales (CPE Art. 130).
+   * PUT /api/cuentas/{id}
+   */
+  async rectificarCuenta(id: number, dto: RectificarCuentaDto): Promise<HabeasDataResponse> {
+    const response = await api.put<HabeasDataResponse>(`/cuentas/${id}`, dto);
+    return response.data;
+  },
+
+  /**
+   * Habeas Data — Derecho de supresión / baja lógica con anonimización (CPE Art. 130).
+   * DELETE /api/cuentas/{id}
+   */
+  async darDeBaja(id: number): Promise<HabeasDataResponse> {
+    const response = await api.delete<HabeasDataResponse>(`/cuentas/${id}`);
+    return response.data;
+  },
 };
+
